@@ -44,7 +44,6 @@ namespace MultiScreenScreenshot
                 Size = config.Default.windowSize;
 
             MiddleButtons.Add(bSave);
-            MiddleButtons.Add(bRatio);
             MiddleButtons.Add(bOpen);
             MiddleButtons.Add(bPath);
 
@@ -58,7 +57,7 @@ namespace MultiScreenScreenshot
             MinimumSize = new Size(MiddleButtonWidth + 6 * 6 + 150, MinimumSize.Height);
 
             Form1_SizeChanged(null, EventArgs.Empty);
-            UpdateWindowRatio();
+            UpdateWindowRatioWidth();
             UpdateUI();
         }
         
@@ -78,9 +77,20 @@ namespace MultiScreenScreenshot
         }
         public void AddScreenShot()
         {
-            RecordedImages.Add(GetFullScreenshot());
-            RecordedImagesIndex = RecordedImages.Count - 1;
-            UpdateUI();
+            try
+            {
+                System.Media.SystemSounds.Hand.Play();
+                RecordedImages.Add(GetFullScreenshot());
+                RecordedImagesIndex = RecordedImages.Count - 1;
+                UpdateUI();
+            }
+            catch (Exception e)
+            {
+                if (MessageBox.Show("Oopsie woopsie, it seems like I cant make that screenshot!\nDo you want to see the error message in detail?", "Error", MessageBoxButtons.YesNo) == DialogResult.Yes)
+                {
+                    MessageBox.Show(e.Message + "\n\n" + e.InnerException + "\n\n" + e.StackTrace);
+                }
+            }
         }
         public void ActivateKeyStrokeFeedback()
         {
@@ -153,12 +163,19 @@ namespace MultiScreenScreenshot
             else
                 bNext.Enabled = true;
         }
-        public void UpdateWindowRatio()
+        public void UpdateWindowRatioWidth()
         {
             Size R = GetProperRatioSize(pBox.Size, true, RecordedImages[RecordedImagesIndex].Width / 
                 RecordedImages[RecordedImagesIndex].Height);
             Width += R.Width - pBox.Width;
             Height += R.Height - pBox.Height;
+        }
+        public void UpdateWindowRatioHeight()
+        {
+            Size R = GetProperRatioSize(pBox.Size, false, RecordedImages[RecordedImagesIndex].Width /
+                RecordedImages[RecordedImagesIndex].Height);
+            Height += R.Height - pBox.Height;
+            Width += R.Width - pBox.Width;
         }
 
         private void bSave_Click(object sender, EventArgs e)
@@ -203,11 +220,7 @@ namespace MultiScreenScreenshot
         }
         private void bOpen_Click(object sender, EventArgs e)
         {
-            Process.Start("explorer.exe", "/select, \"" + Directory.GetFiles(config.Default.path).Last() + "\"");
-        }
-        private void bRatio_Click(object sender, EventArgs e)
-        {
-            UpdateWindowRatio();
+            Process.Start("explorer.exe", "/open , \"" + config.Default.path);
         }
 
         private void Form1_FormClosed(object sender, FormClosedEventArgs e)
@@ -223,7 +236,7 @@ namespace MultiScreenScreenshot
             bNext.Location = new Point(bPath.Location.X + bPath.Width + 6, bNext.Location.Y);
             bNext.Width = pBox.Width + pBox.Location.X - bNext.Location.X;
 
-            //// Snapping
+            //// Disabled Snapping
             //int slurpSize = 10;
             //Size R = GetProperRatioSize(pBox.Size, Math.Abs(LastSize.Width - Width) > Math.Abs(LastSize.Height - Height),
             //    RecordedImages[0].Width / RecordedImages[0].Height);
@@ -287,6 +300,49 @@ namespace MultiScreenScreenshot
                 UpdateUI();
             }
             IsMouseDown = false;
+        }
+
+        private void pBox_MouseClick(object sender, MouseEventArgs e)
+        {
+            if (e.Button == MouseButtons.Right)
+            {
+                ContextMenu m = new ContextMenu();
+                m.MenuItems.Add(new MenuItem("Fix Width Ratio", ((object s, EventArgs ev) =>
+                {
+                    try
+                    {
+                        UpdateWindowRatioWidth();
+                    }
+                    catch { }
+                })));
+                m.MenuItems.Add(new MenuItem("Fix Height Ratio", ((object s, EventArgs ev) =>
+                {
+                    try
+                    {
+                        UpdateWindowRatioHeight();
+                    }
+                    catch { }
+                })));
+                m.MenuItems.Add(new MenuItem("1:1 Size", ((object s, EventArgs ev) =>
+                {
+                    try
+                    {
+                        Width = RecordedImages[RecordedImagesIndex].Width + Width - pBox.Width;
+                        Height = RecordedImages[RecordedImagesIndex].Height + Height - pBox.Height;
+                    }
+                    catch { }
+                })));
+                m.MenuItems.Add(new MenuItem("Smol", ((object s, EventArgs ev) =>
+                {
+                    try
+                    {
+                        Width = MinimumSize.Width;
+                        Height = MinimumSize.Height;
+                    }
+                    catch { }
+                })));
+                m.Show(pBox, e.Location);
+            }
         }
     }
 }
