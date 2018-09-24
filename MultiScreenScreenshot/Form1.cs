@@ -16,9 +16,10 @@ namespace MultiScreenScreenshot
     {
         Color Contrl = Color.FromKnownColor(KnownColor.Control);
         List<Bitmap> RecordedImages = new List<Bitmap>();
+        List<int> SavedImageIndex = new List<int>();
         int RecordedImagesIndex = 0;
         int ticks = 0;
-        float Ratio;
+        Size LastSize;
 
         public Form1()
         {
@@ -36,18 +37,23 @@ namespace MultiScreenScreenshot
                 config.Default.path = Environment.GetFolderPath(Environment.SpecialFolder.MyPictures);
             if (config.Default.windowSize.Width != 0)
                 Size = config.Default.windowSize;
-            else
-            {
 
-            }
-
+            UpdateWindowRatio();
             UpdateUI();
         }
         
-        public Size GetProperRatioSize(Size S, float Ratio)
+        public Size GetProperRatioSize(Size S, bool WidthFirst, float Ratio)
         {
-            S.Width = (int)(S.Height * Ratio);
-            S.Height = (int)(S.Width * (1/ Ratio));
+            if (WidthFirst)
+            {
+                S.Width = (int)(S.Height * Ratio);
+                S.Height = (int)(S.Width * (1 / Ratio));
+            }
+            else
+            {
+                S.Height = (int)(S.Width * (1 / Ratio));
+                S.Width = (int)(S.Height * Ratio);
+            }
             return S;
         }
         public void AddScreenShot()
@@ -85,7 +91,24 @@ namespace MultiScreenScreenshot
         }
         public void UpdateUI()
         {
+            int count = 0;
+
+            foreach (string s in Directory.GetFiles(config.Default.path))
+                if (Path.GetFileNameWithoutExtension(s).Contains("Screenshot"))
+                    count++;
+
+            Text = "Multi Screen Screenshot - TargetDir: " + config.Default.path + " - " + count + " saved screenshots!";
             pBox.Image = RecordedImages[RecordedImagesIndex];
+            if (SavedImageIndex.Contains(RecordedImagesIndex))
+            {
+                lSaved.Visible = true;
+                bSave.Enabled = false;
+            }
+            else
+            {
+                lSaved.Visible = false;
+                bSave.Enabled = true;
+            }
 
             if (RecordedImagesIndex == 0)
                 bPrevious.Enabled = false;
@@ -95,6 +118,12 @@ namespace MultiScreenScreenshot
                 bNext.Enabled = false;
             else
                 bNext.Enabled = true;
+        }
+        public void UpdateWindowRatio()
+        {
+            Size R = GetProperRatioSize(pBox.Size, true, RecordedImages[0].Width / RecordedImages[0].Height);
+            Width += R.Width - pBox.Width;
+            Height += R.Height - pBox.Height;
         }
 
         private void bSave_Click(object sender, EventArgs e)
@@ -112,6 +141,10 @@ namespace MultiScreenScreenshot
             }
 
             RecordedImages[RecordedImagesIndex].Save(config.Default.path + "\\" + fileName + ".png");
+
+            if (!SavedImageIndex.Contains(RecordedImagesIndex))
+                SavedImageIndex.Add(RecordedImagesIndex);
+            UpdateUI();
         }
         private void bPath_Click(object sender, EventArgs e)
         {
@@ -121,6 +154,7 @@ namespace MultiScreenScreenshot
             if (FBD.ShowDialog() == DialogResult.OK)
                 config.Default.path = FBD.SelectedPath;
             config.Default.Save();
+            UpdateUI();
         }
         private void bPrevious_Click(object sender, EventArgs e)
         {
@@ -139,6 +173,25 @@ namespace MultiScreenScreenshot
             config.Default.Save();
             InterceptKeys.UnhookWindowsHookEx(InterceptKeys._hookID);
         }
+        private void Form1_SizeChanged(object sender, EventArgs e)
+        {
+            // Buttons
+            bPrevious.Width = bSave.Location.X - bPrevious.Location.X - 6;
+            bNext.Location = new Point(bPath.Location.X + bPath.Width + 6, bNext.Location.Y);
+            bNext.Width = pBox.Width + pBox.Location.X - bNext.Location.X;
+
+            //// Snapping
+            //int slurpSize = 10;
+            //Size R = GetProperRatioSize(pBox.Size, Math.Abs(LastSize.Width - Width) > Math.Abs(LastSize.Height - Height),
+            //    RecordedImages[0].Width / RecordedImages[0].Height);
+
+            //if (R.Width + slurpSize > pBox.Width && R.Width - slurpSize < pBox.Width)
+            //    Width += R.Width - pBox.Width;
+            //if (R.Height + slurpSize > pBox.Height && R.Height - slurpSize < pBox.Height)
+            //    Height += R.Height - pBox.Height;
+
+            LastSize = Size;
+        }
 
         private void timer1_Tick(object sender, EventArgs e)
         {
@@ -153,20 +206,9 @@ namespace MultiScreenScreenshot
             }
             else
             {
-                this.BackColor = Color.FromArgb((int)(255 * (1 - percentage) + Contrl.R * percentage), 
+                this.BackColor = Color.FromArgb((int)(255 * (1 - percentage) + Contrl.R * percentage),
                     (int)(Contrl.G * percentage), (int)(Contrl.B * percentage));
             }
-        }
-
-        private void Form1_SizeChanged(object sender, EventArgs e)
-        {
-            int slurpSize = 15;
-            Size R = GetProperRatioSize(pBox.Size, Ratio);
-
-            if (R.Width + slurpSize > Width && R.Width - slurpSize < Width)
-                Width = R.Width;
-            if (R.Height + slurpSize > Height && R.Height - slurpSize < Height)
-                Height = R.Height;
         }
     }
 }

@@ -29,12 +29,14 @@
         private void InitializeComponent()
         {
             this.components = new System.ComponentModel.Container();
+            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(Form1));
             this.bPath = new System.Windows.Forms.Button();
             this.pBox = new System.Windows.Forms.PictureBox();
             this.bSave = new System.Windows.Forms.Button();
             this.bPrevious = new System.Windows.Forms.Button();
             this.bNext = new System.Windows.Forms.Button();
             this.timer1 = new System.Windows.Forms.Timer(this.components);
+            this.lSaved = new System.Windows.Forms.Label();
             ((System.ComponentModel.ISupportInitialize)(this.pBox)).BeginInit();
             this.SuspendLayout();
             // 
@@ -73,7 +75,7 @@
             // 
             // bPrevious
             // 
-            this.bPrevious.Anchor = System.Windows.Forms.AnchorStyles.Bottom;
+            this.bPrevious.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
             this.bPrevious.Location = new System.Drawing.Point(12, 428);
             this.bPrevious.Name = "bPrevious";
             this.bPrevious.Size = new System.Drawing.Size(261, 23);
@@ -84,7 +86,7 @@
             // 
             // bNext
             // 
-            this.bNext.Anchor = System.Windows.Forms.AnchorStyles.Bottom;
+            this.bNext.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
             this.bNext.Location = new System.Drawing.Point(495, 428);
             this.bNext.Name = "bNext";
             this.bNext.Size = new System.Drawing.Size(261, 23);
@@ -98,17 +100,30 @@
             this.timer1.Interval = 10;
             this.timer1.Tick += new System.EventHandler(this.timer1_Tick);
             // 
+            // lSaved
+            // 
+            this.lSaved.AutoSize = true;
+            this.lSaved.Font = new System.Drawing.Font("BigNoodleTitling", 27.75F, ((System.Drawing.FontStyle)((System.Drawing.FontStyle.Bold | System.Drawing.FontStyle.Italic))), System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.lSaved.ForeColor = System.Drawing.Color.Red;
+            this.lSaved.Location = new System.Drawing.Point(12, 12);
+            this.lSaved.Name = "lSaved";
+            this.lSaved.Size = new System.Drawing.Size(97, 41);
+            this.lSaved.TabIndex = 5;
+            this.lSaved.Text = "Saved!";
+            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(768, 463);
+            this.Controls.Add(this.lSaved);
             this.Controls.Add(this.bNext);
             this.Controls.Add(this.bPrevious);
             this.Controls.Add(this.bSave);
             this.Controls.Add(this.pBox);
             this.Controls.Add(this.bPath);
-            this.MinimumSize = new System.Drawing.Size(784, 502);
+            this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
+            this.MinimumSize = new System.Drawing.Size(400, 300);
             this.Name = "Form1";
             this.Text = "Multi Screen Screenshot";
             this.FormClosed += new System.Windows.Forms.FormClosedEventHandler(this.Form1_FormClosed);
@@ -116,6 +131,7 @@
             this.SizeChanged += new System.EventHandler(this.Form1_SizeChanged);
             ((System.ComponentModel.ISupportInitialize)(this.pBox)).EndInit();
             this.ResumeLayout(false);
+            this.PerformLayout();
 
         }
 
@@ -127,6 +143,7 @@
         private System.Windows.Forms.Button bPrevious;
         private System.Windows.Forms.Button bNext;
         private System.Windows.Forms.Timer timer1;
+        private System.Windows.Forms.Label lSaved;
     }
 }
 
