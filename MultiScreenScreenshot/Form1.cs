@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
+using System.Diagnostics;
 using System.Drawing;
 using System.Drawing.Imaging;
 using System.IO;
@@ -16,10 +17,14 @@ namespace MultiScreenScreenshot
     {
         Color Contrl = Color.FromKnownColor(KnownColor.Control);
         List<Bitmap> RecordedImages = new List<Bitmap>();
+        List<Button> MiddleButtons = new List<Button>();
         List<int> SavedImageIndex = new List<int>();
         int RecordedImagesIndex = 0;
         int ticks = 0;
         Size LastSize;
+        Point MouseDown = new Point(0,0);
+        Point MouseCurrently = new Point(0, 0);
+        bool IsMouseDown = false;
 
         public Form1()
         {
@@ -38,6 +43,21 @@ namespace MultiScreenScreenshot
             if (config.Default.windowSize.Width != 0)
                 Size = config.Default.windowSize;
 
+            MiddleButtons.Add(bSave);
+            MiddleButtons.Add(bRatio);
+            MiddleButtons.Add(bOpen);
+            MiddleButtons.Add(bPath);
+
+            int MiddleButtonWidth = 0;
+            foreach (Button B in MiddleButtons)
+                MiddleButtonWidth += B.Width + 6;
+            MiddleButtonWidth -= 6;
+            for (int i = 0; i < MiddleButtons.Count; i++)
+                MiddleButtons[i].Location = new Point(Width / 2 - MiddleButtonWidth / 2 + i * (6 + MiddleButtons[i].Width) - 8, MiddleButtons[i].Location.Y);
+
+            MinimumSize = new Size(MiddleButtonWidth + 6 * 6 + 150, MinimumSize.Height);
+
+            Form1_SizeChanged(null, EventArgs.Empty);
             UpdateWindowRatio();
             UpdateUI();
         }
@@ -59,6 +79,7 @@ namespace MultiScreenScreenshot
         public void AddScreenShot()
         {
             RecordedImages.Add(GetFullScreenshot());
+            RecordedImagesIndex = RecordedImages.Count - 1;
             UpdateUI();
         }
         public void ActivateKeyStrokeFeedback()
@@ -87,6 +108,19 @@ namespace MultiScreenScreenshot
             Bitmap bmp = new Bitmap(ImageDimensions.Width, ImageDimensions.Height, PixelFormat.Format32bppArgb);
             Graphics graphics = Graphics.FromImage(bmp);
             graphics.CopyFromScreen(ImageDimensions.X, ImageDimensions.Y, 0, 0, new Size(ImageDimensions.Width, ImageDimensions.Height), CopyPixelOperation.SourceCopy);
+            return bmp;
+        }
+        public Bitmap CropImage(Bitmap source, Rectangle section)
+        {
+            // An empty bitmap which will hold the cropped image
+            Bitmap bmp = new Bitmap(section.Width, section.Height);
+
+            Graphics g = Graphics.FromImage(bmp);
+
+            // Draw the given area (section) of the source image
+            // at location 0,0 on the empty bitmap (bmp)
+            g.DrawImage(source, 0, 0, section, GraphicsUnit.Pixel);
+
             return bmp;
         }
         public void UpdateUI()
@@ -121,7 +155,8 @@ namespace MultiScreenScreenshot
         }
         public void UpdateWindowRatio()
         {
-            Size R = GetProperRatioSize(pBox.Size, true, RecordedImages[0].Width / RecordedImages[0].Height);
+            Size R = GetProperRatioSize(pBox.Size, true, RecordedImages[RecordedImagesIndex].Width / 
+                RecordedImages[RecordedImagesIndex].Height);
             Width += R.Width - pBox.Width;
             Height += R.Height - pBox.Height;
         }
@@ -166,6 +201,14 @@ namespace MultiScreenScreenshot
             RecordedImagesIndex++;
             UpdateUI();
         }
+        private void bOpen_Click(object sender, EventArgs e)
+        {
+            Process.Start("explorer.exe", "/select, \"" + Directory.GetFiles(config.Default.path).Last() + "\"");
+        }
+        private void bRatio_Click(object sender, EventArgs e)
+        {
+            UpdateWindowRatio();
+        }
 
         private void Form1_FormClosed(object sender, FormClosedEventArgs e)
         {
@@ -209,6 +252,41 @@ namespace MultiScreenScreenshot
                 this.BackColor = Color.FromArgb((int)(255 * (1 - percentage) + Contrl.R * percentage),
                     (int)(Contrl.G * percentage), (int)(Contrl.B * percentage));
             }
+        }
+
+        private void pBox_Paint(object sender, PaintEventArgs e)
+        {
+            if (IsMouseDown)
+            {
+                Rectangle ee = new Rectangle(MouseDown.X, MouseDown.Y, MouseCurrently.X - MouseDown.X, MouseCurrently.Y - MouseDown.Y);
+                using (Pen pen = new Pen(Color.Red, 1))
+                    e.Graphics.DrawRectangle(pen, ee);
+            }
+        }
+
+        private void pBox_MouseMove(object sender, MouseEventArgs e)
+        {
+            MouseCurrently = e.Location;
+            pBox.Refresh();
+        }
+        private void pBox_MouseDown(object sender, MouseEventArgs e)
+        {
+            MouseDown = e.Location;
+            IsMouseDown = true;
+        }
+        private void pBox_MouseUp(object sender, MouseEventArgs e)
+        {
+            if (pBox.Bounds.Contains(MouseCurrently) && MouseCurrently.X > MouseDown.X && MouseCurrently.Y > MouseDown.Y)
+            {
+                RecordedImages.Add(CropImage(RecordedImages[RecordedImagesIndex],
+                    new Rectangle((int)(MouseDown.X * (double)RecordedImages[RecordedImagesIndex].Width / pBox.Width),
+                    (int)(MouseDown.Y * (double)RecordedImages[RecordedImagesIndex].Height / pBox.Height),
+                    (int)((MouseCurrently.X - MouseDown.X) * (double)RecordedImages[RecordedImagesIndex].Width / pBox.Width),
+                    (int)((MouseCurrently.Y - MouseDown.Y) * (double)RecordedImages[RecordedImagesIndex].Height / pBox.Height))));
+                RecordedImagesIndex = RecordedImages.Count - 1;
+                UpdateUI();
+            }
+            IsMouseDown = false;
         }
     }
 }
