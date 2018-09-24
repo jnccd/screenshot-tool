@@ -61,6 +61,7 @@ namespace MultiScreenScreenshot
             UpdateUI();
         }
         
+        // Helper Methods
         public Size GetProperRatioSize(Size S, bool WidthFirst, float Ratio)
         {
             if (WidthFirst)
@@ -178,6 +179,7 @@ namespace MultiScreenScreenshot
             Width += R.Width - pBox.Width;
         }
 
+        // Button Events
         private void bSave_Click(object sender, EventArgs e)
         {
             string fileName = "Screenshot";
@@ -222,51 +224,8 @@ namespace MultiScreenScreenshot
         {
             Process.Start("explorer.exe", "/open , \"" + config.Default.path);
         }
-
-        private void Form1_FormClosed(object sender, FormClosedEventArgs e)
-        {
-            config.Default.windowSize = Size;
-            config.Default.Save();
-            InterceptKeys.UnhookWindowsHookEx(InterceptKeys._hookID);
-        }
-        private void Form1_SizeChanged(object sender, EventArgs e)
-        {
-            // Buttons
-            bPrevious.Width = bSave.Location.X - bPrevious.Location.X - 6;
-            bNext.Location = new Point(bPath.Location.X + bPath.Width + 6, bNext.Location.Y);
-            bNext.Width = pBox.Width + pBox.Location.X - bNext.Location.X;
-
-            //// Disabled Snapping
-            //int slurpSize = 10;
-            //Size R = GetProperRatioSize(pBox.Size, Math.Abs(LastSize.Width - Width) > Math.Abs(LastSize.Height - Height),
-            //    RecordedImages[0].Width / RecordedImages[0].Height);
-
-            //if (R.Width + slurpSize > pBox.Width && R.Width - slurpSize < pBox.Width)
-            //    Width += R.Width - pBox.Width;
-            //if (R.Height + slurpSize > pBox.Height && R.Height - slurpSize < pBox.Height)
-            //    Height += R.Height - pBox.Height;
-
-            LastSize = Size;
-        }
-
-        private void timer1_Tick(object sender, EventArgs e)
-        {
-            int animLength = 15;
-            float percentage = ticks / (float)animLength;
-            ticks++;
-
-            if (ticks == animLength)
-            {
-                timer1.Enabled = false;
-                this.BackColor = Contrl;
-            }
-            else
-            {
-                this.BackColor = Color.FromArgb((int)(255 * (1 - percentage) + Contrl.R * percentage),
-                    (int)(Contrl.G * percentage), (int)(Contrl.B * percentage));
-            }
-        }
-
+        
+        // pBox Events
         private void pBox_Paint(object sender, PaintEventArgs e)
         {
             if (IsMouseDown)
@@ -276,32 +235,6 @@ namespace MultiScreenScreenshot
                     e.Graphics.DrawRectangle(pen, ee);
             }
         }
-
-        private void pBox_MouseMove(object sender, MouseEventArgs e)
-        {
-            MouseCurrently = e.Location;
-            pBox.Refresh();
-        }
-        private void pBox_MouseDown(object sender, MouseEventArgs e)
-        {
-            MouseDown = e.Location;
-            IsMouseDown = true;
-        }
-        private void pBox_MouseUp(object sender, MouseEventArgs e)
-        {
-            if (pBox.Bounds.Contains(MouseCurrently) && MouseCurrently.X > MouseDown.X && MouseCurrently.Y > MouseDown.Y)
-            {
-                RecordedImages.Add(CropImage(RecordedImages[RecordedImagesIndex],
-                    new Rectangle((int)(MouseDown.X * (double)RecordedImages[RecordedImagesIndex].Width / pBox.Width),
-                    (int)(MouseDown.Y * (double)RecordedImages[RecordedImagesIndex].Height / pBox.Height),
-                    (int)((MouseCurrently.X - MouseDown.X) * (double)RecordedImages[RecordedImagesIndex].Width / pBox.Width),
-                    (int)((MouseCurrently.Y - MouseDown.Y) * (double)RecordedImages[RecordedImagesIndex].Height / pBox.Height))));
-                RecordedImagesIndex = RecordedImages.Count - 1;
-                UpdateUI();
-            }
-            IsMouseDown = false;
-        }
-
         private void pBox_MouseClick(object sender, MouseEventArgs e)
         {
             if (e.Button == MouseButtons.Right)
@@ -341,7 +274,93 @@ namespace MultiScreenScreenshot
                     }
                     catch { }
                 })));
+                m.MenuItems.Add(new MenuItem("Delete", ((object s, EventArgs ev) =>
+                {
+                    try
+                    {
+                        if (RecordedImages.Count > 1)
+                        {
+                            RecordedImages.RemoveAt(RecordedImagesIndex);
+                            if (RecordedImagesIndex > RecordedImages.Count - 1)
+                                RecordedImagesIndex = RecordedImages.Count - 1;
+                            UpdateUI();
+                        }
+                    }
+                    catch { }
+                })));
                 m.Show(pBox, e.Location);
+            }
+        }
+        // Cropping
+        private void pBox_MouseMove(object sender, MouseEventArgs e)
+        {
+            MouseCurrently = e.Location;
+            pBox.Refresh();
+        }
+        private void pBox_MouseDown(object sender, MouseEventArgs e)
+        {
+            MouseDown = e.Location;
+            IsMouseDown = true;
+        }
+        private void pBox_MouseUp(object sender, MouseEventArgs e)
+        {
+            if (pBox.Bounds.Contains(MouseCurrently) && MouseCurrently.X > MouseDown.X && MouseCurrently.Y > MouseDown.Y)
+            {
+                RecordedImages.Add(CropImage(RecordedImages[RecordedImagesIndex],
+                    new Rectangle((int)(MouseDown.X * (double)RecordedImages[RecordedImagesIndex].Width / pBox.Width),
+                    (int)(MouseDown.Y * (double)RecordedImages[RecordedImagesIndex].Height / pBox.Height),
+                    (int)((MouseCurrently.X - MouseDown.X) * (double)RecordedImages[RecordedImagesIndex].Width / pBox.Width),
+                    (int)((MouseCurrently.Y - MouseDown.Y) * (double)RecordedImages[RecordedImagesIndex].Height / pBox.Height))));
+                RecordedImagesIndex = RecordedImages.Count - 1;
+                UpdateUI();
+            }
+            IsMouseDown = false;
+        }
+
+        // Other Events
+        private void Form1_FormClosed(object sender, FormClosedEventArgs e)
+        {
+            config.Default.windowSize = Size;
+            config.Default.Save();
+            InterceptKeys.UnhookWindowsHookEx(InterceptKeys._hookID);
+        }
+        private void Form1_SizeChanged(object sender, EventArgs e)
+        {
+            // Buttons
+            bPrevious.Width = bSave.Location.X - bPrevious.Location.X - 6;
+            bNext.Location = new Point(bPath.Location.X + bPath.Width + 6, bNext.Location.Y);
+            bNext.Width = pBox.Width + pBox.Location.X - bNext.Location.X;
+
+            //// Disabled Snapping
+            //int slurpSize = 10;
+            //Size R = GetProperRatioSize(pBox.Size, Math.Abs(LastSize.Width - Width) > Math.Abs(LastSize.Height - Height),
+            //    RecordedImages[0].Width / RecordedImages[0].Height);
+
+            //if (R.Width + slurpSize > pBox.Width && R.Width - slurpSize < pBox.Width)
+            //    Width += R.Width - pBox.Width;
+            //if (R.Height + slurpSize > pBox.Height && R.Height - slurpSize < pBox.Height)
+            //    Height += R.Height - pBox.Height;
+
+            if (WindowState == FormWindowState.Maximized)
+                IsMouseDown = false;
+
+            LastSize = Size;
+        }
+        private void timer1_Tick(object sender, EventArgs e)
+        {
+            int animLength = 15;
+            float percentage = ticks / (float)animLength;
+            ticks++;
+
+            if (ticks == animLength)
+            {
+                timer1.Enabled = false;
+                this.BackColor = Contrl;
+            }
+            else
+            {
+                this.BackColor = Color.FromArgb((int)(255 * (1 - percentage) + Contrl.R * percentage),
+                    (int)(Contrl.G * percentage), (int)(Contrl.B * percentage));
             }
         }
     }
