@@ -37,13 +37,15 @@
             this.bNext = new System.Windows.Forms.Button();
             this.timer1 = new System.Windows.Forms.Timer(this.components);
             this.lSaved = new System.Windows.Forms.Label();
+            this.bOpen = new System.Windows.Forms.Button();
+            this.bRatio = new System.Windows.Forms.Button();
             ((System.ComponentModel.ISupportInitialize)(this.pBox)).BeginInit();
             this.SuspendLayout();
             // 
             // bPath
             // 
             this.bPath.Anchor = System.Windows.Forms.AnchorStyles.Bottom;
-            this.bPath.Location = new System.Drawing.Point(387, 428);
+            this.bPath.Location = new System.Drawing.Point(486, 428);
             this.bPath.Name = "bPath";
             this.bPath.Size = new System.Drawing.Size(102, 23);
             this.bPath.TabIndex = 0;
@@ -61,11 +63,15 @@
             this.pBox.Size = new System.Drawing.Size(744, 410);
             this.pBox.TabIndex = 1;
             this.pBox.TabStop = false;
+            this.pBox.Paint += new System.Windows.Forms.PaintEventHandler(this.pBox_Paint);
+            this.pBox.MouseDown += new System.Windows.Forms.MouseEventHandler(this.pBox_MouseDown);
+            this.pBox.MouseMove += new System.Windows.Forms.MouseEventHandler(this.pBox_MouseMove);
+            this.pBox.MouseUp += new System.Windows.Forms.MouseEventHandler(this.pBox_MouseUp);
             // 
             // bSave
             // 
             this.bSave.Anchor = System.Windows.Forms.AnchorStyles.Bottom;
-            this.bSave.Location = new System.Drawing.Point(279, 428);
+            this.bSave.Location = new System.Drawing.Point(162, 428);
             this.bSave.Name = "bSave";
             this.bSave.Size = new System.Drawing.Size(102, 23);
             this.bSave.TabIndex = 2;
@@ -78,7 +84,7 @@
             this.bPrevious.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
             this.bPrevious.Location = new System.Drawing.Point(12, 428);
             this.bPrevious.Name = "bPrevious";
-            this.bPrevious.Size = new System.Drawing.Size(261, 23);
+            this.bPrevious.Size = new System.Drawing.Size(144, 23);
             this.bPrevious.TabIndex = 3;
             this.bPrevious.Text = "<-";
             this.bPrevious.UseVisualStyleBackColor = true;
@@ -87,9 +93,9 @@
             // bNext
             // 
             this.bNext.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-            this.bNext.Location = new System.Drawing.Point(495, 428);
+            this.bNext.Location = new System.Drawing.Point(594, 428);
             this.bNext.Name = "bNext";
-            this.bNext.Size = new System.Drawing.Size(261, 23);
+            this.bNext.Size = new System.Drawing.Size(162, 23);
             this.bNext.TabIndex = 4;
             this.bNext.Text = "->";
             this.bNext.UseVisualStyleBackColor = true;
@@ -111,11 +117,35 @@
             this.lSaved.TabIndex = 5;
             this.lSaved.Text = "Saved!";
             // 
+            // bOpen
+            // 
+            this.bOpen.Anchor = System.Windows.Forms.AnchorStyles.Bottom;
+            this.bOpen.Location = new System.Drawing.Point(378, 428);
+            this.bOpen.Name = "bOpen";
+            this.bOpen.Size = new System.Drawing.Size(102, 23);
+            this.bOpen.TabIndex = 6;
+            this.bOpen.Text = "Open Folder";
+            this.bOpen.UseVisualStyleBackColor = true;
+            this.bOpen.Click += new System.EventHandler(this.bOpen_Click);
+            // 
+            // bRatio
+            // 
+            this.bRatio.Anchor = System.Windows.Forms.AnchorStyles.Bottom;
+            this.bRatio.Location = new System.Drawing.Point(270, 428);
+            this.bRatio.Name = "bRatio";
+            this.bRatio.Size = new System.Drawing.Size(102, 23);
+            this.bRatio.TabIndex = 7;
+            this.bRatio.Text = "Fix Ratio";
+            this.bRatio.UseVisualStyleBackColor = true;
+            this.bRatio.Click += new System.EventHandler(this.bRatio_Click);
+            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(768, 463);
+            this.Controls.Add(this.bRatio);
+            this.Controls.Add(this.bOpen);
             this.Controls.Add(this.lSaved);
             this.Controls.Add(this.bNext);
             this.Controls.Add(this.bPrevious);
@@ -144,6 +174,8 @@
         private System.Windows.Forms.Button bNext;
         private System.Windows.Forms.Timer timer1;
         private System.Windows.Forms.Label lSaved;
+        private System.Windows.Forms.Button bOpen;
+        private System.Windows.Forms.Button bRatio;
     }
 }
 
