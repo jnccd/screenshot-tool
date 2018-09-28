@@ -22,21 +22,20 @@ namespace MultiScreenScreenshot
         int RecordedImagesIndex = 0;
         int ticks = 0;
         Size LastSize;
-        Point MouseDown = new Point(0,0);
-        Point MouseCurrently = new Point(0, 0);
+        Point pMouseDown = new Point(0,0);
+        Point pMouseCurrently = new Point(0, 0);
         bool IsMouseDown = false;
 
         public Form1()
         {
             InitializeComponent();
+            Program.keyHook.KeyDown += KeyHook_KeyDown;
         }
-
+        
         private void Form1_Load(object sender, EventArgs e)
         {
-            InterceptKeys._hookID = InterceptKeys.SetHook(InterceptKeys._proc);
-
             pBox.SizeMode = PictureBoxSizeMode.StretchImage;
-            RecordedImages.Add(GetFullScreenshot());
+            RecordedImages.Add(Program.GetFullScreenshot());
 
             if (config.Default.path == "<Unset>" || !Directory.Exists(config.Default.path))
                 config.Default.path = Environment.GetFolderPath(Environment.SpecialFolder.MyPictures);
@@ -80,10 +79,32 @@ namespace MultiScreenScreenshot
         {
             try
             {
-                System.Media.SystemSounds.Hand.Play();
-                RecordedImages.Add(GetFullScreenshot());
+                System.Media.SystemSounds.Exclamation.Play();
+                RecordedImages.Add(Program.GetFullScreenshot());
                 RecordedImagesIndex = RecordedImages.Count - 1;
                 UpdateUI();
+            }
+            catch (Exception e)
+            {
+                if (MessageBox.Show("Oopsie woopsie, it seems like I cant make that screenshot!\nDo you want to see the error message in detail?", "Error", MessageBoxButtons.YesNo) == DialogResult.Yes)
+                {
+                    MessageBox.Show(e.Message + "\n\n" + e.InnerException + "\n\n" + e.StackTrace);
+                }
+            }
+        }
+        public void AddScreenShotSnippingToolStyle()
+        {
+            try
+            {
+                System.Media.SystemSounds.Exclamation.Play();
+                SnippingToolWindow Snipper = new SnippingToolWindow();
+                Snipper.ShowDialog();
+                if (Snipper.output != null)
+                {
+                    RecordedImages.Add(Snipper.output);
+                    RecordedImagesIndex = RecordedImages.Count - 1;
+                    UpdateUI();
+                }
             }
             catch (Exception e)
             {
@@ -98,41 +119,6 @@ namespace MultiScreenScreenshot
             this.BackColor = Color.FromArgb(255, 0, 0);
             ticks = 0;
             timer1.Enabled = true;
-        }
-        public Bitmap GetFullScreenshot()
-        {
-            Rectangle ImageDimensions = new Rectangle(0,0,1,1);
-            foreach (Screen S in Screen.AllScreens)
-            {
-                if (S.Bounds.X < ImageDimensions.X)
-                    ImageDimensions.X = S.Bounds.X;
-                if (S.Bounds.Y < ImageDimensions.Y)
-                    ImageDimensions.Y = S.Bounds.Y;
-                if (S.Bounds.X + S.Bounds.Width > ImageDimensions.Width)
-                    ImageDimensions.Width = S.Bounds.X + S.Bounds.Width;
-                if (S.Bounds.Y + S.Bounds.Height > ImageDimensions.Height)
-                    ImageDimensions.Height = S.Bounds.Y + S.Bounds.Height;
-            }
-            ImageDimensions.Width -= ImageDimensions.X;
-            ImageDimensions.Height -= ImageDimensions.Y;
-
-            Bitmap bmp = new Bitmap(ImageDimensions.Width, ImageDimensions.Height, PixelFormat.Format32bppArgb);
-            Graphics graphics = Graphics.FromImage(bmp);
-            graphics.CopyFromScreen(ImageDimensions.X, ImageDimensions.Y, 0, 0, new Size(ImageDimensions.Width, ImageDimensions.Height), CopyPixelOperation.SourceCopy);
-            return bmp;
-        }
-        public Bitmap CropImage(Bitmap source, Rectangle section)
-        {
-            // An empty bitmap which will hold the cropped image
-            Bitmap bmp = new Bitmap(section.Width, section.Height);
-
-            Graphics g = Graphics.FromImage(bmp);
-
-            // Draw the given area (section) of the source image
-            // at location 0,0 on the empty bitmap (bmp)
-            g.DrawImage(source, 0, 0, section, GraphicsUnit.Pixel);
-
-            return bmp;
         }
         public void UpdateUI()
         {
@@ -230,7 +216,7 @@ namespace MultiScreenScreenshot
         {
             if (IsMouseDown)
             {
-                Rectangle ee = new Rectangle(MouseDown.X, MouseDown.Y, MouseCurrently.X - MouseDown.X, MouseCurrently.Y - MouseDown.Y);
+                Rectangle ee = new Rectangle(pMouseDown.X, pMouseDown.Y, pMouseCurrently.X - pMouseDown.X, pMouseCurrently.Y - pMouseDown.Y);
                 using (Pen pen = new Pen(Color.Red, 1))
                     e.Graphics.DrawRectangle(pen, ee);
             }
@@ -294,23 +280,23 @@ namespace MultiScreenScreenshot
         // Cropping
         private void pBox_MouseMove(object sender, MouseEventArgs e)
         {
-            MouseCurrently = e.Location;
+            pMouseCurrently = e.Location;
             pBox.Refresh();
         }
         private void pBox_MouseDown(object sender, MouseEventArgs e)
         {
-            MouseDown = e.Location;
+            pMouseDown = e.Location;
             IsMouseDown = true;
         }
         private void pBox_MouseUp(object sender, MouseEventArgs e)
         {
-            if (pBox.Bounds.Contains(MouseCurrently) && MouseCurrently.X > MouseDown.X && MouseCurrently.Y > MouseDown.Y)
+            if (pBox.Bounds.Contains(pMouseCurrently) && pMouseCurrently.X > pMouseDown.X && pMouseCurrently.Y > pMouseDown.Y)
             {
-                RecordedImages.Add(CropImage(RecordedImages[RecordedImagesIndex],
-                    new Rectangle((int)(MouseDown.X * (double)RecordedImages[RecordedImagesIndex].Width / pBox.Width),
-                    (int)(MouseDown.Y * (double)RecordedImages[RecordedImagesIndex].Height / pBox.Height),
-                    (int)((MouseCurrently.X - MouseDown.X) * (double)RecordedImages[RecordedImagesIndex].Width / pBox.Width),
-                    (int)((MouseCurrently.Y - MouseDown.Y) * (double)RecordedImages[RecordedImagesIndex].Height / pBox.Height))));
+                RecordedImages.Add(Program.CropImage(RecordedImages[RecordedImagesIndex],
+                    new Rectangle((int)(pMouseDown.X * (double)RecordedImages[RecordedImagesIndex].Width / pBox.Width),
+                    (int)(pMouseDown.Y * (double)RecordedImages[RecordedImagesIndex].Height / pBox.Height),
+                    (int)((pMouseCurrently.X - pMouseDown.X) * (double)RecordedImages[RecordedImagesIndex].Width / pBox.Width),
+                    (int)((pMouseCurrently.Y - pMouseDown.Y) * (double)RecordedImages[RecordedImagesIndex].Height / pBox.Height))));
                 RecordedImagesIndex = RecordedImages.Count - 1;
                 UpdateUI();
             }
@@ -322,7 +308,7 @@ namespace MultiScreenScreenshot
         {
             config.Default.windowSize = Size;
             config.Default.Save();
-            InterceptKeys.UnhookWindowsHookEx(InterceptKeys._hookID);
+
         }
         private void Form1_SizeChanged(object sender, EventArgs e)
         {
@@ -361,6 +347,16 @@ namespace MultiScreenScreenshot
             {
                 this.BackColor = Color.FromArgb((int)(255 * (1 - percentage) + Contrl.R * percentage),
                     (int)(Contrl.G * percentage), (int)(Contrl.B * percentage));
+            }
+        }
+        private void KeyHook_KeyDown(Keys key, bool Shift, bool Ctrl, bool Alt)
+        {
+            if (key == Keys.Pause)
+            {
+                if (Shift)
+                    AddScreenShotSnippingToolStyle();
+                else
+                    AddScreenShot();
             }
         }
     }
