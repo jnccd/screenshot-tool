@@ -104,6 +104,10 @@ namespace MultiScreenScreenshot
                     RecordedImages.Add(Snipper.output);
                     RecordedImagesIndex = RecordedImages.Count - 1;
                     UpdateUI();
+
+                    Location = new Point(Snipper.pMouseDown.X + Snipper.ImageDimensions.X - 8 - pBox.Location.X, 
+                        Snipper.pMouseDown.Y - 32 - pBox.Location.Y);
+                    SetOriginalSize();
                 }
             }
             catch (Exception e)
@@ -163,6 +167,11 @@ namespace MultiScreenScreenshot
                 RecordedImages[RecordedImagesIndex].Height);
             Height += R.Height - pBox.Height;
             Width += R.Width - pBox.Width;
+        }
+        public void SetOriginalSize()
+        {
+            Width = RecordedImages[RecordedImagesIndex].Width + Width - pBox.Width;
+            Height = RecordedImages[RecordedImagesIndex].Height + Height - pBox.Height;
         }
 
         // Button Events
@@ -246,8 +255,7 @@ namespace MultiScreenScreenshot
                 {
                     try
                     {
-                        Width = RecordedImages[RecordedImagesIndex].Width + Width - pBox.Width;
-                        Height = RecordedImages[RecordedImagesIndex].Height + Height - pBox.Height;
+                        SetOriginalSize();
                     }
                     catch { }
                 })));
@@ -353,7 +361,7 @@ namespace MultiScreenScreenshot
         {
             if (key == Keys.Pause)
             {
-                if (Shift)
+                if (Alt)
                     AddScreenShotSnippingToolStyle();
                 else
                     AddScreenShot();

@@ -13,12 +13,14 @@ namespace MultiScreenScreenshot
 {
     public partial class SnippingToolWindow : Form
     {
-        Point pMouseDown = new Point(0, 0);
+        public Point pMouseDown = new Point(0, 0);
         Point pMouseCurrently = new Point(0, 0);
         bool IsMouseDown = false;
 
         public Bitmap output;
         Bitmap fullScreenshot;
+
+        public Rectangle ImageDimensions;
 
         public SnippingToolWindow()
         {
@@ -27,7 +29,7 @@ namespace MultiScreenScreenshot
 
         private void SnippingToolWindow_Load(object sender, EventArgs e)
         {
-            Rectangle ImageDimensions = new Rectangle(0, 0, 1, 1);
+            ImageDimensions = new Rectangle(0, 0, 1, 1);
             foreach (Screen S in Screen.AllScreens)
             {
                 if (S.Bounds.X < ImageDimensions.X)
@@ -47,7 +49,9 @@ namespace MultiScreenScreenshot
             graphics.CopyFromScreen(ImageDimensions.X, ImageDimensions.Y, 0, 0, new Size(ImageDimensions.Width, ImageDimensions.Height), CopyPixelOperation.SourceCopy);
             Location = new Point(ImageDimensions.X - 8, ImageDimensions.Y - 32);
             Size = new Size(ImageDimensions.Width + 16, ImageDimensions.Height + 100);
-            pBox.Image = fullScreenshot;
+            Bitmap TransparentScreenshot = (Bitmap)fullScreenshot.Clone();
+            TransparentScreenshot.MakeTransparent(Color.Beige);
+            pBox.Image = TransparentScreenshot;
         }
 
         private void pictureBox1_MouseUp(object sender, MouseEventArgs e)
