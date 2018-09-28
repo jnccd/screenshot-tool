@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Drawing;
+using System.Drawing.Imaging;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Windows.Forms;
@@ -9,10 +11,8 @@ namespace MultiScreenScreenshot
     static class Program
     {
         public static Form1 MyForm;
-
-        /// <summary>
-        /// Der Haupteinstiegspunkt für die Anwendung.
-        /// </summary>
+        public static KeyboardHook keyHook = new KeyboardHook(true);
+        
         [STAThread]
         static void Main()
         {
@@ -20,6 +20,42 @@ namespace MultiScreenScreenshot
             Application.SetCompatibleTextRenderingDefault(false);
             MyForm = new Form1();
             Application.Run(MyForm);
+        }
+
+        public static Bitmap GetFullScreenshot()
+        {
+            Rectangle ImageDimensions = new Rectangle(0, 0, 1, 1);
+            foreach (Screen S in Screen.AllScreens)
+            {
+                if (S.Bounds.X < ImageDimensions.X)
+                    ImageDimensions.X = S.Bounds.X;
+                if (S.Bounds.Y < ImageDimensions.Y)
+                    ImageDimensions.Y = S.Bounds.Y;
+                if (S.Bounds.X + S.Bounds.Width > ImageDimensions.Width)
+                    ImageDimensions.Width = S.Bounds.X + S.Bounds.Width;
+                if (S.Bounds.Y + S.Bounds.Height > ImageDimensions.Height)
+                    ImageDimensions.Height = S.Bounds.Y + S.Bounds.Height;
+            }
+            ImageDimensions.Width -= ImageDimensions.X;
+            ImageDimensions.Height -= ImageDimensions.Y;
+
+            Bitmap bmp = new Bitmap(ImageDimensions.Width, ImageDimensions.Height, PixelFormat.Format32bppArgb);
+            Graphics graphics = Graphics.FromImage(bmp);
+            graphics.CopyFromScreen(ImageDimensions.X, ImageDimensions.Y, 0, 0, new Size(ImageDimensions.Width, ImageDimensions.Height), CopyPixelOperation.SourceCopy);
+            return bmp;
+        }
+        public static Bitmap CropImage(Bitmap source, Rectangle section)
+        {
+            // An empty bitmap which will hold the cropped image
+            Bitmap bmp = new Bitmap(section.Width, section.Height);
+
+            Graphics g = Graphics.FromImage(bmp);
+
+            // Draw the given area (section) of the source image
+            // at location 0,0 on the empty bitmap (bmp)
+            g.DrawImage(source, 0, 0, section, GraphicsUnit.Pixel);
+
+            return bmp;
         }
     }
 }
