@@ -1,14 +1,16 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Drawing;
 using System.Drawing.Imaging;
 using System.Linq;
+using System.Runtime.InteropServices;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
 namespace MultiScreenScreenshot
 {
-    static class Program
+    public static class Program
     {
         public static Form1 MyForm;
         public static KeyboardHook keyHook = new KeyboardHook(true);
@@ -56,6 +58,27 @@ namespace MultiScreenScreenshot
             g.DrawImage(source, 0, 0, section, GraphicsUnit.Pixel);
 
             return bmp;
+        }
+
+        // Imports 
+        [DllImport("user32.dll")]
+        [return: MarshalAs(UnmanagedType.Bool)]
+        public static extern bool SetForegroundWindow(IntPtr hWnd);
+        [DllImport("user32.dll")]
+        public static extern bool ShowWindow(IntPtr hWnd, int nCmdShow);
+
+        // Extensions
+        public static void InvokeIfRequired(this ISynchronizeInvoke obj, MethodInvoker action)
+        {
+            if (obj.InvokeRequired)
+            {
+                var args = new object[0];
+                obj.Invoke(action, args);
+            }
+            else
+            {
+                action();
+            }
         }
     }
 }

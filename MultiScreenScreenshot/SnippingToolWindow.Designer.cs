@@ -54,7 +54,7 @@
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(284, 261);
             this.Controls.Add(this.pBox);
-            this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedToolWindow;
+            this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.None;
             this.MaximizeBox = false;
             this.MinimizeBox = false;
             this.Name = "SnippingToolWindow";
@@ -64,6 +64,7 @@
             this.Text = "SnippingToolWindow";
             this.TopMost = true;
             this.Load += new System.EventHandler(this.SnippingToolWindow_Load);
+            this.KeyDown += new System.Windows.Forms.KeyEventHandler(this.SnippingToolWindow_KeyDown);
             ((System.ComponentModel.ISupportInitialize)(this.pBox)).EndInit();
             this.ResumeLayout(false);
 
