@@ -40,6 +40,7 @@
             this.bOpen = new System.Windows.Forms.Button();
             this.bCropScreenshot = new System.Windows.Forms.Button();
             this.bScreenshot = new System.Windows.Forms.Button();
+            this.bDelete = new System.Windows.Forms.Button();
             ((System.ComponentModel.ISupportInitialize)(this.pBox)).BeginInit();
             this.SuspendLayout();
             // 
@@ -151,11 +152,23 @@
             this.bScreenshot.UseVisualStyleBackColor = true;
             this.bScreenshot.Click += new System.EventHandler(this.bScreenshot_Click);
             // 
+            // bDelete
+            // 
+            this.bDelete.Anchor = System.Windows.Forms.AnchorStyles.Bottom;
+            this.bDelete.Location = new System.Drawing.Point(270, 428);
+            this.bDelete.Name = "bDelete";
+            this.bDelete.Size = new System.Drawing.Size(102, 23);
+            this.bDelete.TabIndex = 9;
+            this.bDelete.Text = "Delete";
+            this.bDelete.UseVisualStyleBackColor = true;
+            this.bDelete.Click += new System.EventHandler(this.bDelete_Click);
+            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(768, 463);
+            this.Controls.Add(this.bDelete);
             this.Controls.Add(this.bScreenshot);
             this.Controls.Add(this.bCropScreenshot);
             this.Controls.Add(this.bOpen);
@@ -191,6 +204,7 @@
         private System.Windows.Forms.Button bOpen;
         private System.Windows.Forms.Button bCropScreenshot;
         private System.Windows.Forms.Button bScreenshot;
+        private System.Windows.Forms.Button bDelete;
     }
 }
 
