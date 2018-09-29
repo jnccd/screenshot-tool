@@ -44,6 +44,7 @@ namespace MultiScreenScreenshot
                 Size = config.Default.windowSize;
 
             MiddleButtons.Add(bSave);
+            MiddleButtons.Add(bDelete);
             MiddleButtons.Add(bOpen);
             MiddleButtons.Add(bPath);
 
@@ -188,6 +189,24 @@ namespace MultiScreenScreenshot
         {
             Program.ShowWindow(this.Handle, 2);
         }
+        Rectangle GetRectangleFromPoints(Point P1, Point P2)
+        {
+            int X = Math.Min(P1.X, P2.X);
+            int Width = Math.Max(P1.X, P2.X) - X;
+            int Y = Math.Min(P1.Y, P2.Y);
+            int Height = Math.Max(P1.Y, P2.Y) - Y;
+            return new Rectangle(X, Y, Width, Height);
+        }
+        public void DeleteCurrentImage()
+        {
+            if (RecordedImages.Count > 1)
+            {
+                RecordedImages.RemoveAt(RecordedImagesIndex);
+                if (RecordedImagesIndex > RecordedImages.Count - 1)
+                    RecordedImagesIndex = RecordedImages.Count - 1;
+                UpdateUI();
+            }
+        }
 
         // Button Events
         private void bSave_Click(object sender, EventArgs e)
@@ -242,13 +261,17 @@ namespace MultiScreenScreenshot
         {
             AddScreenShot();
         }
+        private void bDelete_Click(object sender, EventArgs e)
+        {
+            DeleteCurrentImage();
+        }
 
         // pBox Events
         private void pBox_Paint(object sender, PaintEventArgs e)
         {
             if (IsMouseDown)
             {
-                Rectangle ee = new Rectangle(pMouseDown.X, pMouseDown.Y, pMouseCurrently.X - pMouseDown.X, pMouseCurrently.Y - pMouseDown.Y);
+                Rectangle ee = GetRectangleFromPoints(pMouseDown, pMouseCurrently);
                 using (Pen pen = new Pen(Color.Red, 1))
                     e.Graphics.DrawRectangle(pen, ee);
             }
@@ -295,13 +318,7 @@ namespace MultiScreenScreenshot
                 {
                     try
                     {
-                        if (RecordedImages.Count > 1)
-                        {
-                            RecordedImages.RemoveAt(RecordedImagesIndex);
-                            if (RecordedImagesIndex > RecordedImages.Count - 1)
-                                RecordedImagesIndex = RecordedImages.Count - 1;
-                            UpdateUI();
-                        }
+                        DeleteCurrentImage();
                     }
                     catch { }
                 })));
@@ -321,13 +338,19 @@ namespace MultiScreenScreenshot
         }
         private void pBox_MouseUp(object sender, MouseEventArgs e)
         {
-            if (pBox.Bounds.Contains(pMouseCurrently) && pMouseCurrently.X > pMouseDown.X && pMouseCurrently.Y > pMouseDown.Y)
+            if (true)
             {
-                RecordedImages.Add(Program.CropImage(RecordedImages[RecordedImagesIndex],
-                    new Rectangle((int)(pMouseDown.X * (double)RecordedImages[RecordedImagesIndex].Width / pBox.Width),
-                    (int)(pMouseDown.Y * (double)RecordedImages[RecordedImagesIndex].Height / pBox.Height),
-                    (int)((pMouseCurrently.X - pMouseDown.X) * (double)RecordedImages[RecordedImagesIndex].Width / pBox.Width),
-                    (int)((pMouseCurrently.Y - pMouseDown.Y) * (double)RecordedImages[RecordedImagesIndex].Height / pBox.Height))));
+                Rectangle crop = GetRectangleFromPoints(
+                        new Point((int)(pMouseDown.X * (double)RecordedImages[RecordedImagesIndex].Width / pBox.Width),
+                            (int)(pMouseDown.Y * (double)RecordedImages[RecordedImagesIndex].Height / pBox.Height)),
+                        new Point((int)(pMouseCurrently.X * (double)RecordedImages[RecordedImagesIndex].Width / pBox.Width),
+                            (int)(pMouseCurrently.Y * (double)RecordedImages[RecordedImagesIndex].Height / pBox.Height)));
+                if (crop.Width == 0 || crop.Height == 0)
+                {
+                    IsMouseDown = false;
+                    return;
+                }
+                RecordedImages.Add(Program.CropImage(RecordedImages[RecordedImagesIndex], crop));
                 RecordedImagesIndex = RecordedImages.Count - 1;
                 UpdateUI();
             }

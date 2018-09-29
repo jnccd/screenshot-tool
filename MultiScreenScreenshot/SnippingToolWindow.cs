@@ -55,9 +55,13 @@ namespace MultiScreenScreenshot
             Program.SetForegroundWindow(this.Handle);
         }
 
-        private void GetRectangleFromPoints(Point P1, Point P2)
+        Rectangle GetRectangleFromPoints(Point P1, Point P2)
         {
-
+            int X = Math.Min(P1.X, P2.X);
+            int Width = Math.Max(P1.X, P2.X) - X;
+            int Y = Math.Min(P1.Y, P2.Y);
+            int Height = Math.Max(P1.Y, P2.Y) - Y;
+            return new Rectangle(X, Y, Width, Height);
         }
 
         private void pictureBox1_MouseUp(object sender, MouseEventArgs e)
@@ -66,11 +70,18 @@ namespace MultiScreenScreenshot
             {
                 if (pBox.Bounds.Contains(pMouseCurrently) && pMouseCurrently.X > pMouseDown.X && pMouseCurrently.Y > pMouseDown.Y)
                 {
-                    output = Program.CropImage(fullScreenshot,
-                        new Rectangle((int)(pMouseDown.X * (double)fullScreenshot.Width / pBox.Width),
-                        (int)(pMouseDown.Y * (double)fullScreenshot.Height / pBox.Height),
-                        (int)((pMouseCurrently.X - pMouseDown.X) * (double)fullScreenshot.Width / pBox.Width),
-                        (int)((pMouseCurrently.Y - pMouseDown.Y) * (double)fullScreenshot.Height / pBox.Height)));
+                    Rectangle crop = GetRectangleFromPoints(
+                        new Point((int)(pMouseDown.X * (double)fullScreenshot.Width / pBox.Width),
+                            (int)(pMouseDown.Y * (double)fullScreenshot.Height / pBox.Height)), 
+                        new Point((int)(pMouseCurrently.X * (double)fullScreenshot.Width / pBox.Width),
+                            (int)(pMouseCurrently.Y * (double)fullScreenshot.Height / pBox.Height)));
+                    if (crop.Width == 0 || crop.Height == 0)
+                    {
+                        MessageBox.Show("Thats a little too small, dont you think?", "Too Smol", MessageBoxButtons.OK);
+                        IsMouseDown = false;
+                        return;
+                    }
+                    output = Program.CropImage(fullScreenshot, crop);
                     this.Close();
                 }
                 IsMouseDown = false;
@@ -103,7 +114,7 @@ namespace MultiScreenScreenshot
         {
             if (IsMouseDown)
             {
-                Rectangle ee = new Rectangle(pMouseDown.X, pMouseDown.Y, pMouseCurrently.X - pMouseDown.X, pMouseCurrently.Y - pMouseDown.Y);
+                Rectangle ee = GetRectangleFromPoints(pMouseDown, pMouseCurrently);
                 using (Pen pen = new Pen(Color.Red, 1))
                     e.Graphics.DrawRectangle(pen, ee);
             }

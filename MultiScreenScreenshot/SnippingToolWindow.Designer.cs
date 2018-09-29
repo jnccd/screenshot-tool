@@ -58,11 +58,8 @@
             this.MaximizeBox = false;
             this.MinimizeBox = false;
             this.Name = "SnippingToolWindow";
-            this.ShowIcon = false;
-            this.ShowInTaskbar = false;
             this.StartPosition = System.Windows.Forms.FormStartPosition.Manual;
             this.Text = "SnippingToolWindow";
-            this.TopMost = true;
             this.Load += new System.EventHandler(this.SnippingToolWindow_Load);
             this.KeyDown += new System.Windows.Forms.KeyEventHandler(this.SnippingToolWindow_KeyDown);
             ((System.ComponentModel.ISupportInitialize)(this.pBox)).EndInit();
