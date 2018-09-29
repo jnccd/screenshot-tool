@@ -26,7 +26,6 @@ namespace MultiScreenScreenshot
         {
             InitializeComponent();
         }
-
         private void SnippingToolWindow_Load(object sender, EventArgs e)
         {
             ImageDimensions = new Rectangle(0, 0, 1, 1);
@@ -47,11 +46,18 @@ namespace MultiScreenScreenshot
             fullScreenshot = new Bitmap(ImageDimensions.Width, ImageDimensions.Height, PixelFormat.Format32bppArgb);
             Graphics graphics = Graphics.FromImage(fullScreenshot);
             graphics.CopyFromScreen(ImageDimensions.X, ImageDimensions.Y, 0, 0, new Size(ImageDimensions.Width, ImageDimensions.Height), CopyPixelOperation.SourceCopy);
-            Location = new Point(ImageDimensions.X - 8, ImageDimensions.Y - 32);
-            Size = new Size(ImageDimensions.Width + 16, ImageDimensions.Height + 100);
+            Location = new Point(ImageDimensions.X, ImageDimensions.Y);
+            Size = new Size(ImageDimensions.Width, ImageDimensions.Height);
             Bitmap TransparentScreenshot = (Bitmap)fullScreenshot.Clone();
             TransparentScreenshot.MakeTransparent(Color.Beige);
             pBox.Image = TransparentScreenshot;
+
+            Program.SetForegroundWindow(this.Handle);
+        }
+
+        private void GetRectangleFromPoints(Point P1, Point P2)
+        {
+
         }
 
         private void pictureBox1_MouseUp(object sender, MouseEventArgs e)
@@ -69,6 +75,8 @@ namespace MultiScreenScreenshot
                 }
                 IsMouseDown = false;
             }
+            else if (e.Button == MouseButtons.Right)
+                this.Close();
         }
         private void pictureBox1_MouseDown(object sender, MouseEventArgs e)
         {
@@ -99,6 +107,12 @@ namespace MultiScreenScreenshot
                 using (Pen pen = new Pen(Color.Red, 1))
                     e.Graphics.DrawRectangle(pen, ee);
             }
+        }
+
+        private void SnippingToolWindow_KeyDown(object sender, KeyEventArgs e)
+        {
+            if (e.KeyCode == Keys.Escape)
+                this.Close();
         }
     }
 }

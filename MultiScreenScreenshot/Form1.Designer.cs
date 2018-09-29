@@ -38,6 +38,8 @@
             this.timer1 = new System.Windows.Forms.Timer(this.components);
             this.lSaved = new System.Windows.Forms.Label();
             this.bOpen = new System.Windows.Forms.Button();
+            this.bCropScreenshot = new System.Windows.Forms.Button();
+            this.bScreenshot = new System.Windows.Forms.Button();
             ((System.ComponentModel.ISupportInitialize)(this.pBox)).BeginInit();
             this.SuspendLayout();
             // 
@@ -57,9 +59,9 @@
             this.pBox.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
             | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            this.pBox.Location = new System.Drawing.Point(12, 12);
+            this.pBox.Location = new System.Drawing.Point(12, 41);
             this.pBox.Name = "pBox";
-            this.pBox.Size = new System.Drawing.Size(744, 410);
+            this.pBox.Size = new System.Drawing.Size(744, 381);
             this.pBox.TabIndex = 1;
             this.pBox.TabStop = false;
             this.pBox.Paint += new System.Windows.Forms.PaintEventHandler(this.pBox_Paint);
@@ -111,7 +113,7 @@
             this.lSaved.AutoSize = true;
             this.lSaved.Font = new System.Drawing.Font("BigNoodleTitling", 27.75F, ((System.Drawing.FontStyle)((System.Drawing.FontStyle.Bold | System.Drawing.FontStyle.Italic))), System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.lSaved.ForeColor = System.Drawing.Color.Red;
-            this.lSaved.Location = new System.Drawing.Point(12, 12);
+            this.lSaved.Location = new System.Drawing.Point(12, 38);
             this.lSaved.Name = "lSaved";
             this.lSaved.Size = new System.Drawing.Size(97, 41);
             this.lSaved.TabIndex = 5;
@@ -128,11 +130,34 @@
             this.bOpen.UseVisualStyleBackColor = true;
             this.bOpen.Click += new System.EventHandler(this.bOpen_Click);
             // 
+            // bCropScreenshot
+            // 
+            this.bCropScreenshot.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.bCropScreenshot.Location = new System.Drawing.Point(392, 12);
+            this.bCropScreenshot.Name = "bCropScreenshot";
+            this.bCropScreenshot.Size = new System.Drawing.Size(364, 23);
+            this.bCropScreenshot.TabIndex = 7;
+            this.bCropScreenshot.Text = "Selection Screenshot";
+            this.bCropScreenshot.UseVisualStyleBackColor = true;
+            this.bCropScreenshot.Click += new System.EventHandler(this.bCropScreenshot_Click);
+            // 
+            // bScreenshot
+            // 
+            this.bScreenshot.Location = new System.Drawing.Point(12, 12);
+            this.bScreenshot.Name = "bScreenshot";
+            this.bScreenshot.Size = new System.Drawing.Size(374, 23);
+            this.bScreenshot.TabIndex = 8;
+            this.bScreenshot.Text = "Quick Screenshot";
+            this.bScreenshot.UseVisualStyleBackColor = true;
+            this.bScreenshot.Click += new System.EventHandler(this.bScreenshot_Click);
+            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(768, 463);
+            this.Controls.Add(this.bScreenshot);
+            this.Controls.Add(this.bCropScreenshot);
             this.Controls.Add(this.bOpen);
             this.Controls.Add(this.lSaved);
             this.Controls.Add(this.bNext);
@@ -141,9 +166,10 @@
             this.Controls.Add(this.pBox);
             this.Controls.Add(this.bPath);
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
-            this.MinimumSize = new System.Drawing.Size(10, 300);
+            this.MinimumSize = new System.Drawing.Size(16, 300);
             this.Name = "Form1";
             this.Text = "Multi Screen Screenshot";
+            this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.Form1_FormClosing);
             this.FormClosed += new System.Windows.Forms.FormClosedEventHandler(this.Form1_FormClosed);
             this.Load += new System.EventHandler(this.Form1_Load);
             this.SizeChanged += new System.EventHandler(this.Form1_SizeChanged);
@@ -163,6 +189,8 @@
         private System.Windows.Forms.Timer timer1;
         private System.Windows.Forms.Label lSaved;
         private System.Windows.Forms.Button bOpen;
+        private System.Windows.Forms.Button bCropScreenshot;
+        private System.Windows.Forms.Button bScreenshot;
     }
 }
 

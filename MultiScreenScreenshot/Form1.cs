@@ -8,6 +8,7 @@ using System.Drawing.Imaging;
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
@@ -58,6 +59,12 @@ namespace MultiScreenScreenshot
             Form1_SizeChanged(null, EventArgs.Empty);
             UpdateWindowRatioWidth();
             UpdateUI();
+
+            Task.Factory.StartNew(() =>
+            {
+                Thread.Sleep(300);
+                this.InvokeIfRequired(Minimize);
+            });
         }
         
         // Helper Methods
@@ -105,9 +112,13 @@ namespace MultiScreenScreenshot
                     RecordedImagesIndex = RecordedImages.Count - 1;
                     UpdateUI();
 
+                    bSave_Click(null, EventArgs.Empty);
+
                     Location = new Point(Snipper.pMouseDown.X + Snipper.ImageDimensions.X - 8 - pBox.Location.X, 
                         Snipper.pMouseDown.Y - 32 - pBox.Location.Y);
                     SetOriginalSize();
+
+                    Program.SetForegroundWindow(this.Handle);
                 }
             }
             catch (Exception e)
@@ -173,6 +184,10 @@ namespace MultiScreenScreenshot
             Width = RecordedImages[RecordedImagesIndex].Width + Width - pBox.Width;
             Height = RecordedImages[RecordedImagesIndex].Height + Height - pBox.Height;
         }
+        public void Minimize()
+        {
+            Program.ShowWindow(this.Handle, 2);
+        }
 
         // Button Events
         private void bSave_Click(object sender, EventArgs e)
@@ -219,7 +234,15 @@ namespace MultiScreenScreenshot
         {
             Process.Start("explorer.exe", "/open , \"" + config.Default.path);
         }
-        
+        private void bCropScreenshot_Click(object sender, EventArgs e)
+        {
+            AddScreenShotSnippingToolStyle();
+        }
+        private void bScreenshot_Click(object sender, EventArgs e)
+        {
+            AddScreenShot();
+        }
+
         // pBox Events
         private void pBox_Paint(object sender, PaintEventArgs e)
         {
@@ -312,6 +335,11 @@ namespace MultiScreenScreenshot
         }
 
         // Other Events
+        private void Form1_FormClosing(object sender, FormClosingEventArgs e)
+        {
+            if (SavedImageIndex.Count + 1 < RecordedImages.Count && MessageBox.Show("Oi, you have unsaved Images! Do you really want to close me?", "Close?", MessageBoxButtons.YesNo) == DialogResult.No)
+                e.Cancel = true;
+        }
         private void Form1_FormClosed(object sender, FormClosedEventArgs e)
         {
             config.Default.windowSize = Size;
@@ -324,6 +352,10 @@ namespace MultiScreenScreenshot
             bPrevious.Width = bSave.Location.X - bPrevious.Location.X - 6;
             bNext.Location = new Point(bPath.Location.X + bPath.Width + 6, bNext.Location.Y);
             bNext.Width = pBox.Width + pBox.Location.X - bNext.Location.X;
+
+            bScreenshot.Width = Width / 2 - 20;
+            bCropScreenshot.Location = new Point(bScreenshot.Location.X + bScreenshot.Width + 6, bCropScreenshot.Location.Y);
+            bCropScreenshot.Width = Width / 2 - 26;
 
             //// Disabled Snapping
             //int slurpSize = 10;
