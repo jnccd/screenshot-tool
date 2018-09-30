@@ -26,6 +26,8 @@ namespace MultiScreenScreenshot
         Point pMouseDown = new Point(0,0);
         Point pMouseCurrently = new Point(0, 0);
         bool IsMouseDown = false;
+        int MinWidth;
+        int MinHeight = 86;
 
         public Form1()
         {
@@ -35,7 +37,6 @@ namespace MultiScreenScreenshot
         
         private void Form1_Load(object sender, EventArgs e)
         {
-            pBox.SizeMode = PictureBoxSizeMode.StretchImage;
             RecordedImages.Add(Program.GetFullScreenshot());
 
             if (config.Default.path == "<Unset>" || !Directory.Exists(config.Default.path))
@@ -55,7 +56,8 @@ namespace MultiScreenScreenshot
             for (int i = 0; i < MiddleButtons.Count; i++)
                 MiddleButtons[i].Location = new Point(Width / 2 - MiddleButtonWidth / 2 + i * (6 + MiddleButtons[i].Width) - 8, MiddleButtons[i].Location.Y);
 
-            MinimumSize = new Size(MiddleButtonWidth + 6 * 6 + 150, MinimumSize.Height);
+            MinWidth = MiddleButtonWidth + 6 * (MiddleButtons.Count + 1) + 90;
+            MinimumSize = new Size(MinWidth, MinHeight);
 
             Form1_SizeChanged(null, EventArgs.Empty);
             UpdateWindowRatioWidth();
@@ -117,9 +119,9 @@ namespace MultiScreenScreenshot
 
                     Location = new Point(Snipper.pMouseDown.X + Snipper.ImageDimensions.X - 8 - pBox.Location.X, 
                         Snipper.pMouseDown.Y - 32 - pBox.Location.Y);
-                    SetOriginalSize();
-
+                    
                     Program.SetForegroundWindow(this.Handle);
+                    SetOriginalSize();
                 }
             }
             catch (Exception e)
@@ -207,22 +209,16 @@ namespace MultiScreenScreenshot
                 UpdateUI();
             }
         }
+        public void CenterAroundMouse()
+        {
+            Location = new Point(MousePosition.X - Width / 2, MousePosition.Y - Height / 2);
+        }
 
         // Button Events
         private void bSave_Click(object sender, EventArgs e)
         {
-            string fileName = "Screenshot";
-            int index = 0;
-
-            foreach (string s in Directory.GetFiles(config.Default.path))
-            {
-                if (Path.GetFileNameWithoutExtension(s) == fileName)
-                {
-                    index++;
-                    fileName = "Screenshot" + index;
-                }
-            }
-
+            TimeSpan t = (DateTime.UtcNow - new DateTime(1999, 5, 4));
+            string fileName = "Screenshot" + (long)t.TotalMilliseconds;
             RecordedImages[RecordedImagesIndex].Save(config.Default.path + "\\" + fileName + ".png");
 
             if (!SavedImageIndex.Contains(RecordedImagesIndex))
@@ -281,22 +277,22 @@ namespace MultiScreenScreenshot
             if (e.Button == MouseButtons.Right)
             {
                 ContextMenu m = new ContextMenu();
-                m.MenuItems.Add(new MenuItem("Fix Width Ratio", ((object s, EventArgs ev) =>
-                {
-                    try
-                    {
-                        UpdateWindowRatioWidth();
-                    }
-                    catch { }
-                })));
-                m.MenuItems.Add(new MenuItem("Fix Height Ratio", ((object s, EventArgs ev) =>
-                {
-                    try
-                    {
-                        UpdateWindowRatioHeight();
-                    }
-                    catch { }
-                })));
+                //m.MenuItems.Add(new MenuItem("Fix Width Ratio", ((object s, EventArgs ev) =>
+                //{
+                //    try
+                //    {
+                //        UpdateWindowRatioWidth();
+                //    }
+                //    catch { }
+                //})));
+                //m.MenuItems.Add(new MenuItem("Fix Height Ratio", ((object s, EventArgs ev) =>
+                //{
+                //    try
+                //    {
+                //        UpdateWindowRatioHeight();
+                //    }
+                //    catch { }
+                //})));
                 m.MenuItems.Add(new MenuItem("1:1 Size", ((object s, EventArgs ev) =>
                 {
                     try
@@ -309,8 +305,9 @@ namespace MultiScreenScreenshot
                 {
                     try
                     {
-                        Width = MinimumSize.Width;
                         Height = MinimumSize.Height;
+                        Width = MinimumSize.Width;
+                        CenterAroundMouse();
                     }
                     catch { }
                 })));
@@ -333,12 +330,15 @@ namespace MultiScreenScreenshot
         }
         private void pBox_MouseDown(object sender, MouseEventArgs e)
         {
-            pMouseDown = e.Location;
-            IsMouseDown = true;
+            if (e.Button == MouseButtons.Left)
+            {
+                pMouseDown = e.Location;
+                IsMouseDown = true;
+            }
         }
         private void pBox_MouseUp(object sender, MouseEventArgs e)
         {
-            if (true)
+            if (e.Button == MouseButtons.Left)
             {
                 Rectangle crop = GetRectangleFromPoints(
                         new Point((int)(pMouseDown.X * (double)RecordedImages[RecordedImagesIndex].Width / pBox.Width),
@@ -376,9 +376,30 @@ namespace MultiScreenScreenshot
             bNext.Location = new Point(bPath.Location.X + bPath.Width + 6, bNext.Location.Y);
             bNext.Width = pBox.Width + pBox.Location.X - bNext.Location.X;
 
-            bScreenshot.Width = Width / 2 - 20;
+            bScreenshot.Width = bDelete.Location.X + bDelete.Width - bScreenshot.Location.X;
             bCropScreenshot.Location = new Point(bScreenshot.Location.X + bScreenshot.Width + 6, bCropScreenshot.Location.Y);
-            bCropScreenshot.Width = Width / 2 - 26;
+            bCropScreenshot.Width = bScreenshot.Width;
+
+            if (Height < 120)
+            {
+                foreach (Button b in MiddleButtons)
+                    b.Location = new Point(b.Location.X, 46);
+                bNext.Location = new Point(bNext.Location.X, 46);
+                bPrevious.Location = new Point(bPrevious.Location.X, 46);
+            }
+            else
+            {
+                MinimumSize = new Size(MinWidth, MinHeight);
+                foreach (Button b in MiddleButtons)
+                    b.Location = new Point(b.Location.X, Height - (120 - 46));
+                bNext.Location = new Point(bNext.Location.X, Height - (120 - 46));
+                bPrevious.Location = new Point(bPrevious.Location.X, Height - (120 - 46));
+            }
+
+            if (Height <= 88)
+                MinimumSize = new Size(322, MinimumSize.Height);
+            else
+                MinimumSize = new Size(MinWidth, MinHeight);
 
             //// Disabled Snapping
             //int slurpSize = 10;
@@ -420,6 +441,10 @@ namespace MultiScreenScreenshot
                     AddScreenShotSnippingToolStyle();
                 else
                     AddScreenShot();
+            }
+            if (key == Keys.F1)
+            {
+                MessageBox.Show(Width + " - " + Height);
             }
         }
     }

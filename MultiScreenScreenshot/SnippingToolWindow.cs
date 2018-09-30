@@ -28,6 +28,7 @@ namespace MultiScreenScreenshot
         }
         private void SnippingToolWindow_Load(object sender, EventArgs e)
         {
+            TopMost = true;
             ImageDimensions = new Rectangle(0, 0, 1, 1);
             foreach (Screen S in Screen.AllScreens)
             {
@@ -68,7 +69,7 @@ namespace MultiScreenScreenshot
         {
             if (e.Button == MouseButtons.Left)
             {
-                if (pBox.Bounds.Contains(pMouseCurrently) && pMouseCurrently.X > pMouseDown.X && pMouseCurrently.Y > pMouseDown.Y)
+                if (true)
                 {
                     Rectangle crop = GetRectangleFromPoints(
                         new Point((int)(pMouseDown.X * (double)fullScreenshot.Width / pBox.Width),
@@ -124,6 +125,11 @@ namespace MultiScreenScreenshot
         {
             if (e.KeyCode == Keys.Escape)
                 this.Close();
+        }
+
+        private void pBox_Click(object sender, EventArgs e)
+        {
+
         }
     }
 }
