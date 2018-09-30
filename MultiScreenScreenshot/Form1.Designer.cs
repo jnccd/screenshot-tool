@@ -47,7 +47,7 @@
             // bPath
             // 
             this.bPath.Anchor = System.Windows.Forms.AnchorStyles.Bottom;
-            this.bPath.Location = new System.Drawing.Point(486, 428);
+            this.bPath.Location = new System.Drawing.Point(486, 152);
             this.bPath.Name = "bPath";
             this.bPath.Size = new System.Drawing.Size(102, 23);
             this.bPath.TabIndex = 0;
@@ -62,7 +62,8 @@
             | System.Windows.Forms.AnchorStyles.Right)));
             this.pBox.Location = new System.Drawing.Point(12, 41);
             this.pBox.Name = "pBox";
-            this.pBox.Size = new System.Drawing.Size(744, 381);
+            this.pBox.Size = new System.Drawing.Size(744, 105);
+            this.pBox.SizeMode = System.Windows.Forms.PictureBoxSizeMode.Zoom;
             this.pBox.TabIndex = 1;
             this.pBox.TabStop = false;
             this.pBox.Paint += new System.Windows.Forms.PaintEventHandler(this.pBox_Paint);
@@ -74,7 +75,7 @@
             // bSave
             // 
             this.bSave.Anchor = System.Windows.Forms.AnchorStyles.Bottom;
-            this.bSave.Location = new System.Drawing.Point(162, 428);
+            this.bSave.Location = new System.Drawing.Point(162, 152);
             this.bSave.Name = "bSave";
             this.bSave.Size = new System.Drawing.Size(102, 23);
             this.bSave.TabIndex = 2;
@@ -85,7 +86,7 @@
             // bPrevious
             // 
             this.bPrevious.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
-            this.bPrevious.Location = new System.Drawing.Point(12, 428);
+            this.bPrevious.Location = new System.Drawing.Point(12, 152);
             this.bPrevious.Name = "bPrevious";
             this.bPrevious.Size = new System.Drawing.Size(144, 23);
             this.bPrevious.TabIndex = 3;
@@ -96,7 +97,7 @@
             // bNext
             // 
             this.bNext.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-            this.bNext.Location = new System.Drawing.Point(594, 428);
+            this.bNext.Location = new System.Drawing.Point(594, 152);
             this.bNext.Name = "bNext";
             this.bNext.Size = new System.Drawing.Size(162, 23);
             this.bNext.TabIndex = 4;
@@ -123,7 +124,7 @@
             // bOpen
             // 
             this.bOpen.Anchor = System.Windows.Forms.AnchorStyles.Bottom;
-            this.bOpen.Location = new System.Drawing.Point(378, 428);
+            this.bOpen.Location = new System.Drawing.Point(378, 152);
             this.bOpen.Name = "bOpen";
             this.bOpen.Size = new System.Drawing.Size(102, 23);
             this.bOpen.TabIndex = 6;
@@ -138,7 +139,7 @@
             this.bCropScreenshot.Name = "bCropScreenshot";
             this.bCropScreenshot.Size = new System.Drawing.Size(364, 23);
             this.bCropScreenshot.TabIndex = 7;
-            this.bCropScreenshot.Text = "Selection Screenshot";
+            this.bCropScreenshot.Text = "Selection Screenshot [ALT + Pause]";
             this.bCropScreenshot.UseVisualStyleBackColor = true;
             this.bCropScreenshot.Click += new System.EventHandler(this.bCropScreenshot_Click);
             // 
@@ -148,14 +149,14 @@
             this.bScreenshot.Name = "bScreenshot";
             this.bScreenshot.Size = new System.Drawing.Size(374, 23);
             this.bScreenshot.TabIndex = 8;
-            this.bScreenshot.Text = "Quick Screenshot";
+            this.bScreenshot.Text = "Quick Screenshot [Pause]";
             this.bScreenshot.UseVisualStyleBackColor = true;
             this.bScreenshot.Click += new System.EventHandler(this.bScreenshot_Click);
             // 
             // bDelete
             // 
             this.bDelete.Anchor = System.Windows.Forms.AnchorStyles.Bottom;
-            this.bDelete.Location = new System.Drawing.Point(270, 428);
+            this.bDelete.Location = new System.Drawing.Point(270, 152);
             this.bDelete.Name = "bDelete";
             this.bDelete.Size = new System.Drawing.Size(102, 23);
             this.bDelete.TabIndex = 9;
@@ -167,7 +168,7 @@
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(768, 463);
+            this.ClientSize = new System.Drawing.Size(768, 187);
             this.Controls.Add(this.bDelete);
             this.Controls.Add(this.bScreenshot);
             this.Controls.Add(this.bCropScreenshot);
@@ -179,7 +180,7 @@
             this.Controls.Add(this.pBox);
             this.Controls.Add(this.bPath);
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
-            this.MinimumSize = new System.Drawing.Size(16, 300);
+            this.MinimumSize = new System.Drawing.Size(16, 86);
             this.Name = "Form1";
             this.Text = "Multi Screen Screenshot";
             this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.Form1_FormClosing);
