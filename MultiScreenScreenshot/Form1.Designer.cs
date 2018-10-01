@@ -36,7 +36,6 @@
             this.bPrevious = new System.Windows.Forms.Button();
             this.bNext = new System.Windows.Forms.Button();
             this.timer1 = new System.Windows.Forms.Timer(this.components);
-            this.lSaved = new System.Windows.Forms.Label();
             this.bOpen = new System.Windows.Forms.Button();
             this.bCropScreenshot = new System.Windows.Forms.Button();
             this.bScreenshot = new System.Windows.Forms.Button();
@@ -110,17 +109,6 @@
             this.timer1.Interval = 10;
             this.timer1.Tick += new System.EventHandler(this.timer1_Tick);
             // 
-            // lSaved
-            // 
-            this.lSaved.AutoSize = true;
-            this.lSaved.Font = new System.Drawing.Font("BigNoodleTitling", 27.75F, ((System.Drawing.FontStyle)((System.Drawing.FontStyle.Bold | System.Drawing.FontStyle.Italic))), System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.lSaved.ForeColor = System.Drawing.Color.Red;
-            this.lSaved.Location = new System.Drawing.Point(12, 38);
-            this.lSaved.Name = "lSaved";
-            this.lSaved.Size = new System.Drawing.Size(97, 41);
-            this.lSaved.TabIndex = 5;
-            this.lSaved.Text = "Saved!";
-            // 
             // bOpen
             // 
             this.bOpen.Anchor = System.Windows.Forms.AnchorStyles.Bottom;
@@ -173,7 +161,6 @@
             this.Controls.Add(this.bScreenshot);
             this.Controls.Add(this.bCropScreenshot);
             this.Controls.Add(this.bOpen);
-            this.Controls.Add(this.lSaved);
             this.Controls.Add(this.bNext);
             this.Controls.Add(this.bPrevious);
             this.Controls.Add(this.bSave);
@@ -189,7 +176,6 @@
             this.SizeChanged += new System.EventHandler(this.Form1_SizeChanged);
             ((System.ComponentModel.ISupportInitialize)(this.pBox)).EndInit();
             this.ResumeLayout(false);
-            this.PerformLayout();
 
         }
 
@@ -201,7 +187,6 @@
         private System.Windows.Forms.Button bPrevious;
         private System.Windows.Forms.Button bNext;
         private System.Windows.Forms.Timer timer1;
-        private System.Windows.Forms.Label lSaved;
         private System.Windows.Forms.Button bOpen;
         private System.Windows.Forms.Button bCropScreenshot;
         private System.Windows.Forms.Button bScreenshot;
