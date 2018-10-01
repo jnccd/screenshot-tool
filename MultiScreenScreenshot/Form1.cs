@@ -28,6 +28,13 @@ namespace MultiScreenScreenshot
         bool IsMouseDown = false;
         int MinWidth;
         int MinHeight = 86;
+        bool saved
+        {
+            get
+            {
+                return SavedImageIndex.Contains(RecordedImagesIndex);
+            }
+        }
 
         public Form1()
         {
@@ -115,6 +122,8 @@ namespace MultiScreenScreenshot
                     RecordedImagesIndex = RecordedImages.Count - 1;
                     UpdateUI();
 
+                    Clipboard.SetImage(Snipper.output);
+
                     bSave_Click(null, EventArgs.Empty);
 
                     Location = new Point(Snipper.pMouseDown.X + Snipper.ImageDimensions.X - 8 - pBox.Location.X, 
@@ -148,16 +157,10 @@ namespace MultiScreenScreenshot
 
             Text = "Multi Screen Screenshot - TargetDir: " + config.Default.path + " - " + count + " saved screenshots!";
             pBox.Image = RecordedImages[RecordedImagesIndex];
-            if (SavedImageIndex.Contains(RecordedImagesIndex))
-            {
-                lSaved.Visible = true;
+            if (saved)
                 bSave.Enabled = false;
-            }
             else
-            {
-                lSaved.Visible = false;
                 bSave.Enabled = true;
-            }
 
             if (RecordedImagesIndex == 0)
                 bPrevious.Enabled = false;
@@ -270,6 +273,11 @@ namespace MultiScreenScreenshot
                 Rectangle ee = GetRectangleFromPoints(pMouseDown, pMouseCurrently);
                 using (Pen pen = new Pen(Color.Red, 1))
                     e.Graphics.DrawRectangle(pen, ee);
+            }
+            if (saved)
+            {
+                using (Pen pen = new Pen(Color.Red, 1))
+                    e.Graphics.DrawString("Saved!", new Font("BigNoodleTitling", 40, FontStyle.Italic), Brushes.Red, new PointF(0, 0));
             }
         }
         private void pBox_MouseClick(object sender, MouseEventArgs e)
