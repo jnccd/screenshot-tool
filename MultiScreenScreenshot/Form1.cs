@@ -100,6 +100,7 @@ namespace MultiScreenScreenshot
                 RecordedImages.Add(Program.GetFullScreenshot());
                 RecordedImagesIndex = RecordedImages.Count - 1;
                 UpdateUI();
+                Clipboard.SetImage(RecordedImages[RecordedImagesIndex]);
             }
             catch (Exception e)
             {
@@ -122,14 +123,16 @@ namespace MultiScreenScreenshot
                     RecordedImagesIndex = RecordedImages.Count - 1;
                     UpdateUI();
 
-                    Clipboard.SetImage(Snipper.output);
+                    Clipboard.SetImage(RecordedImages[RecordedImagesIndex]);
 
                     bSave_Click(null, EventArgs.Empty);
 
                     Location = new Point(Snipper.pMouseDown.X + Snipper.ImageDimensions.X - 8 - pBox.Location.X, 
                         Snipper.pMouseDown.Y - 32 - pBox.Location.Y);
-                    
-                    Program.SetForegroundWindow(this.Handle);
+
+                    WindowState = FormWindowState.Normal;
+                    Program.SetForegroundWindow(Handle);
+
                     SetOriginalSize();
                 }
             }
@@ -163,6 +166,10 @@ namespace MultiScreenScreenshot
                 bSave.Enabled = true;
 
             if (RecordedImagesIndex == 0)
+                bDelete.Enabled = false;
+            else
+                bDelete.Enabled = true;
+            if (RecordedImagesIndex == 0)
                 bPrevious.Enabled = false;
             else
                 bPrevious.Enabled = true;
@@ -187,6 +194,10 @@ namespace MultiScreenScreenshot
         }
         public void SetOriginalSize()
         {
+            Width = RecordedImages[RecordedImagesIndex].Width + Width - pBox.Width;
+            Height = RecordedImages[RecordedImagesIndex].Height + Height - pBox.Height;
+
+            // deoppelt hält besser :thonk:
             Width = RecordedImages[RecordedImagesIndex].Width + Width - pBox.Width;
             Height = RecordedImages[RecordedImagesIndex].Height + Height - pBox.Height;
         }
@@ -215,6 +226,54 @@ namespace MultiScreenScreenshot
         public void CenterAroundMouse()
         {
             Location = new Point(MousePosition.X - Width / 2, MousePosition.Y - Height / 2);
+        }
+        public Point zoomPicBoxCoordsToImageCoords(Point P, PictureBox pBox)
+        {
+            int imgWidth = pBox.Image.Width;
+            int imgHeight = pBox.Image.Height;
+            int boxWidth = pBox.Size.Width;
+            int boxHeight = pBox.Size.Height;
+
+            //This variable will hold the result
+            float X = P.X;
+            float Y = P.Y;
+            //Comparing the aspect ratio of both the control and the image itself.
+            if (imgWidth / imgHeight > boxWidth / boxHeight)
+            {
+                //If true, that means that the image is stretched through the width of the control.
+                //'In other words: the image is limited by the width.
+
+                //The scale of the image in the Picture Box.
+                float scale = boxWidth / (float)imgWidth;
+
+                //Since the image is in the middle, this code is used to determinate the empty space in the height
+                //'by getting the difference between the box height and the image actual displayed height and dividing it by 2.
+                float blankPart = (boxHeight - scale * imgHeight) / 2;
+
+                Y -= blankPart;
+
+                //Scaling the results.
+                X /= scale;
+                Y /= scale;
+            }
+            else
+            {
+                //If true, that means that the image is stretched through the height of the control.
+                //'In other words: the image is limited by the height.
+
+                //The scale of the image in the Picture Box.
+                float scale = boxHeight / (float)imgHeight;
+
+                //Since the image is in the middle, this code is used to determinate the empty space in the width
+                //'by getting the difference between the box width and the image actual displayed width and dividing it by 2.
+                float blankPart = (boxWidth - scale * imgWidth) / 2;
+                X -= blankPart;
+
+                //Scaling the results.
+                X /= scale;
+                Y /= scale;
+            }
+            return new Point((int)X, (int)Y);
         }
 
         // Button Events
@@ -301,6 +360,28 @@ namespace MultiScreenScreenshot
                 //    }
                 //    catch { }
                 //})));
+                GraphicsUnit Unit = GraphicsUnit.Pixel;
+                if (RecordedImages[RecordedImagesIndex].GetBounds(ref Unit).Width == Program.AllScreenBounds.Width)
+                {
+                    int i = 1;
+                    foreach (Screen S in Screen.AllScreens)
+                    {
+                        m.MenuItems.Add(new MenuItem("Crop to " + i.toShitEnglishNumberThingy() + " Screen", ((object s, EventArgs ev) =>
+                        {
+                            try
+                            {
+                                RecordedImages.Add(Program.CropImage(RecordedImages[RecordedImagesIndex],
+                                    new Rectangle(S.Bounds.X - Program.AllScreenBounds.X,
+                                    S.Bounds.Y - Program.AllScreenBounds.Y,
+                                    S.Bounds.Width, S.Bounds.Height)));
+                                RecordedImagesIndex = RecordedImages.Count - 1;
+                                UpdateUI();
+                            }
+                            catch { }
+                        })));
+                        i++;
+                    }
+                }
                 m.MenuItems.Add(new MenuItem("1:1 Size", ((object s, EventArgs ev) =>
                 {
                     try
@@ -316,14 +397,6 @@ namespace MultiScreenScreenshot
                         Height = MinimumSize.Height;
                         Width = MinimumSize.Width;
                         CenterAroundMouse();
-                    }
-                    catch { }
-                })));
-                m.MenuItems.Add(new MenuItem("Delete", ((object s, EventArgs ev) =>
-                {
-                    try
-                    {
-                        DeleteCurrentImage();
                     }
                     catch { }
                 })));
@@ -349,10 +422,8 @@ namespace MultiScreenScreenshot
             if (e.Button == MouseButtons.Left)
             {
                 Rectangle crop = GetRectangleFromPoints(
-                        new Point((int)(pMouseDown.X * (double)RecordedImages[RecordedImagesIndex].Width / pBox.Width),
-                            (int)(pMouseDown.Y * (double)RecordedImages[RecordedImagesIndex].Height / pBox.Height)),
-                        new Point((int)(pMouseCurrently.X * (double)RecordedImages[RecordedImagesIndex].Width / pBox.Width),
-                            (int)(pMouseCurrently.Y * (double)RecordedImages[RecordedImagesIndex].Height / pBox.Height)));
+                        zoomPicBoxCoordsToImageCoords(new Point(pMouseDown.X, pMouseDown.Y), pBox),
+                        zoomPicBoxCoordsToImageCoords(new Point(pMouseCurrently.X, pMouseCurrently.Y), pBox));
                 if (crop.Width == 0 || crop.Height == 0)
                 {
                     IsMouseDown = false;

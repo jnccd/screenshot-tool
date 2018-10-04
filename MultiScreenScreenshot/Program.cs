@@ -14,7 +14,8 @@ namespace MultiScreenScreenshot
     {
         public static Form1 MyForm;
         public static KeyboardHook keyHook = new KeyboardHook(true);
-        
+        public static Rectangle AllScreenBounds = GetAllScreenBounds();
+
         [STAThread]
         static void Main()
         {
@@ -24,7 +25,7 @@ namespace MultiScreenScreenshot
             Application.Run(MyForm);
         }
 
-        public static Bitmap GetFullScreenshot()
+        static Rectangle GetAllScreenBounds()
         {
             Rectangle ImageDimensions = new Rectangle(0, 0, 1, 1);
             foreach (Screen S in Screen.AllScreens)
@@ -41,9 +42,13 @@ namespace MultiScreenScreenshot
             ImageDimensions.Width -= ImageDimensions.X;
             ImageDimensions.Height -= ImageDimensions.Y;
 
-            Bitmap bmp = new Bitmap(ImageDimensions.Width, ImageDimensions.Height, PixelFormat.Format32bppArgb);
+            return ImageDimensions;
+        }
+        public static Bitmap GetFullScreenshot()
+        {
+            Bitmap bmp = new Bitmap(AllScreenBounds.Width, AllScreenBounds.Height, PixelFormat.Format32bppArgb);
             Graphics graphics = Graphics.FromImage(bmp);
-            graphics.CopyFromScreen(ImageDimensions.X, ImageDimensions.Y, 0, 0, new Size(ImageDimensions.Width, ImageDimensions.Height), CopyPixelOperation.SourceCopy);
+            graphics.CopyFromScreen(AllScreenBounds.X, AllScreenBounds.Y, 0, 0, new Size(AllScreenBounds.Width, AllScreenBounds.Height), CopyPixelOperation.SourceCopy);
             return bmp;
         }
         public static Bitmap CropImage(Bitmap source, Rectangle section)
@@ -79,6 +84,17 @@ namespace MultiScreenScreenshot
             {
                 action();
             }
+        }
+        public static string toShitEnglishNumberThingy(this int i)
+        {
+            if (i == 1)
+                return "1st";
+            if (i == 2)
+                return "2nd";
+            if (i == 3)
+                return "3rd";
+            else
+                return i + "th";    
         }
     }
 }
