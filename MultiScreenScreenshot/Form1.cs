@@ -281,7 +281,7 @@ namespace MultiScreenScreenshot
         private void bSave_Click(object sender, EventArgs e)
         {
             TimeSpan t = (DateTime.UtcNow - new DateTime(1999, 5, 4));
-            string fileName = "Screenshot" + (long)t.TotalMilliseconds;
+            string fileName = "Screenshot_" + (long.MaxValue - (long)t.TotalMilliseconds);
             RecordedImages[RecordedImagesIndex].Save(config.Default.path + "\\" + fileName + ".png");
 
             if (!SavedImageIndex.Contains(RecordedImagesIndex))
@@ -430,8 +430,8 @@ namespace MultiScreenScreenshot
                     IsMouseDown = false;
                     return;
                 }
-                RecordedImages.Add(Program.CropImage(RecordedImages[RecordedImagesIndex], crop));
-                RecordedImagesIndex = RecordedImages.Count - 1;
+                RecordedImages.Insert(RecordedImagesIndex + 1, Program.CropImage(RecordedImages[RecordedImagesIndex], crop));
+                RecordedImagesIndex = RecordedImagesIndex + 1;
                 UpdateUI();
             }
             IsMouseDown = false;
