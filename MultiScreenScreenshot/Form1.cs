@@ -221,6 +221,7 @@ namespace MultiScreenScreenshot
                 if (RecordedImagesIndex > RecordedImages.Count - 1)
                     RecordedImagesIndex = RecordedImages.Count - 1;
                 UpdateUI();
+                GC.Collect();
             }
         }
         public void CenterAroundMouse()
