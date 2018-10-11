@@ -127,7 +127,7 @@ namespace MultiScreenScreenshot
                     Clipboard.SetImage(RecordedImages[RecordedImagesIndex]);
 
                     bSave_Click(null, EventArgs.Empty);
-
+                    
                     Location = new Point(Snipper.pMouseDown.X + Snipper.ImageDimensions.X - 8 - pBox.Location.X, 
                         Snipper.pMouseDown.Y - 32 - pBox.Location.Y);
 
@@ -135,6 +135,27 @@ namespace MultiScreenScreenshot
                     Program.SetForegroundWindow(Handle);
 
                     SetOriginalSize();
+
+                    // Ausgleichen des blankParts
+                    int imgWidth = pBox.Image.Width;
+                    int imgHeight = pBox.Image.Height;
+                    int boxWidth = pBox.Size.Width;
+                    int boxHeight = pBox.Size.Height;
+                    float X = 0;
+                    float Y = 0;
+                    if (imgWidth / imgHeight > boxWidth / boxHeight)
+                    {
+                        float scale = boxWidth / (float)imgWidth;
+                        float blankPart = (boxHeight - scale * imgHeight) / 2;
+                        Y = blankPart;
+                    }
+                    else
+                    {
+                        float scale = boxHeight / (float)imgHeight;
+                        float blankPart = (boxWidth - scale * imgWidth) / 2;
+                        X = blankPart;
+                    }
+                    Location = new Point(Location.X - (int)X, Location.Y - (int)Y);
                 }
             }
             catch (Exception e)
@@ -198,7 +219,7 @@ namespace MultiScreenScreenshot
             Width = RecordedImages[RecordedImagesIndex].Width + Width - pBox.Width;
             Height = RecordedImages[RecordedImagesIndex].Height + Height - pBox.Height;
 
-            // deoppelt hält besser :thonk:
+            // doppelt hält besser :thonk:
             Width = RecordedImages[RecordedImagesIndex].Width + Width - pBox.Width;
             Height = RecordedImages[RecordedImagesIndex].Height + Height - pBox.Height;
         }
