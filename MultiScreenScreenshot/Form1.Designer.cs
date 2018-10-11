@@ -46,7 +46,7 @@
             // bPath
             // 
             this.bPath.Anchor = System.Windows.Forms.AnchorStyles.Bottom;
-            this.bPath.Location = new System.Drawing.Point(486, 152);
+            this.bPath.Location = new System.Drawing.Point(486, 265);
             this.bPath.Name = "bPath";
             this.bPath.Size = new System.Drawing.Size(102, 23);
             this.bPath.TabIndex = 0;
@@ -61,7 +61,7 @@
             | System.Windows.Forms.AnchorStyles.Right)));
             this.pBox.Location = new System.Drawing.Point(12, 41);
             this.pBox.Name = "pBox";
-            this.pBox.Size = new System.Drawing.Size(744, 105);
+            this.pBox.Size = new System.Drawing.Size(744, 218);
             this.pBox.SizeMode = System.Windows.Forms.PictureBoxSizeMode.Zoom;
             this.pBox.TabIndex = 1;
             this.pBox.TabStop = false;
@@ -74,7 +74,7 @@
             // bSave
             // 
             this.bSave.Anchor = System.Windows.Forms.AnchorStyles.Bottom;
-            this.bSave.Location = new System.Drawing.Point(162, 152);
+            this.bSave.Location = new System.Drawing.Point(162, 265);
             this.bSave.Name = "bSave";
             this.bSave.Size = new System.Drawing.Size(102, 23);
             this.bSave.TabIndex = 2;
@@ -85,7 +85,7 @@
             // bPrevious
             // 
             this.bPrevious.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
-            this.bPrevious.Location = new System.Drawing.Point(12, 152);
+            this.bPrevious.Location = new System.Drawing.Point(12, 265);
             this.bPrevious.Name = "bPrevious";
             this.bPrevious.Size = new System.Drawing.Size(144, 23);
             this.bPrevious.TabIndex = 3;
@@ -96,7 +96,7 @@
             // bNext
             // 
             this.bNext.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-            this.bNext.Location = new System.Drawing.Point(594, 152);
+            this.bNext.Location = new System.Drawing.Point(594, 265);
             this.bNext.Name = "bNext";
             this.bNext.Size = new System.Drawing.Size(162, 23);
             this.bNext.TabIndex = 4;
@@ -112,7 +112,7 @@
             // bOpen
             // 
             this.bOpen.Anchor = System.Windows.Forms.AnchorStyles.Bottom;
-            this.bOpen.Location = new System.Drawing.Point(378, 152);
+            this.bOpen.Location = new System.Drawing.Point(378, 265);
             this.bOpen.Name = "bOpen";
             this.bOpen.Size = new System.Drawing.Size(102, 23);
             this.bOpen.TabIndex = 6;
@@ -144,7 +144,7 @@
             // bDelete
             // 
             this.bDelete.Anchor = System.Windows.Forms.AnchorStyles.Bottom;
-            this.bDelete.Location = new System.Drawing.Point(270, 152);
+            this.bDelete.Location = new System.Drawing.Point(270, 265);
             this.bDelete.Name = "bDelete";
             this.bDelete.Size = new System.Drawing.Size(102, 23);
             this.bDelete.TabIndex = 9;
@@ -156,7 +156,7 @@
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(768, 187);
+            this.ClientSize = new System.Drawing.Size(768, 300);
             this.Controls.Add(this.bDelete);
             this.Controls.Add(this.bScreenshot);
             this.Controls.Add(this.bCropScreenshot);
