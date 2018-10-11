@@ -40,6 +40,7 @@ namespace MultiScreenScreenshot
         {
             InitializeComponent();
             Program.keyHook.KeyDown += KeyHook_KeyDown;
+            CurrentlyFocusedWindow.SetEventHook();
         }
         
         private void Form1_Load(object sender, EventArgs e)
@@ -157,8 +158,8 @@ namespace MultiScreenScreenshot
             foreach (string s in Directory.GetFiles(config.Default.path))
                 if (Path.GetFileNameWithoutExtension(s).Contains("Screenshot"))
                     count++;
-
-            Text = "Multi Screen Screenshot - TargetDir: " + config.Default.path + " - " + count + " saved screenshots!";
+            
+            Text = "Screenshot Tool - " + count + " saved screenshots! - TargetDir: " + config.Default.path;
             pBox.Image = RecordedImages[RecordedImagesIndex];
             if (saved)
                 bSave.Enabled = false;
@@ -282,6 +283,10 @@ namespace MultiScreenScreenshot
         {
             TimeSpan t = (DateTime.UtcNow - new DateTime(1999, 5, 4));
             string fileName = "Screenshot_" + (long.MaxValue - (long)t.TotalMilliseconds);
+            try
+            {
+                fileName += "_" + CurrentlyFocusedWindow.ProcessName;
+            } catch { }
             RecordedImages[RecordedImagesIndex].Save(config.Default.path + "\\" + fileName + ".png");
 
             if (!SavedImageIndex.Contains(RecordedImagesIndex))
@@ -391,7 +396,17 @@ namespace MultiScreenScreenshot
                     }
                     catch { }
                 })));
-                m.MenuItems.Add(new MenuItem("Smol", ((object s, EventArgs ev) =>
+                m.MenuItems.Add(new MenuItem("Medium Size", ((object s, EventArgs ev) =>
+                {
+                    try
+                    {
+                        Height = 350;
+                        Width = 350;
+                        CenterAroundMouse();
+                    }
+                    catch { }
+                })));
+                m.MenuItems.Add(new MenuItem("Smol Size", ((object s, EventArgs ev) =>
                 {
                     try
                     {
@@ -521,10 +536,6 @@ namespace MultiScreenScreenshot
                     AddScreenShotSnippingToolStyle();
                 else
                     AddScreenShot();
-            }
-            if (key == Keys.F1)
-            {
-                MessageBox.Show(Width + " - " + Height);
             }
         }
     }
