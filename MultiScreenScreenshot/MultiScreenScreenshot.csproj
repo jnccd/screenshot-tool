@@ -78,6 +78,7 @@
     <Compile Include="KeyboardHook.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Screenshot.cs" />
     <Compile Include="SnippingToolWindow.cs">
       <SubType>Form</SubType>
     </Compile>
