@@ -17,7 +17,7 @@ namespace MultiScreenScreenshot
     public partial class Form1 : Form
     {
         Color Contrl = Color.FromKnownColor(KnownColor.Control);
-        List<Bitmap> RecordedImages = new List<Bitmap>();
+        List<Screenshot> RecordedImages = new List<Screenshot>();
         List<Button> MiddleButtons = new List<Button>();
         List<int> SavedImageIndex = new List<int>();
         int RecordedImagesIndex = 0;
@@ -45,7 +45,7 @@ namespace MultiScreenScreenshot
         
         private void Form1_Load(object sender, EventArgs e)
         {
-            RecordedImages.Add(Program.GetFullScreenshot());
+            RecordedImages.Add(new Screenshot(Program.GetFullScreenshot(), getScreenshotName()));
 
             if (config.Default.path == "<Unset>" || !Directory.Exists(config.Default.path))
                 config.Default.path = Environment.GetFolderPath(Environment.SpecialFolder.MyPictures);
@@ -98,10 +98,10 @@ namespace MultiScreenScreenshot
             try
             {
                 System.Media.SystemSounds.Exclamation.Play();
-                RecordedImages.Add(Program.GetFullScreenshot());
+                RecordedImages.Add(new Screenshot(Program.GetFullScreenshot(), getScreenshotName()));
                 RecordedImagesIndex = RecordedImages.Count - 1;
                 UpdateUI();
-                Clipboard.SetImage(RecordedImages[RecordedImagesIndex]);
+                Clipboard.SetImage(RecordedImages[RecordedImagesIndex].Image);
             }
             catch (Exception e)
             {
@@ -120,12 +120,10 @@ namespace MultiScreenScreenshot
                 Snipper.ShowDialog();
                 if (Snipper.output != null)
                 {
-                    RecordedImages.Add(Snipper.output);
+                    RecordedImages.Add(new Screenshot(Snipper.output, getScreenshotName()));
                     RecordedImagesIndex = RecordedImages.Count - 1;
                     UpdateUI();
-
-                    Clipboard.SetImage(RecordedImages[RecordedImagesIndex]);
-
+                    
                     bSave_Click(null, EventArgs.Empty);
                     
                     Location = new Point(Snipper.pMouseDown.X + Snipper.ImageDimensions.X - 8 - pBox.Location.X, 
@@ -181,7 +179,7 @@ namespace MultiScreenScreenshot
                     count++;
             
             Text = "Screenshot Tool - " + count + " saved screenshots! - TargetDir: " + config.Default.path;
-            pBox.Image = RecordedImages[RecordedImagesIndex];
+            pBox.Image = RecordedImages[RecordedImagesIndex].Image;
             if (saved)
                 bSave.Enabled = false;
             else
@@ -202,26 +200,26 @@ namespace MultiScreenScreenshot
         }
         public void UpdateWindowRatioWidth()
         {
-            Size R = GetProperRatioSize(pBox.Size, true, RecordedImages[RecordedImagesIndex].Width / 
-                RecordedImages[RecordedImagesIndex].Height);
+            Size R = GetProperRatioSize(pBox.Size, true, RecordedImages[RecordedImagesIndex].Image.Width / 
+                RecordedImages[RecordedImagesIndex].Image.Height);
             Width += R.Width - pBox.Width;
             Height += R.Height - pBox.Height;
         }
         public void UpdateWindowRatioHeight()
         {
-            Size R = GetProperRatioSize(pBox.Size, false, RecordedImages[RecordedImagesIndex].Width /
-                RecordedImages[RecordedImagesIndex].Height);
+            Size R = GetProperRatioSize(pBox.Size, false, RecordedImages[RecordedImagesIndex].Image.Width /
+                RecordedImages[RecordedImagesIndex].Image.Height);
             Height += R.Height - pBox.Height;
             Width += R.Width - pBox.Width;
         }
         public void SetOriginalSize()
         {
-            Width = RecordedImages[RecordedImagesIndex].Width + Width - pBox.Width;
-            Height = RecordedImages[RecordedImagesIndex].Height + Height - pBox.Height;
+            Width = RecordedImages[RecordedImagesIndex].Image.Width + Width - pBox.Width;
+            Height = RecordedImages[RecordedImagesIndex].Image.Height + Height - pBox.Height;
 
             // doppelt hält besser :thonk:
-            Width = RecordedImages[RecordedImagesIndex].Width + Width - pBox.Width;
-            Height = RecordedImages[RecordedImagesIndex].Height + Height - pBox.Height;
+            Width = RecordedImages[RecordedImagesIndex].Image.Width + Width - pBox.Width;
+            Height = RecordedImages[RecordedImagesIndex].Image.Height + Height - pBox.Height;
         }
         public void Minimize()
         {
@@ -298,17 +296,23 @@ namespace MultiScreenScreenshot
             }
             return new Point((int)X, (int)Y);
         }
-
-        // Button Events
-        private void bSave_Click(object sender, EventArgs e)
+        public string getScreenshotName()
         {
             TimeSpan t = (DateTime.UtcNow - new DateTime(1999, 5, 4));
             string fileName = "Screenshot_" + (long.MaxValue - (long)t.TotalMilliseconds);
             try
             {
                 fileName += "_" + CurrentlyFocusedWindow.ProcessName;
-            } catch { }
-            RecordedImages[RecordedImagesIndex].Save(config.Default.path + "\\" + fileName + ".png");
+            }
+            catch { }
+            return fileName;
+        }
+
+        // Button Events
+        private void bSave_Click(object sender, EventArgs e)
+        {
+            RecordedImages[RecordedImagesIndex].Image.Save(config.Default.path + "\\" + RecordedImages[RecordedImagesIndex].fileName + ".png");
+            Clipboard.SetImage(RecordedImages[RecordedImagesIndex].Image);
 
             if (!SavedImageIndex.Contains(RecordedImagesIndex))
                 SavedImageIndex.Add(RecordedImagesIndex);
@@ -360,10 +364,10 @@ namespace MultiScreenScreenshot
                 using (Pen pen = new Pen(Color.Red, 1))
                     e.Graphics.DrawRectangle(pen, ee);
             }
-            if (saved)
+            if (saved && pBox.Height > 8)
             {
                 using (Pen pen = new Pen(Color.Red, 1))
-                    e.Graphics.DrawString("Saved!", new Font("BigNoodleTitling", 40, FontStyle.Italic), Brushes.Red, new PointF(0, 0));
+                    e.Graphics.DrawString("Saved!", new Font("BigNoodleTitling", Math.Min(45, pBox.Height) - 8, FontStyle.Italic), Brushes.Red, new PointF(0, 0));
             }
         }
         private void pBox_MouseClick(object sender, MouseEventArgs e)
@@ -388,7 +392,7 @@ namespace MultiScreenScreenshot
                 //    catch { }
                 //})));
                 GraphicsUnit Unit = GraphicsUnit.Pixel;
-                if (RecordedImages[RecordedImagesIndex].GetBounds(ref Unit).Width == Program.AllScreenBounds.Width)
+                if (RecordedImages[RecordedImagesIndex].Image.GetBounds(ref Unit).Width == Program.AllScreenBounds.Width)
                 {
                     int i = 1;
                     foreach (Screen S in Screen.AllScreens)
@@ -397,10 +401,10 @@ namespace MultiScreenScreenshot
                         {
                             try
                             {
-                                RecordedImages.Add(Program.CropImage(RecordedImages[RecordedImagesIndex],
+                                RecordedImages.Add(new Screenshot(Program.CropImage(RecordedImages[RecordedImagesIndex].Image,
                                     new Rectangle(S.Bounds.X - Program.AllScreenBounds.X,
                                     S.Bounds.Y - Program.AllScreenBounds.Y,
-                                    S.Bounds.Width, S.Bounds.Height)));
+                                    S.Bounds.Width, S.Bounds.Height)), RecordedImages[RecordedImagesIndex].fileName + "_CROPPED"));
                                 RecordedImagesIndex = RecordedImages.Count - 1;
                                 UpdateUI();
                             }
@@ -466,7 +470,7 @@ namespace MultiScreenScreenshot
                     IsMouseDown = false;
                     return;
                 }
-                RecordedImages.Insert(RecordedImagesIndex + 1, Program.CropImage(RecordedImages[RecordedImagesIndex], crop));
+                RecordedImages.Insert(RecordedImagesIndex + 1, new Screenshot(Program.CropImage(RecordedImages[RecordedImagesIndex].Image, crop), RecordedImages[RecordedImagesIndex].fileName + "_CROPPED"));
                 RecordedImagesIndex = RecordedImagesIndex + 1;
                 UpdateUI();
             }
