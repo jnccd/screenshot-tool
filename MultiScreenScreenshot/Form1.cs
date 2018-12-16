@@ -369,6 +369,16 @@ namespace MultiScreenScreenshot
                 using (Pen pen = new Pen(Color.Red, 1))
                     e.Graphics.DrawString("Saved!", new Font("BigNoodleTitling", Math.Min(45, pBox.Height) - 8, FontStyle.Italic), Brushes.Red, new PointF(0, 0));
             }
+            for (int i = RecordedImagesIndex - 2; i < RecordedImagesIndex + 3; i++)
+            {
+                if (i >= 0 && i < RecordedImages.Count)
+                {
+                    int index = i - RecordedImagesIndex;
+                    e.Graphics.DrawImage(RecordedImages[i].Image, new Rectangle(pBox.Width / 2 - 50 + index * 112, pBox.Height - 56 - 12, 100, 56));
+                }
+            }
+            using (Pen pen = new Pen(Color.Black, 5))
+                e.Graphics.DrawRectangle(pen, new Rectangle(pBox.Width / 2 - 50, pBox.Height - 56 - 12, 100, 56));
         }
         private void pBox_MouseClick(object sender, MouseEventArgs e)
         {
@@ -401,14 +411,15 @@ namespace MultiScreenScreenshot
                         {
                             try
                             {
-                                RecordedImages.Add(new Screenshot(Program.CropImage(RecordedImages[RecordedImagesIndex].Image,
+                                RecordedImages.Insert(RecordedImagesIndex + 1, new Screenshot(Program.CropImage(RecordedImages[RecordedImagesIndex].Image,
                                     new Rectangle(S.Bounds.X - Program.AllScreenBounds.X,
                                     S.Bounds.Y - Program.AllScreenBounds.Y,
                                     S.Bounds.Width, S.Bounds.Height)), RecordedImages[RecordedImagesIndex].fileName + "_CROPPED"));
-                                RecordedImagesIndex = RecordedImages.Count - 1;
+                                RecordedImagesIndex++;
                                 UpdateUI();
                             }
-                            catch { }
+                            catch (Exception ex)
+                            { }
                         })));
                         i++;
                     }
