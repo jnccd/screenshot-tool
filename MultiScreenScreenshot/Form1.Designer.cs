@@ -167,7 +167,6 @@
             this.Controls.Add(this.pBox);
             this.Controls.Add(this.bPath);
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
-            this.MaximizeBox = false;
             this.MinimumSize = new System.Drawing.Size(16, 86);
             this.Name = "Form1";
             this.Text = "Multi Screen Screenshot";
