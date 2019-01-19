@@ -45,8 +45,6 @@ namespace MultiScreenScreenshot
         
         private void Form1_Load(object sender, EventArgs e)
         {
-            RecordedImages.Add(new Screenshot(Program.GetFullScreenshot(), getScreenshotName()));
-
             if (config.Default.path == "<Unset>" || !Directory.Exists(config.Default.path))
                 config.Default.path = Environment.GetFolderPath(Environment.SpecialFolder.MyPictures);
             if (config.Default.windowSize.Width != 0)
@@ -68,14 +66,24 @@ namespace MultiScreenScreenshot
             MinimumSize = new Size(MinWidth, MinHeight);
 
             Form1_SizeChanged(null, EventArgs.Empty);
-            UpdateWindowRatioWidth();
-            UpdateUI();
 
             Task.Factory.StartNew(() =>
             {
                 Thread.Sleep(300);
                 this.InvokeIfRequired(Minimize);
             });
+
+            bool worked = false;
+            while (!worked)
+            {
+                try
+                {
+                    RecordedImages.Add(new Screenshot(Program.GetFullScreenshot(), getScreenshotName()));
+                    worked = true;
+                } catch { }
+            }
+            UpdateWindowRatioWidth();
+            UpdateUI();
         }
         
         // Helper Methods
@@ -374,11 +382,14 @@ namespace MultiScreenScreenshot
                 if (i >= 0 && i < RecordedImages.Count)
                 {
                     int index = i - RecordedImagesIndex;
-                    e.Graphics.DrawImage(RecordedImages[i].Image, new Rectangle(pBox.Width / 2 - 50 + index * 112, pBox.Height - 56 - 12, 100, 56));
+                    Rectangle draw = new Rectangle(pBox.Width / 2 - 50 + index * 112, pBox.Height - Math.Min(56, pBox.Height - 2), 100, Math.Min(56, pBox.Height - 2));
+                    
+                    if (index == 0)
+                        using (Pen pen = new Pen(Color.Black, 5))
+                            e.Graphics.DrawRectangle(pen, draw);
+                    e.Graphics.DrawImage(RecordedImages[i].Image, draw);
                 }
             }
-            using (Pen pen = new Pen(Color.Black, 5))
-                e.Graphics.DrawRectangle(pen, new Rectangle(pBox.Width / 2 - 50, pBox.Height - 56 - 12, 100, 56));
         }
         private void pBox_MouseClick(object sender, MouseEventArgs e)
         {
@@ -481,7 +492,9 @@ namespace MultiScreenScreenshot
                     IsMouseDown = false;
                     return;
                 }
-                RecordedImages.Insert(RecordedImagesIndex + 1, new Screenshot(Program.CropImage(RecordedImages[RecordedImagesIndex].Image, crop), RecordedImages[RecordedImagesIndex].fileName + "_CROPPED"));
+                RecordedImages.Insert(RecordedImagesIndex + 1, new Screenshot(Program.CropImage(RecordedImages[RecordedImagesIndex].Image, crop), 
+                    RecordedImages[RecordedImagesIndex].fileName + "_CROPPED"));
+                SavedImageIndex = SavedImageIndex.Select(x => x > RecordedImagesIndex ? x + 1 : x).ToList();
                 RecordedImagesIndex = RecordedImagesIndex + 1;
                 UpdateUI();
             }
