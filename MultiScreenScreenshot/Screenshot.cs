@@ -10,12 +10,14 @@ namespace MultiScreenScreenshot
     public class Screenshot
     {
         public Bitmap Image;
-        public string fileName;
+        public string FileName;
+        public bool Saved;
         
-        public Screenshot(Bitmap Image, string fileName)
+        public Screenshot(Bitmap Image, string FileName)
         {
             this.Image = Image;
-            this.fileName = fileName;
+            this.FileName = FileName;
+            Saved = false;
         }
     }
 }
