@@ -19,7 +19,6 @@ namespace MultiScreenScreenshot
         Color Contrl = Color.FromKnownColor(KnownColor.Control);
         List<Screenshot> RecordedImages = new List<Screenshot>();
         List<Button> MiddleButtons = new List<Button>();
-        List<int> SavedImageIndex = new List<int>();
         int RecordedImagesIndex = 0;
         int ticks = 0;
         Size LastSize;
@@ -28,13 +27,6 @@ namespace MultiScreenScreenshot
         bool IsMouseDown = false;
         int MinWidth;
         int MinHeight = 86;
-        bool saved
-        {
-            get
-            {
-                return SavedImageIndex.Contains(RecordedImagesIndex);
-            }
-        }
 
         public Form1()
         {
@@ -188,10 +180,10 @@ namespace MultiScreenScreenshot
             
             Text = "Screenshot Tool - " + count + " saved screenshots! - TargetDir: " + config.Default.path;
             pBox.Image = RecordedImages[RecordedImagesIndex].Image;
-            if (saved)
-                bSave.Enabled = false;
+            if (RecordedImages[RecordedImagesIndex].Saved)
+                bSave.Text = "To Clipboard";
             else
-                bSave.Enabled = true;
+                bSave.Text = "Save";
 
             if (RecordedImagesIndex == 0)
                 bDelete.Enabled = false;
@@ -319,12 +311,15 @@ namespace MultiScreenScreenshot
         // Button Events
         private void bSave_Click(object sender, EventArgs e)
         {
-            RecordedImages[RecordedImagesIndex].Image.Save(config.Default.path + "\\" + RecordedImages[RecordedImagesIndex].fileName + ".png");
-            Clipboard.SetImage(RecordedImages[RecordedImagesIndex].Image);
-
-            if (!SavedImageIndex.Contains(RecordedImagesIndex))
-                SavedImageIndex.Add(RecordedImagesIndex);
-            UpdateUI();
+            if (RecordedImages[RecordedImagesIndex].Saved)
+                Clipboard.SetImage(RecordedImages[RecordedImagesIndex].Image);
+            else
+            {
+                RecordedImages[RecordedImagesIndex].Image.Save(config.Default.path + "\\" + RecordedImages[RecordedImagesIndex].FileName + ".png");
+                Clipboard.SetImage(RecordedImages[RecordedImagesIndex].Image);
+                RecordedImages[RecordedImagesIndex].Saved = true;
+                UpdateUI();
+            }
         }
         private void bPath_Click(object sender, EventArgs e)
         {
@@ -372,7 +367,7 @@ namespace MultiScreenScreenshot
                 using (Pen pen = new Pen(Color.Red, 1))
                     e.Graphics.DrawRectangle(pen, ee);
             }
-            if (saved && pBox.Height > 8)
+            if (RecordedImages[RecordedImagesIndex].Saved && pBox.Height > 8)
             {
                 using (Pen pen = new Pen(Color.Red, 1))
                     e.Graphics.DrawString("Saved!", new Font("BigNoodleTitling", Math.Min(45, pBox.Height) - 8, FontStyle.Italic), Brushes.Red, new PointF(0, 0));
@@ -425,7 +420,7 @@ namespace MultiScreenScreenshot
                                 RecordedImages.Insert(RecordedImagesIndex + 1, new Screenshot(Program.CropImage(RecordedImages[RecordedImagesIndex].Image,
                                     new Rectangle(S.Bounds.X - Program.AllScreenBounds.X,
                                     S.Bounds.Y - Program.AllScreenBounds.Y,
-                                    S.Bounds.Width, S.Bounds.Height)), RecordedImages[RecordedImagesIndex].fileName + "_CROPPED"));
+                                    S.Bounds.Width, S.Bounds.Height)), RecordedImages[RecordedImagesIndex].FileName + "_CROPPED"));
                                 RecordedImagesIndex++;
                                 UpdateUI();
                             }
@@ -493,8 +488,7 @@ namespace MultiScreenScreenshot
                     return;
                 }
                 RecordedImages.Insert(RecordedImagesIndex + 1, new Screenshot(Program.CropImage(RecordedImages[RecordedImagesIndex].Image, crop), 
-                    RecordedImages[RecordedImagesIndex].fileName + "_CROPPED"));
-                SavedImageIndex = SavedImageIndex.Select(x => x > RecordedImagesIndex ? x + 1 : x).ToList();
+                    RecordedImages[RecordedImagesIndex].FileName + "_CROPPED"));
                 RecordedImagesIndex = RecordedImagesIndex + 1;
                 UpdateUI();
             }
@@ -504,7 +498,7 @@ namespace MultiScreenScreenshot
         // Other Events
         private void Form1_FormClosing(object sender, FormClosingEventArgs e)
         {
-            if (SavedImageIndex.Count + 1 < RecordedImages.Count && MessageBox.Show("Oi, you have unsaved Images! Do you really want to close me?", "Close?", MessageBoxButtons.YesNo) == DialogResult.No)
+            if (RecordedImages.Skip(1).ToList().Exists(x => !x.Saved) && MessageBox.Show("Oi, you have unsaved Images! Do you really want to close me?", "Close?", MessageBoxButtons.YesNo) == DialogResult.No)
                 e.Cancel = true;
         }
         private void Form1_FormClosed(object sender, FormClosedEventArgs e)
