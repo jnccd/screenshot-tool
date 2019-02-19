@@ -35,11 +35,12 @@
             this.bSave = new System.Windows.Forms.Button();
             this.bPrevious = new System.Windows.Forms.Button();
             this.bNext = new System.Windows.Forms.Button();
-            this.timer1 = new System.Windows.Forms.Timer(this.components);
+            this.BackcolorEvent = new System.Windows.Forms.Timer(this.components);
             this.bOpen = new System.Windows.Forms.Button();
             this.bCropScreenshot = new System.Windows.Forms.Button();
             this.bScreenshot = new System.Windows.Forms.Button();
             this.bDelete = new System.Windows.Forms.Button();
+            this.HudDisappearance = new System.Windows.Forms.Timer(this.components);
             ((System.ComponentModel.ISupportInitialize)(this.pBox)).BeginInit();
             this.SuspendLayout();
             // 
@@ -104,10 +105,10 @@
             this.bNext.UseVisualStyleBackColor = true;
             this.bNext.Click += new System.EventHandler(this.bNext_Click);
             // 
-            // timer1
+            // BackcolorEvent
             // 
-            this.timer1.Interval = 10;
-            this.timer1.Tick += new System.EventHandler(this.timer1_Tick);
+            this.BackcolorEvent.Interval = 10;
+            this.BackcolorEvent.Tick += new System.EventHandler(this.timer1_Tick);
             // 
             // bOpen
             // 
@@ -152,6 +153,12 @@
             this.bDelete.UseVisualStyleBackColor = true;
             this.bDelete.Click += new System.EventHandler(this.bDelete_Click);
             // 
+            // HudDisappearance
+            // 
+            this.HudDisappearance.Enabled = true;
+            this.HudDisappearance.Interval = 20;
+            this.HudDisappearance.Tick += new System.EventHandler(this.HudDisappearance_Tick);
+            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -173,6 +180,7 @@
             this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.Form1_FormClosing);
             this.FormClosed += new System.Windows.Forms.FormClosedEventHandler(this.Form1_FormClosed);
             this.Load += new System.EventHandler(this.Form1_Load);
+            this.ResizeEnd += new System.EventHandler(this.Form1_ResizeEnd);
             this.SizeChanged += new System.EventHandler(this.Form1_SizeChanged);
             ((System.ComponentModel.ISupportInitialize)(this.pBox)).EndInit();
             this.ResumeLayout(false);
@@ -186,11 +194,12 @@
         private System.Windows.Forms.Button bSave;
         private System.Windows.Forms.Button bPrevious;
         private System.Windows.Forms.Button bNext;
-        private System.Windows.Forms.Timer timer1;
+        private System.Windows.Forms.Timer BackcolorEvent;
         private System.Windows.Forms.Button bOpen;
         private System.Windows.Forms.Button bCropScreenshot;
         private System.Windows.Forms.Button bScreenshot;
         private System.Windows.Forms.Button bDelete;
+        private System.Windows.Forms.Timer HudDisappearance;
     }
 }
 
