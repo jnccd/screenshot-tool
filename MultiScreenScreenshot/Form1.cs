@@ -27,6 +27,14 @@ namespace MultiScreenScreenshot
         bool IsMouseDown = false;
         int MinWidth;
         int MinHeight = 86;
+        int HUDvisibility = 0;
+        
+        const int HalfExtraPreviewImages = 2;
+        const int PreviewImageWidth = 100;
+        const int PreviewImageHeight = 56;
+        const int PreviewImageOutlineThickness = 7;
+        const int PreviewImagePadding = 12;
+        const int SavedSignFontSize = 40;
 
         public Form1()
         {
@@ -168,7 +176,7 @@ namespace MultiScreenScreenshot
         {
             this.BackColor = Color.FromArgb(255, 0, 0);
             ticks = 0;
-            timer1.Enabled = true;
+            BackcolorEvent.Enabled = true;
         }
         public void UpdateUI()
         {
@@ -370,17 +378,20 @@ namespace MultiScreenScreenshot
             if (RecordedImages[RecordedImagesIndex].Saved && pBox.Height > 8)
             {
                 using (Pen pen = new Pen(Color.Red, 1))
-                    e.Graphics.DrawString("Saved!", new Font("BigNoodleTitling", Math.Min(45, pBox.Height) - 8, FontStyle.Italic), Brushes.Red, new PointF(0, 0));
+                    e.Graphics.DrawString("Saved!", new Font("BigNoodleTitling", Math.Min(SavedSignFontSize, Math.Min(HUDvisibility, pBox.Height)) + 1, FontStyle.Italic), 
+                        Brushes.Red, new PointF(0, 0));
             }
-            for (int i = RecordedImagesIndex - 2; i < RecordedImagesIndex + 3; i++)
+            for (int i = RecordedImagesIndex - HalfExtraPreviewImages; i < RecordedImagesIndex + HalfExtraPreviewImages + 1; i++)
             {
                 if (i >= 0 && i < RecordedImages.Count)
                 {
                     int index = i - RecordedImagesIndex;
-                    Rectangle draw = new Rectangle(pBox.Width / 2 - 50 + index * 112, pBox.Height - Math.Min(56, pBox.Height - 2), 100, Math.Min(56, pBox.Height - 2));
+                    Rectangle draw = new Rectangle(pBox.Width / 2 - (PreviewImageWidth/2) + index * (PreviewImageWidth + PreviewImagePadding), 
+                        pBox.Height - Math.Min(PreviewImageHeight + PreviewImageOutlineThickness, Math.Min(HUDvisibility, pBox.Height) - PreviewImageOutlineThickness), 
+                        PreviewImageWidth, PreviewImageHeight);
                     
                     if (index == 0)
-                        using (Pen pen = new Pen(Color.Black, 5))
+                        using (Pen pen = new Pen(Color.Black, PreviewImageOutlineThickness))
                             e.Graphics.DrawRectangle(pen, draw);
                     e.Graphics.DrawImage(RecordedImages[i].Image, draw);
                 }
@@ -464,6 +475,8 @@ namespace MultiScreenScreenshot
         // Cropping
         private void pBox_MouseMove(object sender, MouseEventArgs e)
         {
+            ResetHudVisibility(1);
+
             pMouseCurrently = e.Location;
             pBox.Refresh();
         }
@@ -509,6 +522,8 @@ namespace MultiScreenScreenshot
         }
         private void Form1_SizeChanged(object sender, EventArgs e)
         {
+            ResetHudVisibility(25);
+
             // Buttons
             bPrevious.Width = bSave.Location.X - bPrevious.Location.X - 6;
             bNext.Location = new Point(bPath.Location.X + bPath.Width + 6, bNext.Location.Y);
@@ -562,7 +577,7 @@ namespace MultiScreenScreenshot
 
             if (ticks == animLength)
             {
-                timer1.Enabled = false;
+                BackcolorEvent.Enabled = false;
                 this.BackColor = Contrl;
             }
             else
@@ -570,6 +585,17 @@ namespace MultiScreenScreenshot
                 this.BackColor = Color.FromArgb((int)(255 * (1 - percentage) + Contrl.R * percentage),
                     (int)(Contrl.G * percentage), (int)(Contrl.B * percentage));
             }
+        }
+        private void Form1_ResizeEnd(object sender, EventArgs e)
+        {
+            HudDisappearance.Enabled = this.WindowState != FormWindowState.Minimized;
+        }
+        private void HudDisappearance_Tick(object sender, EventArgs e)
+        {
+            HUDvisibility -= 3;
+            if (HUDvisibility < 0)
+                HUDvisibility = 0;
+            pBox.Refresh();
         }
         private void KeyHook_KeyDown(Keys key, bool Shift, bool Ctrl, bool Alt)
         {
@@ -580,6 +606,12 @@ namespace MultiScreenScreenshot
                 else
                     AddScreenShot();
             }
+        }
+        private void ResetHudVisibility(float Strength)
+        {
+            HUDvisibility += (int)((500 - (float)HUDvisibility) / 25f * Strength);
+            if (HUDvisibility > 400)
+                HUDvisibility = 400;
         }
     }
 }
