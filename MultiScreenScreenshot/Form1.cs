@@ -27,7 +27,17 @@ namespace MultiScreenScreenshot
         bool IsMouseDown = false;
         int MinWidth;
         int MinHeight = 86;
-        int HUDvisibility = 0;
+        float HUDvisibility = 0;
+        float HUDVisiblity
+        {
+            get
+            {
+                if (HUDvisibility < 1)
+                    return HUDvisibility;
+                else
+                    return 1;
+            }
+        }
         
         const int HalfExtraPreviewImages = 2;
         const int PreviewImageWidth = 100;
@@ -378,8 +388,8 @@ namespace MultiScreenScreenshot
             if (RecordedImages[RecordedImagesIndex].Saved && pBox.Height > 8)
             {
                 using (Pen pen = new Pen(Color.Red, 1))
-                    e.Graphics.DrawString("Saved!", new Font("BigNoodleTitling", Math.Min(SavedSignFontSize, Math.Min(HUDvisibility, pBox.Height)) + 1, FontStyle.Italic), 
-                        Brushes.Red, new PointF(0, 0));
+                    e.Graphics.DrawString("Saved!", new Font("BigNoodleTitling", Math.Min(SavedSignFontSize, pBox.Height) + 1, FontStyle.Italic), 
+                        Brushes.Red, new PointF(0, HUDVisiblity * (SavedSignFontSize + 15) - SavedSignFontSize - 15));
             }
             for (int i = RecordedImagesIndex - HalfExtraPreviewImages; i < RecordedImagesIndex + HalfExtraPreviewImages + 1; i++)
             {
@@ -387,7 +397,7 @@ namespace MultiScreenScreenshot
                 {
                     int index = i - RecordedImagesIndex;
                     Rectangle draw = new Rectangle(pBox.Width / 2 - (PreviewImageWidth/2) + index * (PreviewImageWidth + PreviewImagePadding), 
-                        pBox.Height - Math.Min(PreviewImageHeight + PreviewImageOutlineThickness, Math.Min(HUDvisibility, pBox.Height) - PreviewImageOutlineThickness), 
+                        pBox.Height - (int)Math.Min((PreviewImageHeight + PreviewImageOutlineThickness * 2) * HUDVisiblity, pBox.Height) + PreviewImageOutlineThickness, 
                         PreviewImageWidth, PreviewImageHeight);
                     
                     if (index == 0)
@@ -592,7 +602,7 @@ namespace MultiScreenScreenshot
         }
         private void HudDisappearance_Tick(object sender, EventArgs e)
         {
-            HUDvisibility -= 3;
+            HUDvisibility -= 0.06f;
             if (HUDvisibility < 0)
                 HUDvisibility = 0;
             pBox.Refresh();
@@ -609,9 +619,7 @@ namespace MultiScreenScreenshot
         }
         private void ResetHudVisibility(float Strength)
         {
-            HUDvisibility += (int)((500 - (float)HUDvisibility) / 25f * Strength);
-            if (HUDvisibility > 400)
-                HUDvisibility = 400;
+            HUDvisibility += (7.5f - HUDvisibility) / 25f * Strength;
         }
     }
 }
