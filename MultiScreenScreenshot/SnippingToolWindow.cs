@@ -45,8 +45,8 @@ namespace MultiScreenScreenshot
             ImageDimensions.Height -= ImageDimensions.Y;
 
             fullScreenshot = new Bitmap(ImageDimensions.Width, ImageDimensions.Height, PixelFormat.Format32bppArgb);
-            Graphics graphics = Graphics.FromImage(fullScreenshot);
-            graphics.CopyFromScreen(ImageDimensions.X, ImageDimensions.Y, 0, 0, new Size(ImageDimensions.Width, ImageDimensions.Height), CopyPixelOperation.SourceCopy);
+            using (Graphics graphics = Graphics.FromImage(fullScreenshot))
+                graphics.CopyFromScreen(ImageDimensions.X, ImageDimensions.Y, 0, 0, new Size(ImageDimensions.Width, ImageDimensions.Height), CopyPixelOperation.SourceCopy);
             Location = new Point(ImageDimensions.X, ImageDimensions.Y);
             Size = new Size(ImageDimensions.Width, ImageDimensions.Height);
             Bitmap TransparentScreenshot = (Bitmap)fullScreenshot.Clone();
@@ -127,9 +127,11 @@ namespace MultiScreenScreenshot
                 this.Close();
         }
 
-        private void pBox_Click(object sender, EventArgs e)
+        public void CleanUp()
         {
-
+            fullScreenshot.Dispose();
+            pBox.Image.Dispose();
+            output = null;
         }
     }
 }

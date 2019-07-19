@@ -43,7 +43,6 @@
             this.pBox.Size = new System.Drawing.Size(284, 261);
             this.pBox.TabIndex = 0;
             this.pBox.TabStop = false;
-            this.pBox.Click += new System.EventHandler(this.pBox_Click);
             this.pBox.Paint += new System.Windows.Forms.PaintEventHandler(this.pBox_Paint);
             this.pBox.MouseClick += new System.Windows.Forms.MouseEventHandler(this.pictureBox1_MouseClick);
             this.pBox.MouseDown += new System.Windows.Forms.MouseEventHandler(this.pictureBox1_MouseDown);
