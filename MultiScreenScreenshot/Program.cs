@@ -12,7 +12,7 @@ namespace MultiScreenScreenshot
 {
     public static class Program
     {
-        public static Form1 MyForm;
+        public static MainForm MyForm;
         public static KeyboardHook keyHook = new KeyboardHook(true);
         public static Rectangle AllScreenBounds = GetAllScreenBounds();
 
@@ -21,7 +21,7 @@ namespace MultiScreenScreenshot
         {
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
-            MyForm = new Form1();
+            MyForm = new MainForm();
             Application.Run(MyForm);
         }
 
@@ -56,11 +56,11 @@ namespace MultiScreenScreenshot
             // An empty bitmap which will hold the cropped image
             Bitmap bmp = new Bitmap(section.Width, section.Height);
 
-            Graphics g = Graphics.FromImage(bmp);
+            using (Graphics g = Graphics.FromImage(bmp))
 
-            // Draw the given area (section) of the source image
-            // at location 0,0 on the empty bitmap (bmp)
-            g.DrawImage(source, 0, 0, section, GraphicsUnit.Pixel);
+                // Draw the given area (section) of the source image
+                // at location 0,0 on the empty bitmap (bmp)
+                g.DrawImage(source, 0, 0, section, GraphicsUnit.Pixel);
 
             return bmp;
         }
@@ -85,7 +85,7 @@ namespace MultiScreenScreenshot
                 action();
             }
         }
-        public static string toShitEnglishNumberThingy(this int i)
+        public static string ToShitEnglishNumberThingy(this int i)
         {
             if (i == 1)
                 return "1st";
