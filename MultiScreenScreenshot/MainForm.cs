@@ -16,7 +16,6 @@ namespace MultiScreenScreenshot
 {
     public partial class MainForm : Form
     {
-        Color Contrl = Color.FromKnownColor(KnownColor.Control);
         List<Screenshot> RecordedImages = new List<Screenshot>();
         List<Button> MiddleButtons = new List<Button>();
         int RecordedImagesIndex = 0;
@@ -186,12 +185,6 @@ namespace MultiScreenScreenshot
                 }
             }
         }
-        public void ActivateKeyStrokeFeedback()
-        {
-            this.BackColor = Color.FromArgb(255, 0, 0);
-            ticks = 0;
-            BackcolorEvent.Enabled = true;
-        }
         public void UpdateUI()
         {
             int count = 0;
@@ -349,9 +342,11 @@ namespace MultiScreenScreenshot
         }
         private void BPath_Click(object sender, EventArgs e)
         {
-            FolderBrowserDialog FBD = new FolderBrowserDialog();
-            FBD.SelectedPath = config.Default.path;
-            FBD.Description = "Set the folder ill dump all the screensohts in.";
+            FolderBrowserDialog FBD = new FolderBrowserDialog
+            {
+                SelectedPath = config.Default.path,
+                Description = "Set the folder ill dump all the screensohts in."
+            };
             if (FBD.ShowDialog() == DialogResult.OK)
                 config.Default.path = FBD.SelectedPath;
             config.Default.Save();
@@ -453,8 +448,7 @@ namespace MultiScreenScreenshot
                                 RecordedImagesIndex++;
                                 UpdateUI();
                             }
-                            catch (Exception ex)
-                            { }
+                            catch { }
                         })));
                         i++;
                     }
@@ -467,22 +461,12 @@ namespace MultiScreenScreenshot
                     }
                     catch { }
                 })));
-                m.MenuItems.Add(new MenuItem("Medium Size", ((object s, EventArgs ev) =>
+                m.MenuItems.Add(new MenuItem("Smol Size", ((object s, EventArgs ev) =>
                 {
                     try
                     {
                         Height = 350;
                         Width = 350;
-                        CenterAroundMouse();
-                    }
-                    catch { }
-                })));
-                m.MenuItems.Add(new MenuItem("Smol Size", ((object s, EventArgs ev) =>
-                {
-                    try
-                    {
-                        Height = MinimumSize.Height;
-                        Width = MinimumSize.Width;
                         CenterAroundMouse();
                     }
                     catch { }
@@ -578,23 +562,6 @@ namespace MultiScreenScreenshot
 
             LastSize = Size;
         }
-        private void Timer1_Tick(object sender, EventArgs e)
-        {
-            int animLength = 15;
-            float percentage = ticks / (float)animLength;
-            ticks++;
-
-            if (ticks == animLength)
-            {
-                BackcolorEvent.Enabled = false;
-                this.BackColor = Contrl;
-            }
-            else
-            {
-                this.BackColor = Color.FromArgb((int)(255 * (1 - percentage) + Contrl.R * percentage),
-                    (int)(Contrl.G * percentage), (int)(Contrl.B * percentage));
-            }
-        }
         private void Form1_ResizeEnd(object sender, EventArgs e)
         {
             HudDisappearance.Enabled = this.WindowState != FormWindowState.Minimized;
@@ -608,9 +575,8 @@ namespace MultiScreenScreenshot
         }
         private void KeyHook_KeyDown(Keys key, bool Shift, bool Ctrl, bool Alt)
         {
-            if (DateTime.Now.Subtract(lastKeyDownEvent).TotalMilliseconds > 500)
-
-            if (key == Keys.Pause)
+            if (DateTime.Now.Subtract(lastKeyDownEvent).TotalMilliseconds > 300 && 
+                key == Keys.Pause)
             {
                 if (Alt)
                     AddScreenShotSnippingToolStyle();
@@ -622,20 +588,24 @@ namespace MultiScreenScreenshot
         }
         
         // ToolStrip
-        private void neuToolStripMenuItem_Click(object sender, EventArgs e)
+        private void NeuToolStripMenuItem_Click(object sender, EventArgs e)
         {
             RecordedImages.Add(new Screenshot(new Bitmap(1000, 1000), "newBitmap"));
             RecordedImagesIndex = RecordedImages.Count - 1;
             UpdateUI();
         }
-        private void öffnenToolStripMenuItem_Click(object sender, EventArgs e)
+        private void ÖffnenToolStripMenuItem_Click(object sender, EventArgs e)
         {
 
         }
-        private void speichernToolStripMenuItem_Click(object sender, EventArgs e) => SaveCurrentImage();
-        private void toClipboardToolStripMenuItem_Click(object sender, EventArgs e) => CopyCurrentImageToClipboard();
-        private void beendenToolStripMenuItem_Click(object sender, EventArgs e) => Application.Exit();
-        private void optionenToolStripMenuItem_Click(object sender, EventArgs e)
+        private void ShowFolderToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            Process.Start(config.Default.path);
+        }
+        private void SpeichernToolStripMenuItem_Click(object sender, EventArgs e) => SaveCurrentImage();
+        private void ToClipboardToolStripMenuItem_Click(object sender, EventArgs e) => CopyCurrentImageToClipboard();
+        private void BeendenToolStripMenuItem_Click(object sender, EventArgs e) => Application.Exit();
+        private void OptionenToolStripMenuItem_Click(object sender, EventArgs e)
         {
 
         }
