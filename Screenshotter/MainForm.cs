@@ -12,14 +12,13 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
-namespace MultiScreenScreenshot
+namespace ScreenshotTool
 {
     public partial class MainForm : Form
     {
         List<Screenshot> RecordedImages = new List<Screenshot>();
         List<Button> MiddleButtons = new List<Button>();
         int RecordedImagesIndex = 0;
-        int ticks = 0;
         Size LastSize;
         Point pMouseDown = new Point(0,0);
         Point pMouseCurrently = new Point(0, 0);
@@ -54,7 +53,7 @@ namespace MultiScreenScreenshot
             Program.keyHook.KeyDown += KeyHook_KeyDown;
             CurrentlyFocusedWindow.SetEventHook();
         }
-        private void Form1_Load(object sender, EventArgs e)
+        private void MainForm_Load(object sender, EventArgs e)
         {
             if (config.Default.path == "<Unset>" || !Directory.Exists(config.Default.path))
                 config.Default.path = Environment.GetFolderPath(Environment.SpecialFolder.MyPictures);
@@ -74,16 +73,18 @@ namespace MultiScreenScreenshot
             MinWidth = MiddleButtonWidth + 6 * (MiddleButtons.Count + 1) + 90;
             MinimumSize = new Size(MinWidth, MinHeight);
 
-            Form1_SizeChanged(null, EventArgs.Empty);
+            MainForm_SizeChanged(null, EventArgs.Empty);
             Minimize();
-
-            bool worked = false;
-            while (!worked)
+            
+            while (RecordedImages.Count == 0)
             {
                 try
                 {
-                    RecordedImages.Add(new Screenshot(Program.GetFullScreenshot(), GetScreenshotName()));
-                    worked = true;
+                    string pngPath = Directory.GetFiles(config.Default.path).FirstOrDefault(x => x.EndsWith(".png"));
+                    if (pngPath != null)
+                        RecordedImages.Add(new Screenshot(pngPath));
+                    else
+                        RecordedImages.Add(new Screenshot(Program.GetFullScreenshot(), GetScreenshotName()));
                 } catch { }
             }
             UpdateWindowRatioWidth();
@@ -325,9 +326,8 @@ namespace MultiScreenScreenshot
         }
         public void SaveCurrentImage()
         {
-            RecordedImages[RecordedImagesIndex].Image.Save(config.Default.path + "\\" + RecordedImages[RecordedImagesIndex].FileName + ".png");
-            Clipboard.SetImage(RecordedImages[RecordedImagesIndex].Image);
-            RecordedImages[RecordedImagesIndex].Saved = true;
+            RecordedImages[RecordedImagesIndex].Save();
+            RecordedImages[RecordedImagesIndex].PutInClipboard();
             UpdateUI();
         }
         private void ResetHudVisibility() => HUDvisibility = (7.5f - HUDvisibility) / 3f;
@@ -513,16 +513,16 @@ namespace MultiScreenScreenshot
         // Other Events
         private void Form1_FormClosing(object sender, FormClosingEventArgs e)
         {
-            if (RecordedImages.Skip(1).ToList().Exists(x => !x.Saved) && MessageBox.Show("Oi, you have unsaved Images! Do you really want to close me?", "Close?", MessageBoxButtons.YesNo) == DialogResult.No)
+            if (RecordedImages.Skip(1).ToList().Exists(x => !x.Saved) && 
+                MessageBox.Show("Oi, you have unsaved Images! Do you really want to close me?", "Close?", MessageBoxButtons.YesNo) == DialogResult.No)
                 e.Cancel = true;
         }
         private void Form1_FormClosed(object sender, FormClosedEventArgs e)
         {
             config.Default.windowSize = Size;
             config.Default.Save();
-
         }
-        private void Form1_SizeChanged(object sender, EventArgs e)
+        private void MainForm_SizeChanged(object sender, EventArgs e)
         {
             ResetHudVisibility();
 
@@ -540,7 +540,6 @@ namespace MultiScreenScreenshot
             }
             else
             {
-                MinimumSize = new Size(MinWidth, MinHeight);
                 foreach (Button b in MiddleButtons)
                     b.Location = new Point(b.Location.X, Height - (120 - 46));
                 bNext.Location = new Point(bNext.Location.X, Height - (120 - 46));

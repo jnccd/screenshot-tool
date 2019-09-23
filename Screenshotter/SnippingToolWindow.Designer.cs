@@ -1,4 +1,4 @@
-﻿namespace MultiScreenScreenshot
+﻿namespace ScreenshotTool
 {
     partial class SnippingToolWindow
     {

@@ -1,4 +1,4 @@
-﻿namespace MultiScreenScreenshot
+﻿namespace ScreenshotTool
 {
     partial class MainForm
     {
@@ -250,9 +250,9 @@
             this.Text = "Multi Screen Screenshot";
             this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.Form1_FormClosing);
             this.FormClosed += new System.Windows.Forms.FormClosedEventHandler(this.Form1_FormClosed);
-            this.Load += new System.EventHandler(this.Form1_Load);
+            this.Load += new System.EventHandler(this.MainForm_Load);
             this.ResizeEnd += new System.EventHandler(this.Form1_ResizeEnd);
-            this.SizeChanged += new System.EventHandler(this.Form1_SizeChanged);
+            this.SizeChanged += new System.EventHandler(this.MainForm_SizeChanged);
             ((System.ComponentModel.ISupportInitialize)(this.pBox)).EndInit();
             this.menuStrip.ResumeLayout(false);
             this.menuStrip.PerformLayout();

@@ -6,7 +6,7 @@ using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace MultiScreenScreenshot
+namespace ScreenshotTool
 {
     public static class CurrentlyFocusedWindow
     {

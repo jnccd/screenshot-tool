@@ -9,7 +9,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
-namespace MultiScreenScreenshot
+namespace ScreenshotTool
 {
     public partial class SnippingToolWindow : Form
     {
