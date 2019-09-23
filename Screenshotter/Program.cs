@@ -8,7 +8,7 @@ using System.Runtime.InteropServices;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
-namespace MultiScreenScreenshot
+namespace ScreenshotTool
 {
     public static class Program
     {
