@@ -18,27 +18,34 @@ namespace ScreenshotTool
     {
         public static KeyboardHook keyHook = new KeyboardHook(true);
 
-        List<Screenshot> RecordedImages = new List<Screenshot>();
-        List<Button> MiddleButtons = new List<Button>();
+        // Images
         int RecordedImagesIndex = 0;
+        List<Screenshot> RecordedImages = new List<Screenshot>();
+
+        // UI
+        List<Button> MiddleButtons = new List<Button>();
         Point pMouseDown = new Point(0,0);
         Point pMouseCurrently = new Point(0, 0);
         bool IsMouseDown = false;
+        DateTime lastKeyDownEvent = DateTime.Now;
+
+        // Snipper active
+        SnippingToolWindow Snipper = new SnippingToolWindow();
+        bool snippingWindowActive = false;
+
         float HUDvisibility = 0;
         float HUDVisiblity
         {
             get
             {
+
                 if (HUDvisibility < 1)
                     return HUDvisibility;
                 else
                     return 1;
             }
         }
-        SnippingToolWindow Snipper = new SnippingToolWindow();
-        bool snippingWindowActive = false;
-        DateTime lastKeyDownEvent = DateTime.Now;
-
+        
         const int HalfExtraPreviewImages = 2;
         const int PreviewImageWidth = 100;
         const int PreviewImageHeight = 56;
