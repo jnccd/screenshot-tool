@@ -33,6 +33,9 @@ namespace ScreenshotTool
         SnippingToolWindow Snipper = new SnippingToolWindow();
         bool snippingWindowActive = false;
 
+        public Shortcut InstantKeys;
+        public Shortcut CropKeys;
+
         float HUDvisibility = 0;
         float HUDVisiblity
         {
@@ -65,6 +68,12 @@ namespace ScreenshotTool
                 config.Default.path = Environment.GetFolderPath(Environment.SpecialFolder.MyPictures);
             if (config.Default.windowSize.Width != 0)
                 Size = config.Default.windowSize;
+
+            if (config.Default.instantShortcut.IsNullOrWhiteSpace()) InstantKeys = Shortcut.DefaultInstantKeys;
+            else InstantKeys = new Shortcut().FromString(config.Default.instantShortcut);
+
+            if (config.Default.cropShortcut.IsNullOrWhiteSpace()) CropKeys = Shortcut.DefaultCropKeys;
+            else CropKeys = new Shortcut().FromString(config.Default.cropShortcut);
 
             MiddleButtons.Add(bSave);
             MiddleButtons.Add(bDelete);
@@ -528,6 +537,8 @@ namespace ScreenshotTool
         private void Form1_FormClosed(object sender, FormClosedEventArgs e)
         {
             config.Default.windowSize = Size;
+            config.Default.instantShortcut = InstantKeys.ToString();
+            config.Default.cropShortcut = CropKeys.ToString();
             config.Default.Save();
         }
         private void MainForm_SizeChanged(object sender, EventArgs e)
@@ -580,15 +591,18 @@ namespace ScreenshotTool
         }
         private void KeyHook_KeyDown(Keys key, bool Shift, bool Ctrl, bool Alt)
         {
-            if (DateTime.Now.Subtract(lastKeyDownEvent).TotalMilliseconds > 300 && 
-                key == Keys.Pause)
+            if (DateTime.Now.Subtract(lastKeyDownEvent).TotalMilliseconds > 300)
             {
-                if (Alt)
-                    AddScreenShotSnippingToolStyle();
-                else
+                if (Shift == InstantKeys.Shift && Ctrl == InstantKeys.Ctrl && Alt == InstantKeys.Alt && key == InstantKeys.Key)
+                {
                     AddScreenShot();
-
-                lastKeyDownEvent = DateTime.Now;
+                    lastKeyDownEvent = DateTime.Now;
+                }
+                if (Shift == CropKeys.Shift && Ctrl == CropKeys.Ctrl && Alt == CropKeys.Alt && key == CropKeys.Key)
+                {
+                    AddScreenShotSnippingToolStyle();
+                    lastKeyDownEvent = DateTime.Now;
+                }
             }
         }
         
