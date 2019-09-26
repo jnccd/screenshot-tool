@@ -53,7 +53,7 @@ namespace ScreenshotTool
             TransparentScreenshot.MakeTransparent(Color.Beige);
             pBox.Image = TransparentScreenshot;
 
-            Program.SetForegroundWindow(this.Handle);
+            DLLImports.SetForegroundWindow(this.Handle);
         }
 
         Rectangle GetRectangleFromPoints(Point P1, Point P2)
@@ -65,7 +65,7 @@ namespace ScreenshotTool
             return new Rectangle(X, Y, Width, Height);
         }
 
-        private void pictureBox1_MouseUp(object sender, MouseEventArgs e)
+        private void PictureBox1_MouseUp(object sender, MouseEventArgs e)
         {
             if (e.Button == MouseButtons.Left)
             {
@@ -82,7 +82,7 @@ namespace ScreenshotTool
                         IsMouseDown = false;
                         return;
                     }
-                    output = Program.CropImage(fullScreenshot, crop);
+                    output = ScreenshotHelper.CropImage(fullScreenshot, crop);
                     this.Close();
                 }
                 IsMouseDown = false;
@@ -90,7 +90,7 @@ namespace ScreenshotTool
             else if (e.Button == MouseButtons.Right)
                 this.Close();
         }
-        private void pictureBox1_MouseDown(object sender, MouseEventArgs e)
+        private void PictureBox1_MouseDown(object sender, MouseEventArgs e)
         {
             if (e.Button == MouseButtons.Left)
             {
@@ -98,7 +98,7 @@ namespace ScreenshotTool
                 IsMouseDown = true;
             }
         }
-        private void pictureBox1_MouseMove(object sender, MouseEventArgs e)
+        private void PictureBox1_MouseMove(object sender, MouseEventArgs e)
         {
             if (e.Button == MouseButtons.Left)
             {
@@ -106,12 +106,12 @@ namespace ScreenshotTool
                 pBox.Refresh();
             }
         }
-        private void pictureBox1_MouseClick(object sender, MouseEventArgs e)
+        private void PictureBox1_MouseClick(object sender, MouseEventArgs e)
         {
 
         }
 
-        private void pBox_Paint(object sender, PaintEventArgs e)
+        private void PBox_Paint(object sender, PaintEventArgs e)
         {
             if (IsMouseDown)
             {

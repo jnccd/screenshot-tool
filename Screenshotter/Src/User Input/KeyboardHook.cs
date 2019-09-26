@@ -10,7 +10,7 @@ namespace ScreenshotTool
 {
     public class KeyboardHook : IDisposable
     {
-        bool Global = false;
+        readonly bool Global = false;
 
         public delegate void LocalKeyEventHandler(Keys key, bool Shift, bool Ctrl, bool Alt);
         public event LocalKeyEventHandler KeyDown;
@@ -59,8 +59,8 @@ namespace ScreenshotTool
             WH_MOUSE_LL = 14
         }
 
-        private int HookID = 0;
-        CallbackDelegate TheHookCB = null;
+        private readonly int HookID = 0;
+        readonly CallbackDelegate TheHookCB = null;
 
         //Start hook
         public KeyboardHook(bool Global)
@@ -102,7 +102,6 @@ namespace ScreenshotTool
         //The listener that will trigger events
         private int KeybHookProc(int Code, int W, int L)
         {
-            KBDLLHookStruct LS = new KBDLLHookStruct();
             if (Code < 0)
             {
                 return CallNextHookEx(HookID, Code, W, L);
@@ -118,11 +117,11 @@ namespace ScreenshotTool
                         int keydownup = L >> 30;
                         if (keydownup == 0)
                         {
-                            if (KeyDown != null) KeyDown((Keys)W, GetShiftPressed(), GetCtrlPressed(), GetAltPressed());
+                            KeyDown?.Invoke((Keys)W, GetShiftPressed(), GetCtrlPressed(), GetAltPressed());
                         }
                         if (keydownup == -1)
                         {
-                            if (KeyUp != null) KeyUp((Keys)W, GetShiftPressed(), GetCtrlPressed(), GetAltPressed());
+                            KeyUp?.Invoke((Keys)W, GetShiftPressed(), GetCtrlPressed(), GetAltPressed());
                         }
                         //System.Diagnostics.Debug.WriteLine("Down: " + (Keys)W);
                     }
@@ -138,11 +137,11 @@ namespace ScreenshotTool
                     }
                     if (kEvent == KeyEvents.KeyDown || kEvent == KeyEvents.SKeyDown)
                     {
-                        if (KeyDown != null) KeyDown((Keys)vkCode, GetShiftPressed(), GetCtrlPressed(), GetAltPressed());
+                        KeyDown?.Invoke((Keys)vkCode, GetShiftPressed(), GetCtrlPressed(), GetAltPressed());
                     }
                     if (kEvent == KeyEvents.KeyUp || kEvent == KeyEvents.SKeyUp)
                     {
-                        if (KeyUp != null) KeyUp((Keys)vkCode, GetShiftPressed(), GetCtrlPressed(), GetAltPressed());
+                        KeyUp?.Invoke((Keys)vkCode, GetShiftPressed(), GetCtrlPressed(), GetAltPressed());
                     }
                 }
             }
