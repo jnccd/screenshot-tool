@@ -39,6 +39,7 @@
             this.menuStrip = new System.Windows.Forms.MenuStrip();
             this.dateiToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.showFolderToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.changeFolderToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.toolStripSeparator = new System.Windows.Forms.ToolStripSeparator();
             this.speichernToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.toClipboardToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
@@ -46,8 +47,7 @@
             this.beendenToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.bearbeitenToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.extrasToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.optionenToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.changeFolderToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.KeybindingsMenuEntry = new System.Windows.Forms.ToolStripMenuItem();
             ((System.ComponentModel.ISupportInitialize)(this.pBox)).BeginInit();
             this.menuStrip.SuspendLayout();
             this.SuspendLayout();
@@ -148,14 +148,21 @@
             // showFolderToolStripMenuItem
             // 
             this.showFolderToolStripMenuItem.Name = "showFolderToolStripMenuItem";
-            this.showFolderToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.showFolderToolStripMenuItem.Size = new System.Drawing.Size(151, 22);
             this.showFolderToolStripMenuItem.Text = "Show Folder";
             this.showFolderToolStripMenuItem.Click += new System.EventHandler(this.ShowFolderToolStripMenuItem_Click);
+            // 
+            // changeFolderToolStripMenuItem
+            // 
+            this.changeFolderToolStripMenuItem.Name = "changeFolderToolStripMenuItem";
+            this.changeFolderToolStripMenuItem.Size = new System.Drawing.Size(151, 22);
+            this.changeFolderToolStripMenuItem.Text = "Change Folder";
+            this.changeFolderToolStripMenuItem.Click += new System.EventHandler(this.ChangeFolderToolStripMenuItem_Click);
             // 
             // toolStripSeparator
             // 
             this.toolStripSeparator.Name = "toolStripSeparator";
-            this.toolStripSeparator.Size = new System.Drawing.Size(177, 6);
+            this.toolStripSeparator.Size = new System.Drawing.Size(148, 6);
             // 
             // speichernToolStripMenuItem
             // 
@@ -164,26 +171,26 @@
             this.speichernToolStripMenuItem.Name = "speichernToolStripMenuItem";
             this.speichernToolStripMenuItem.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.S)));
             this.speichernToolStripMenuItem.ShowShortcutKeys = false;
-            this.speichernToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.speichernToolStripMenuItem.Size = new System.Drawing.Size(151, 22);
             this.speichernToolStripMenuItem.Text = "Save";
             this.speichernToolStripMenuItem.Click += new System.EventHandler(this.SpeichernToolStripMenuItem_Click);
             // 
             // toClipboardToolStripMenuItem
             // 
             this.toClipboardToolStripMenuItem.Name = "toClipboardToolStripMenuItem";
-            this.toClipboardToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.toClipboardToolStripMenuItem.Size = new System.Drawing.Size(151, 22);
             this.toClipboardToolStripMenuItem.Text = "To Clipboard";
             this.toClipboardToolStripMenuItem.Click += new System.EventHandler(this.ToClipboardToolStripMenuItem_Click);
             // 
             // toolStripSeparator2
             // 
             this.toolStripSeparator2.Name = "toolStripSeparator2";
-            this.toolStripSeparator2.Size = new System.Drawing.Size(177, 6);
+            this.toolStripSeparator2.Size = new System.Drawing.Size(148, 6);
             // 
             // beendenToolStripMenuItem
             // 
             this.beendenToolStripMenuItem.Name = "beendenToolStripMenuItem";
-            this.beendenToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.beendenToolStripMenuItem.Size = new System.Drawing.Size(151, 22);
             this.beendenToolStripMenuItem.Text = "Exit";
             this.beendenToolStripMenuItem.Click += new System.EventHandler(this.BeendenToolStripMenuItem_Click);
             // 
@@ -196,24 +203,17 @@
             // extrasToolStripMenuItem
             // 
             this.extrasToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.optionenToolStripMenuItem});
+            this.KeybindingsMenuEntry});
             this.extrasToolStripMenuItem.Name = "extrasToolStripMenuItem";
             this.extrasToolStripMenuItem.Size = new System.Drawing.Size(61, 20);
             this.extrasToolStripMenuItem.Text = "Options";
             // 
-            // optionenToolStripMenuItem
+            // KeybindingsMenuEntry
             // 
-            this.optionenToolStripMenuItem.Name = "optionenToolStripMenuItem";
-            this.optionenToolStripMenuItem.Size = new System.Drawing.Size(139, 22);
-            this.optionenToolStripMenuItem.Text = "Keybindings";
-            this.optionenToolStripMenuItem.Click += new System.EventHandler(this.OptionenToolStripMenuItem_Click);
-            // 
-            // changeFolderToolStripMenuItem
-            // 
-            this.changeFolderToolStripMenuItem.Name = "changeFolderToolStripMenuItem";
-            this.changeFolderToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
-            this.changeFolderToolStripMenuItem.Text = "Change Folder";
-            this.changeFolderToolStripMenuItem.Click += new System.EventHandler(this.ChangeFolderToolStripMenuItem_Click);
+            this.KeybindingsMenuEntry.Name = "KeybindingsMenuEntry";
+            this.KeybindingsMenuEntry.Size = new System.Drawing.Size(139, 22);
+            this.KeybindingsMenuEntry.Text = "Keybindings";
+            this.KeybindingsMenuEntry.Click += new System.EventHandler(this.KeybindingsToolStripMenuItem_Click);
             // 
             // MainForm
             // 
@@ -259,7 +259,7 @@
         private System.Windows.Forms.ToolStripMenuItem beendenToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem bearbeitenToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem extrasToolStripMenuItem;
-        private System.Windows.Forms.ToolStripMenuItem optionenToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem KeybindingsMenuEntry;
         private System.Windows.Forms.ToolStripMenuItem toClipboardToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem showFolderToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem changeFolderToolStripMenuItem;

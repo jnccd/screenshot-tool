@@ -77,7 +77,7 @@ namespace ScreenshotTool
                 MiddleButtons[i].Location = new Point(Width / 2 - MiddleButtonWidth / 2 + i * (6 + MiddleButtons[i].Width) - 8, MiddleButtons[i].Location.Y);
 
             int MinWidth = MiddleButtonWidth + 6 * (MiddleButtons.Count + 1) + 90;
-            MinimumSize = new Size(MinWidth, MinimumSize.Height);
+            MinimumSize = new Size(MinWidth, MinWidth);
 
             MainForm_SizeChanged(null, EventArgs.Empty);
             Minimize();
@@ -96,22 +96,8 @@ namespace ScreenshotTool
             UpdateWindowRatioWidth();
             UpdateUI();
         }
-        
-        // Helper Methods
-        public Size GetProperRatioSize(Size S, bool WidthFirst, float Ratio)
-        {
-            if (WidthFirst)
-            {
-                S.Width = (int)(S.Height * Ratio);
-                S.Height = (int)(S.Width * (1 / Ratio));
-            }
-            else
-            {
-                S.Height = (int)(S.Width * (1 / Ratio));
-                S.Width = (int)(S.Height * Ratio);
-            }
-            return S;
-        }
+
+        // Image
         public void AddScreenShot()
         {
             try
@@ -123,7 +109,7 @@ namespace ScreenshotTool
             }
             catch (Exception e)
             {
-                if (MessageBox.Show("Oopsie woopsie, it seems like I cant make that screenshot!\nDo you want to see the error message in detail?", 
+                if (MessageBox.Show("Oopsie woopsie, it seems like I cant make that screenshot!\nDo you want to see the error message in detail?",
                     "Error", MessageBoxButtons.YesNo) == DialogResult.Yes)
                     MessageBox.Show(e.Message + "\n\n" + e.InnerException + "\n\n" + e.StackTrace);
             }
@@ -148,8 +134,10 @@ namespace ScreenshotTool
 
                         BSave_Click(null, EventArgs.Empty);
 
-                        Location = new Point(Snipper.pMouseDown.X + Snipper.ImageDimensions.X - 8 - pBox.Location.X,
-                            Snipper.pMouseDown.Y - 32 - pBox.Location.Y);
+                        Point mouseDownPoint = Snipper.pMouseDown;
+                        Rectangle imageDimensions = Snipper.ImageDimensions;
+                        Snipper.InvokeIfRequired(() => Location = new Point(mouseDownPoint.X + imageDimensions.X - 8 - pBox.Location.X,
+                            mouseDownPoint.Y - 32 - pBox.Location.Y));
 
                         WindowState = FormWindowState.Normal;
                         DLLImports.SetForegroundWindow(Handle);
@@ -192,6 +180,37 @@ namespace ScreenshotTool
                 }
             }
         }
+        public string GetScreenshotName()
+        {
+            TimeSpan t = (DateTime.UtcNow - new DateTime(1999, 5, 4));
+            string fileName = "Screenshot_" + (long.MaxValue - (long)t.TotalMilliseconds);
+            try { fileName += "_" + CurrentlyFocusedWindow.ProcessName; }
+            catch { }
+            return fileName;
+        }
+        public void SaveCurrentImage()
+        {
+            RecordedImages[RecordedImagesIndex].Save();
+            RecordedImages[RecordedImagesIndex].PutInClipboard();
+            UpdateUI();
+        }
+        public void CopyCurrentImageToClipboard()
+        {
+            Clipboard.SetImage(RecordedImages[RecordedImagesIndex].Image);
+        }
+        public void DeleteCurrentImage()
+        {
+            if (RecordedImages.Count > 1)
+            {
+                RecordedImages.RemoveAt(RecordedImagesIndex);
+                if (RecordedImagesIndex > RecordedImages.Count - 1)
+                    RecordedImagesIndex = RecordedImages.Count - 1;
+                UpdateUI();
+                GC.Collect();
+            }
+        }
+
+        // UI
         public void UpdateUI()
         {
             int count = 0;
@@ -199,7 +218,7 @@ namespace ScreenshotTool
             foreach (string s in Directory.GetFiles(config.Default.path))
                 if (Path.GetFileNameWithoutExtension(s).Contains("Screenshot"))
                     count++;
-            
+
             Text = "Screenshot Tool - " + count + " saved screenshots! - TargetDir: " + config.Default.path;
             pBox.Image = RecordedImages[RecordedImagesIndex].Image;
             if (RecordedImages[RecordedImagesIndex].Saved)
@@ -222,7 +241,7 @@ namespace ScreenshotTool
         }
         public void UpdateWindowRatioWidth()
         {
-            Size R = GetProperRatioSize(pBox.Size, true, RecordedImages[RecordedImagesIndex].Image.Width / 
+            Size R = GetProperRatioSize(pBox.Size, true, RecordedImages[RecordedImagesIndex].Image.Width /
                 RecordedImages[RecordedImagesIndex].Image.Height);
             Width += R.Width - pBox.Width;
             Height += R.Height - pBox.Height;
@@ -234,6 +253,9 @@ namespace ScreenshotTool
             Height += R.Height - pBox.Height;
             Width += R.Width - pBox.Width;
         }
+        private void ResetHudVisibility() => HUDvisibility = (7.5f - HUDvisibility) / 3f;
+        public void Minimize() => DLLImports.ShowWindow(this.Handle, 2);
+        // Window Size
         public void SetOriginalSize()
         {
             Width = RecordedImages[RecordedImagesIndex].Image.Width + Width - pBox.Width;
@@ -243,9 +265,23 @@ namespace ScreenshotTool
             Width = RecordedImages[RecordedImagesIndex].Image.Width + Width - pBox.Width;
             Height = RecordedImages[RecordedImagesIndex].Image.Height + Height - pBox.Height;
         }
-        public void Minimize()
+        public void CenterAroundMouse()
         {
-            DLLImports.ShowWindow(this.Handle, 2);
+            Location = new Point(MousePosition.X - Width / 2, MousePosition.Y - Height / 2);
+        }
+        public Size GetProperRatioSize(Size S, bool WidthFirst, float Ratio)
+        {
+            if (WidthFirst)
+            {
+                S.Width = (int)(S.Height * Ratio);
+                S.Height = (int)(S.Width * (1 / Ratio));
+            }
+            else
+            {
+                S.Height = (int)(S.Width * (1 / Ratio));
+                S.Width = (int)(S.Height * Ratio);
+            }
+            return S;
         }
         Rectangle GetRectangleFromPoints(Point P1, Point P2)
         {
@@ -254,21 +290,6 @@ namespace ScreenshotTool
             int Y = Math.Min(P1.Y, P2.Y);
             int Height = Math.Max(P1.Y, P2.Y) - Y;
             return new Rectangle(X, Y, Width, Height);
-        }
-        public void DeleteCurrentImage()
-        {
-            if (RecordedImages.Count > 1)
-            {
-                RecordedImages.RemoveAt(RecordedImagesIndex);
-                if (RecordedImagesIndex > RecordedImages.Count - 1)
-                    RecordedImagesIndex = RecordedImages.Count - 1;
-                UpdateUI();
-                GC.Collect();
-            }
-        }
-        public void CenterAroundMouse()
-        {
-            Location = new Point(MousePosition.X - Width / 2, MousePosition.Y - Height / 2);
         }
         public Point ZoomPicBoxCoordsToImageCoords(Point P, PictureBox pBox)
         {
@@ -318,26 +339,7 @@ namespace ScreenshotTool
             }
             return new Point((int)X, (int)Y);
         }
-        public string GetScreenshotName()
-        {
-            TimeSpan t = (DateTime.UtcNow - new DateTime(1999, 5, 4));
-            string fileName = "Screenshot_" + (long.MaxValue - (long)t.TotalMilliseconds);
-            try { fileName += "_" + CurrentlyFocusedWindow.ProcessName; }
-            catch { }
-            return fileName;
-        }
-        public void CopyCurrentImageToClipboard()
-        {
-            Clipboard.SetImage(RecordedImages[RecordedImagesIndex].Image);
-        }
-        public void SaveCurrentImage()
-        {
-            RecordedImages[RecordedImagesIndex].Save();
-            RecordedImages[RecordedImagesIndex].PutInClipboard();
-            UpdateUI();
-        }
-        private void ResetHudVisibility() => HUDvisibility = (7.5f - HUDvisibility) / 3f;
-
+        
         // Button Events
         private void BSave_Click(object sender, EventArgs e)
         {
@@ -385,7 +387,7 @@ namespace ScreenshotTool
             DeleteCurrentImage();
         }
 
-        // pBox Events
+        // PictureBox Events
         private void PBox_Paint(object sender, PaintEventArgs e)
         {
             if (IsMouseDown)
@@ -608,14 +610,17 @@ namespace ScreenshotTool
         private void SpeichernToolStripMenuItem_Click(object sender, EventArgs e) => SaveCurrentImage();
         private void ToClipboardToolStripMenuItem_Click(object sender, EventArgs e) => CopyCurrentImageToClipboard();
         private void BeendenToolStripMenuItem_Click(object sender, EventArgs e) => Application.Exit();
-        private void OptionenToolStripMenuItem_Click(object sender, EventArgs e)
+        private void KeybindingsToolStripMenuItem_Click(object sender, EventArgs e)
         {
-
+            KeybindingsForm f = new KeybindingsForm();
+            f.ShowDialog();
         }
         private void ChangeFolderToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            FolderBrowserDialog FBD = new FolderBrowserDialog();
-            FBD.SelectedPath = config.Default.path;
+            FolderBrowserDialog FBD = new FolderBrowserDialog
+            {
+                SelectedPath = config.Default.path
+            };
             if (FBD.ShowDialog() == DialogResult.OK)
             {
                 config.Default.path = FBD.SelectedPath;

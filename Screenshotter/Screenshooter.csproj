@@ -72,6 +72,12 @@
       <DependentUpon>config.settings</DependentUpon>
     </Compile>
     <Compile Include="Src\CurrentlyFocusedWindow.cs" />
+    <Compile Include="Src\Forms\KeybindingsForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Src\Forms\KeybindingsForm.Designer.cs">
+      <DependentUpon>KeybindingsForm.cs</DependentUpon>
+    </Compile>
     <Compile Include="Src\Statics\DLLImports.cs" />
     <Compile Include="Src\Statics\Extensions.cs" />
     <Compile Include="Src\Forms\MainForm.cs">
@@ -80,7 +86,7 @@
     <Compile Include="Src\Forms\MainForm.Designer.cs">
       <DependentUpon>MainForm.cs</DependentUpon>
     </Compile>
-    <Compile Include="Src\KeyboardHook.cs" />
+    <Compile Include="Src\User Input\KeyboardHook.cs" />
     <Compile Include="Src\Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Src\Screenshot.cs" />
@@ -91,6 +97,10 @@
     <Compile Include="Src\Forms\SnippingToolWindow.Designer.cs">
       <DependentUpon>SnippingToolWindow.cs</DependentUpon>
     </Compile>
+    <Compile Include="Src\User Input\Shortcut.cs" />
+    <EmbeddedResource Include="Src\Forms\KeybindingsForm.resx">
+      <DependentUpon>KeybindingsForm.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="Src\Forms\MainForm.resx">
       <DependentUpon>MainForm.cs</DependentUpon>
     </EmbeddedResource>
@@ -139,6 +149,7 @@
       <Install>false</Install>
     </BootstrapperPackage>
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
