@@ -46,5 +46,29 @@ namespace ScreenshotTool {
                 this["windowSize"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("")]
+        public string instantShortcut {
+            get {
+                return ((string)(this["instantShortcut"]));
+            }
+            set {
+                this["instantShortcut"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("")]
+        public string cropShortcut {
+            get {
+                return ((string)(this["cropShortcut"]));
+            }
+            set {
+                this["cropShortcut"] = value;
+            }
+        }
     }
 }

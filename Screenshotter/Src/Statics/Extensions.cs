@@ -33,5 +33,6 @@ namespace ScreenshotTool
             else
                 return i + "th";
         }
+        public static bool IsNullOrWhiteSpace(this string s) => string.IsNullOrWhiteSpace(s);
     }
 }
