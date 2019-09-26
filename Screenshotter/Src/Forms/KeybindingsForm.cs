@@ -20,10 +20,10 @@ namespace ScreenshotTool
         private void KeybindingsForm_Load(object sender, EventArgs e)
         {
             ComboBoxSpeicalInstant.Items.AddRange(Shortcut.Specials);
-            ComboBoxKeyInstant.Items.AddRange(Shortcut.AllKeys.Select(x => x.ToString()).ToArray());
+            ComboBoxKeyInstant.Items.AddRange(Shortcut.AllKeys.Select(x => x.ToString()).OrderBy(x => x).ToArray());
 
             ComboBoxSpeicalCrop.Items.AddRange(Shortcut.Specials);
-            ComboBoxKeyCrop.Items.AddRange(Shortcut.AllKeys.Select(x => x.ToString()).ToArray());
+            ComboBoxKeyCrop.Items.AddRange(Shortcut.AllKeys.Select(x => x.ToString()).OrderBy(x => x).ToArray());
 
             ComboBoxSpeicalInstant.Text = Program.mainForm.InstantKeys.SpecialKey();
             ComboBoxKeyInstant.Text = Program.mainForm.InstantKeys.Key.ToString();
