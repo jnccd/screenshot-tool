@@ -11,36 +11,55 @@ namespace ScreenshotTool
 {
     public class Screenshot
     {
-        public Bitmap Image { get; private set; }
+        private Bitmap image;
+        public Bitmap Image { get {
+                if (image != null)
+                    return image;
+                else if (!Path.IsNullOrWhiteSpace())
+                {
+                    image = (Bitmap)Bitmap.FromFile(Path);
+                    return image;
+                }
+                return null;
+            } private set { } }
+
         public string FileName { get; private set; }
         public bool Saved { get; private set; }
         public string Path { get; private set; }
 
         public Screenshot(Bitmap Image, string FileName)
         {
-            this.Image = Image;
+            this.image = Image;
             this.FileName = FileName;
             Saved = false;
         }
         public Screenshot(string path)
         {
-            this.Image = (Bitmap)Bitmap.FromFile(path);
-            this.FileName = System.IO.Path.GetFileName(path);
+            FileName = System.IO.Path.GetFileNameWithoutExtension(path);
             Saved = true;
-            this.Path = path;
+            Path = path;
         }
 
+        public void DisposeImageCache()
+        {
+            if (Saved && image != null)
+            {
+                image.Dispose();
+                image = null;
+            }
+        }
         public void Save()
         {
             if (!Saved)
             {
-                Image.Save(config.Default.path + "\\" + FileName + ".png");
+                Path = config.Default.path + "\\" + FileName + ".png";
+                image.Save(Path);
                 Saved = true;
             }
         }
         public void PutInClipboard()
         {
-            Clipboard.SetImage(Image);
+            Clipboard.SetImage(image);
         }
     }
 }

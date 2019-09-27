@@ -14,11 +14,15 @@ namespace ScreenshotTool
 {
     public static class Program
     {
+        static readonly string RestartLocation = "Restart.bat";
         public static MainForm mainForm;
         
         [STAThread]
         static void Main()
         {
+            if (File.Exists(RestartLocation))
+                File.Delete(RestartLocation);
+
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
             mainForm = new MainForm();
@@ -27,8 +31,6 @@ namespace ScreenshotTool
 
         public static void Restart()
         {
-            string RestartLocation = $"Restart.bat";
-
             if (File.Exists(RestartLocation))
                 File.Delete(RestartLocation);
 
