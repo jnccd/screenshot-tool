@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.VisualBasic.FileIO;
+using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.IO;
@@ -39,15 +40,7 @@ namespace ScreenshotTool
             Saved = true;
             Path = path;
         }
-
-        public void DisposeImageCache()
-        {
-            if (Saved && image != null)
-            {
-                image.Dispose();
-                image = null;
-            }
-        }
+        
         public void Save()
         {
             if (!Saved)
@@ -60,6 +53,22 @@ namespace ScreenshotTool
         public void PutInClipboard()
         {
             Clipboard.SetImage(image);
+        }
+        public void DisposeImageCache()
+        {
+            if (Saved && image != null)
+            {
+                image.Dispose();
+                image = null;
+            }
+        }
+        public void Delete()
+        {
+            if (File.Exists(Path))
+                FileSystem.DeleteFile(Path,
+                        UIOption.AllDialogs,
+                        RecycleOption.SendToRecycleBin,
+                        UICancelOption.ThrowException);
         }
     }
 }

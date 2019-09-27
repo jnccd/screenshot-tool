@@ -212,20 +212,21 @@ namespace ScreenshotTool
         {
             if (Images.Count > 1)
             {
+                CurrentScreenshot().DisposeImageCache();
+                CurrentScreenshot().Delete();
                 Images.RemoveAt(ImagesIndex);
                 if (ImagesIndex > Images.Count - 1)
                     ImagesIndex = Images.Count - 1;
                 UpdateUI();
-                GC.Collect();
             }
         }
-        public Screenshot GetCurrentScreenshot() => Images[ImagesIndex];
+        public Screenshot CurrentScreenshot() => Images[ImagesIndex];
 
         // UI
         public void UpdateUI()
         {
             Text = $"Screenshot Tool - {Images.Count} saved screenshots!" +
-                $"{(GetCurrentScreenshot().Path.IsNullOrWhiteSpace() ? "" : $" - {Path.GetFileNameWithoutExtension(GetCurrentScreenshot().Path)} ")} - Dir: {config.Default.path}";
+                $"{(CurrentScreenshot().Path.IsNullOrWhiteSpace() ? "" : $" - {Path.GetFileNameWithoutExtension(CurrentScreenshot().Path)} ")} - Dir: {config.Default.path}";
             pBox.Image = Images[ImagesIndex].Image;
             if (Images[ImagesIndex].Saved)
                 bSave.Text = "To Clipboard";
@@ -361,16 +362,18 @@ namespace ScreenshotTool
         {
             if (ImagesIndex + 4 < Images.Count)
                 Images[ImagesIndex + 4].DisposeImageCache();
-
             ImagesIndex--;
+
+            ResetHudVisibility();
             UpdateUI();
         }
         private void BNext_Click(object sender, EventArgs e)
         {
             if (ImagesIndex - 4 >= 0)
                 Images[ImagesIndex - 4].DisposeImageCache();
-
             ImagesIndex++;
+
+            ResetHudVisibility();
             UpdateUI();
         }
         private void BOpen_Click(object sender, EventArgs e)
@@ -385,10 +388,7 @@ namespace ScreenshotTool
         {
             AddScreenShot();
         }
-        private void BDelete_Click(object sender, EventArgs e)
-        {
-            DeleteCurrentImage();
-        }
+        private void BDelete_Click(object sender, EventArgs e) => DeleteCurrentImage();
 
         // PictureBox Events
         private void PBox_Paint(object sender, PaintEventArgs e)
@@ -616,18 +616,13 @@ namespace ScreenshotTool
             ImagesIndex = Images.Count - 1;
             UpdateUI();
         }
-        private void ÖffnenToolStripMenuItem_Click(object sender, EventArgs e)
-        {
-
-        }
         private void ShowFolderToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            if (GetCurrentScreenshot().Saved)
-                Process.Start("explorer.exe", "/select, \"" + GetCurrentScreenshot().Path + "\"");
+            if (CurrentScreenshot().Saved)
+                Process.Start("explorer.exe", "/select, \"" + CurrentScreenshot().Path + "\"");
             else
                 Process.Start(config.Default.path);
         }
-        private void SpeichernToolStripMenuItem_Click(object sender, EventArgs e) => SaveCurrentImage();
         private void ToClipboardToolStripMenuItem_Click(object sender, EventArgs e) => CopyCurrentImageToClipboard();
         private void BeendenToolStripMenuItem_Click(object sender, EventArgs e) => Application.Exit();
         private void KeybindingsToolStripMenuItem_Click(object sender, EventArgs e)
