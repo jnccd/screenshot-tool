@@ -41,7 +41,8 @@
             this.showFolderToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.changeFolderToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.toolStripSeparator = new System.Windows.Forms.ToolStripSeparator();
-            this.toClipboardToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.imageToClipboardToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.fileToClipboardToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.toolStripSeparator2 = new System.Windows.Forms.ToolStripSeparator();
             this.beendenToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.bearbeitenToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
@@ -136,7 +137,8 @@
             this.showFolderToolStripMenuItem,
             this.changeFolderToolStripMenuItem,
             this.toolStripSeparator,
-            this.toClipboardToolStripMenuItem,
+            this.imageToClipboardToolStripMenuItem,
+            this.fileToClipboardToolStripMenuItem,
             this.toolStripSeparator2,
             this.beendenToolStripMenuItem});
             this.dateiToolStripMenuItem.Name = "dateiToolStripMenuItem";
@@ -147,7 +149,7 @@
             // 
             this.showFolderToolStripMenuItem.Name = "showFolderToolStripMenuItem";
             this.showFolderToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
-            this.showFolderToolStripMenuItem.Text = "Show In Explorer";
+            this.showFolderToolStripMenuItem.Text = "Show in Explorer";
             this.showFolderToolStripMenuItem.Click += new System.EventHandler(this.ShowFolderToolStripMenuItem_Click);
             // 
             // changeFolderToolStripMenuItem
@@ -162,12 +164,19 @@
             this.toolStripSeparator.Name = "toolStripSeparator";
             this.toolStripSeparator.Size = new System.Drawing.Size(177, 6);
             // 
-            // toClipboardToolStripMenuItem
+            // imageToClipboardToolStripMenuItem
             // 
-            this.toClipboardToolStripMenuItem.Name = "toClipboardToolStripMenuItem";
-            this.toClipboardToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
-            this.toClipboardToolStripMenuItem.Text = "To Clipboard";
-            this.toClipboardToolStripMenuItem.Click += new System.EventHandler(this.ToClipboardToolStripMenuItem_Click);
+            this.imageToClipboardToolStripMenuItem.Name = "imageToClipboardToolStripMenuItem";
+            this.imageToClipboardToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.imageToClipboardToolStripMenuItem.Text = "Image to Clipboard";
+            this.imageToClipboardToolStripMenuItem.Click += new System.EventHandler(this.ImageToClipboardToolStripMenuItem_Click);
+            // 
+            // fileToClipboardToolStripMenuItem
+            // 
+            this.fileToClipboardToolStripMenuItem.Name = "fileToClipboardToolStripMenuItem";
+            this.fileToClipboardToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.fileToClipboardToolStripMenuItem.Text = "File to Clipboard";
+            this.fileToClipboardToolStripMenuItem.Click += new System.EventHandler(this.FileToClipboardToolStripMenuItem_Click);
             // 
             // toolStripSeparator2
             // 
@@ -246,9 +255,10 @@
         private System.Windows.Forms.ToolStripMenuItem bearbeitenToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem extrasToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem KeybindingsMenuEntry;
-        private System.Windows.Forms.ToolStripMenuItem toClipboardToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem fileToClipboardToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem showFolderToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem changeFolderToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem imageToClipboardToolStripMenuItem;
     }
 }
 

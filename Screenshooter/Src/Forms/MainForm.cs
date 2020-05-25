@@ -20,7 +20,7 @@ namespace ScreenshotTool
 
         // Images
         int ImagesIndex = 0;
-        List<Screenshot> Images = new List<Screenshot>();
+        readonly List<Screenshot> Images = new List<Screenshot>();
 
         // UI
         List<Button> MiddleButtons = new List<Button>();
@@ -623,7 +623,13 @@ namespace ScreenshotTool
             else
                 Process.Start(config.Default.path);
         }
-        private void ToClipboardToolStripMenuItem_Click(object sender, EventArgs e) => CopyCurrentImageToClipboard();
+        private void FileToClipboardToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            var path = new System.Collections.Specialized.StringCollection();
+            path.Add(Images[ImagesIndex].Path);
+            Clipboard.SetFileDropList(path);
+        }
+        private void ImageToClipboardToolStripMenuItem_Click(object sender, EventArgs e) => CopyCurrentImageToClipboard();
         private void BeendenToolStripMenuItem_Click(object sender, EventArgs e) => Application.Exit();
         private void KeybindingsToolStripMenuItem_Click(object sender, EventArgs e)
         {
