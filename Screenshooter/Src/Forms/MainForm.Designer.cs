@@ -53,6 +53,7 @@
             this.chooseColorToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.extrasToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.KeybindingsMenuEntry = new System.Windows.Forms.ToolStripMenuItem();
+            this.noneMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             ((System.ComponentModel.ISupportInitialize)(this.pBox)).BeginInit();
             this.menuStrip.SuspendLayout();
             this.SuspendLayout();
@@ -198,6 +199,7 @@
             // editMenuItem
             // 
             this.editMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.noneMenuItem,
             this.cropMenuItem,
             this.drawMenuItem,
             this.colorPickerMenuItem,
@@ -257,6 +259,14 @@
             this.KeybindingsMenuEntry.Text = "Keybindings";
             this.KeybindingsMenuEntry.Click += new System.EventHandler(this.KeybindingsToolStripMenuItem_Click);
             // 
+            // noneMenuItem
+            // 
+            this.noneMenuItem.CheckOnClick = true;
+            this.noneMenuItem.Name = "noneMenuItem";
+            this.noneMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.noneMenuItem.Text = "None";
+            this.noneMenuItem.Click += new System.EventHandler(this.NoneMenuItem_Click);
+            // 
             // MainForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -310,6 +320,7 @@
         private System.Windows.Forms.ToolStripMenuItem colorPickerMenuItem;
         private System.Windows.Forms.ToolStripSeparator toolStripSeparator1;
         private System.Windows.Forms.ToolStripMenuItem chooseColorToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem noneMenuItem;
     }
 }
 

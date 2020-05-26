@@ -1,4 +1,5 @@
 ﻿using ScreenshotTool.Properties;
+using ScreenshotTool.Src.Forms;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -31,14 +32,16 @@ namespace ScreenshotTool
         Point pMouseLast = new Point(0, 0);
         bool isMouseDown = false;
         DateTime lastKeyDownEvent = DateTime.Now;
+        readonly KeybindingsForm keybindingsForm = new KeybindingsForm();
+        ColorView colorView = new ColorView();
 
         // Snipper active
         readonly SnippingToolWindow snipper = new SnippingToolWindow();
         bool snippingWindowActive = false;
 
         // Edit
-        enum EditMode { Crop, Draw, ColorPicker }
-        EditMode mode = EditMode.Crop;
+        enum EditMode { None, Crop, Draw, ColorPicker }
+        EditMode mode = EditMode.None;
         readonly int drawRadius = 10;
 
         public Shortcut instantKeys;
@@ -76,8 +79,8 @@ namespace ScreenshotTool
                 config.Default.path = Environment.GetFolderPath(Environment.SpecialFolder.MyPictures);
             if (config.Default.windowSize.Width != 0)
                 Size = config.Default.windowSize;
-            if (config.Default.primaryColor.Name == "0")
-                config.Default.primaryColor = Color.Red;
+            if (config.Default.PrimaryColor.Name == "0")
+                config.Default.PrimaryColor = Color.Red;
 
             if (config.Default.instantShortcut.IsNullOrWhiteSpace()) instantKeys = Shortcut.DefaultInstantKeys;
             else instantKeys = new Shortcut().FromString(config.Default.instantShortcut);
@@ -113,7 +116,7 @@ namespace ScreenshotTool
                 images.Add(new Screenshot(ScreenshotHelper.GetFullScreenshot(), GetScreenshotName()));
             imagesIndex = images.Count - 1;
 
-            cropMenuItem.Checked = true;
+            noneMenuItem.Checked = true;
 
             UpdateWindowRatioWidth();
             UpdateUI();
@@ -408,7 +411,7 @@ namespace ScreenshotTool
             if (isMouseDown && mode == EditMode.Crop)
             {
                 Rectangle ee = GetRectangleFromPoints(pMouseDown, pMouseCurrently);
-                using (Pen pen = new Pen(Color.Red, 1))
+                using (Pen pen = new Pen(config.Default.PrimaryColor, 1))
                     e.Graphics.DrawRectangle(pen, ee);
             }
             // Saved title
@@ -446,10 +449,6 @@ namespace ScreenshotTool
         }
         private void PBox_MouseClick(object sender, MouseEventArgs e)
         {
-            if (e.Button == MouseButtons.Left && mode == EditMode.ColorPicker)
-            {
-
-            }
             if (e.Button == MouseButtons.Right)
             {
                 ContextMenu m = new ContextMenu();
@@ -516,7 +515,15 @@ namespace ScreenshotTool
         {
             pMouseCurrently = e.Location;
             ResetHudVisibility();
-            
+
+            if (isMouseDown && mode == EditMode.ColorPicker)
+            {
+                try
+                {
+                    Point p = ZoomPicBoxCoordsToImageCoords(pMouseCurrently, pBox);
+                    colorView.Update(CurrentScreenshot.Image.GetPixel(p.X, p.Y));
+                } catch { }
+            }
             if (isMouseDown && mode == EditMode.Draw)
             {
                 if (CurrentScreenshot.Saved)
@@ -539,10 +546,10 @@ namespace ScreenshotTool
                             float uwu = i / (float)length;
                             int X = (int)(uwu * (mCur.X - drawRadius) + (1 - uwu) * (mLast.X - drawRadius));
                             int Y = (int)(uwu * (mCur.Y - drawRadius) + (1 - uwu) * (mLast.Y - drawRadius));
-                            g.FillEllipse(new SolidBrush(config.Default.primaryColor), new Rectangle(X, Y, drawRadius * 2, drawRadius * 2));
+                            g.FillEllipse(new SolidBrush(config.Default.PrimaryColor), new Rectangle(X, Y, drawRadius * 2, drawRadius * 2));
                         }
                     else
-                        g.FillEllipse(new SolidBrush(config.Default.primaryColor), 
+                        g.FillEllipse(new SolidBrush(config.Default.PrimaryColor), 
                             new Rectangle(mCur.X - drawRadius, mCur.Y - drawRadius, drawRadius * 2, drawRadius * 2));
                 }
             }
@@ -557,6 +564,16 @@ namespace ScreenshotTool
             {
                 pMouseDown = e.Location;
                 isMouseDown = true;
+
+                if (mode == EditMode.ColorPicker)
+                {
+                    try
+                    {
+                        Point p = ZoomPicBoxCoordsToImageCoords(pMouseCurrently, pBox);
+                        colorView.Update(CurrentScreenshot.Image.GetPixel(p.X, p.Y));
+                    }
+                    catch { }
+                }
             }
         }
         private void PBox_MouseUp(object sender, MouseEventArgs e)
@@ -564,8 +581,8 @@ namespace ScreenshotTool
             if (e.Button == MouseButtons.Left && mode == EditMode.Crop)
             {
                 Rectangle crop = GetRectangleFromPoints(
-                        ZoomPicBoxCoordsToImageCoords(new Point(pMouseDown.X, pMouseDown.Y), pBox),
-                        ZoomPicBoxCoordsToImageCoords(new Point(pMouseCurrently.X, pMouseCurrently.Y), pBox));
+                        ZoomPicBoxCoordsToImageCoords(pMouseDown, pBox),
+                        ZoomPicBoxCoordsToImageCoords(pMouseCurrently, pBox));
                 if (crop.Width == 0 || crop.Height == 0)
                 {
                     isMouseDown = false;
@@ -682,8 +699,8 @@ namespace ScreenshotTool
         private void BeendenToolStripMenuItem_Click(object sender, EventArgs e) => Application.Exit();
         private void KeybindingsToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            KeybindingsForm f = new KeybindingsForm();
-            f.ShowDialog();
+            keybindingsForm.RefreshDefaults();
+            keybindingsForm.ShowDialog();
         }
         private void ChangeFolderToolStripMenuItem_Click(object sender, EventArgs e)
         {
@@ -700,6 +717,8 @@ namespace ScreenshotTool
         }
         private void CropMenuItem_Click(object sender, EventArgs e)
         {
+            colorView.Close();
+
             foreach (ToolStripItem item in editMenuItem.DropDownItems)
                 if (item is ToolStripMenuItem)
                     (item as ToolStripMenuItem).Checked = item == cropMenuItem;
@@ -707,6 +726,8 @@ namespace ScreenshotTool
         }
         private void DrawMenuItem_Click(object sender, EventArgs e)
         {
+            colorView.Close();
+
             foreach (ToolStripItem item in editMenuItem.DropDownItems)
                 if (item is ToolStripMenuItem)
                     (item as ToolStripMenuItem).Checked = item == drawMenuItem;
@@ -714,6 +735,10 @@ namespace ScreenshotTool
         }
         private void ColorPickerMenuItem_Click(object sender, EventArgs e)
         {
+            if (colorView == null || colorView.IsDisposed)
+                colorView = new ColorView();
+            colorView.Show();
+
             foreach (ToolStripItem item in editMenuItem.DropDownItems)
                 if (item is ToolStripMenuItem)
                     (item as ToolStripMenuItem).Checked = item == colorPickerMenuItem;
@@ -721,14 +746,25 @@ namespace ScreenshotTool
         }
         private void ChooseColorMenuItem_Click(object sender, EventArgs e)
         {
+            colorView.Close();
+
             var LeDialog = new ColorDialog
             {
                 AllowFullOpen = true,
                 AnyColor = true,
-                Color = config.Default.primaryColor
+                Color = config.Default.PrimaryColor
             };
             if (LeDialog.ShowDialog() == DialogResult.OK)
-                config.Default.primaryColor = LeDialog.Color;
+                config.Default.PrimaryColor = LeDialog.Color;
+        }
+        private void NoneMenuItem_Click(object sender, EventArgs e)
+        {
+            colorView.Close();
+
+            foreach (ToolStripItem item in editMenuItem.DropDownItems)
+                if (item is ToolStripMenuItem)
+                    (item as ToolStripMenuItem).Checked = item == noneMenuItem;
+            mode = EditMode.None;
         }
     }
 }
