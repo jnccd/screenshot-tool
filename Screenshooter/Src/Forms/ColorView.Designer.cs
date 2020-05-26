@@ -28,6 +28,7 @@
         /// </summary>
         private void InitializeComponent()
         {
+            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(ColorView));
             this.label1 = new System.Windows.Forms.Label();
             this.tbR = new System.Windows.Forms.TextBox();
             this.tbG = new System.Windows.Forms.TextBox();
@@ -116,12 +117,15 @@
             this.Controls.Add(this.tbR);
             this.Controls.Add(this.label1);
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedSingle;
+            this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.MaximizeBox = false;
             this.MinimizeBox = false;
             this.Name = "ColorView";
             this.ShowInTaskbar = false;
             this.Text = "ColorView";
             this.TopMost = true;
+            this.FormClosed += new System.Windows.Forms.FormClosedEventHandler(this.ColorView_FormClosed);
+            this.Load += new System.EventHandler(this.ColorView_Load);
             this.ResumeLayout(false);
             this.PerformLayout();
 

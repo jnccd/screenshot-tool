@@ -268,6 +268,13 @@ namespace ScreenshotTool
         }
         private void ResetHudVisibility() => HUDvisibility = (7.5f - HUDvisibility) / 3f;
         public void Minimize() => DLLImports.ShowWindow(this.Handle, 2);
+        public void SetModeToNone()
+        {
+            foreach (ToolStripItem item in editMenuItem.DropDownItems)
+                if (item is ToolStripMenuItem)
+                    (item as ToolStripMenuItem).Checked = item == noneMenuItem;
+            mode = EditMode.None;
+        }
         // Window Size
         public void SetOriginalSize()
         {
