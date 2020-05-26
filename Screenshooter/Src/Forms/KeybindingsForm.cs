@@ -25,25 +25,25 @@ namespace ScreenshotTool
             ComboBoxSpeicalCrop.Items.AddRange(Shortcut.Specials);
             ComboBoxKeyCrop.Items.AddRange(Shortcut.AllKeys.Select(x => x.ToString()).OrderBy(x => x).ToArray());
 
-            ComboBoxSpeicalInstant.Text = Program.mainForm.InstantKeys.SpecialKey();
-            ComboBoxKeyInstant.Text = Program.mainForm.InstantKeys.Key.ToString();
+            ComboBoxSpeicalInstant.Text = Program.mainForm.instantKeys.SpecialKey();
+            ComboBoxKeyInstant.Text = Program.mainForm.instantKeys.Key.ToString();
 
-            ComboBoxSpeicalCrop.Text = Program.mainForm.CropKeys.SpecialKey();
-            ComboBoxKeyCrop.Text = Program.mainForm.CropKeys.Key.ToString();
+            ComboBoxSpeicalCrop.Text = Program.mainForm.cropKeys.SpecialKey();
+            ComboBoxKeyCrop.Text = Program.mainForm.cropKeys.Key.ToString();
         }
 
         private void ButtonSave_Click(object sender, EventArgs e)
         {
             try
             {
-                Program.mainForm.InstantKeys = new Shortcut()
+                Program.mainForm.instantKeys = new Shortcut()
                 {
                     Shift = ComboBoxSpeicalInstant.Text == Shortcut.Specials[0],
                     Ctrl = ComboBoxSpeicalInstant.Text == Shortcut.Specials[1],
                     Alt = ComboBoxSpeicalInstant.Text == Shortcut.Specials[2],
                     Key = (Keys)Enum.Parse(typeof(Keys), ComboBoxKeyInstant.Text)
                 };
-                Program.mainForm.CropKeys = new Shortcut()
+                Program.mainForm.cropKeys = new Shortcut()
                 {
                     Shift = ComboBoxSpeicalCrop.Text == Shortcut.Specials[0],
                     Ctrl = ComboBoxSpeicalCrop.Text == Shortcut.Specials[1],
