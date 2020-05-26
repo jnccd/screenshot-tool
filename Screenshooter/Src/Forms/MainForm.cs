@@ -21,28 +21,28 @@ namespace ScreenshotTool
         public static KeyboardHook keyHook = new KeyboardHook(true);
 
         // Images
-        int ImagesIndex = 0;
-        readonly List<Screenshot> Images = new List<Screenshot>();
+        int imagesIndex = 0;
+        readonly List<Screenshot> images = new List<Screenshot>();
 
         // UI
-        readonly List<Button> MiddleButtons = new List<Button>();
+        readonly List<Button> middleButtons = new List<Button>();
         Point pMouseDown = new Point(0,0);
         Point pMouseCurrently = new Point(0, 0);
         Point pMouseLast = new Point(0, 0);
-        bool IsMouseDown = false;
+        bool isMouseDown = false;
         DateTime lastKeyDownEvent = DateTime.Now;
 
         // Snipper active
-        SnippingToolWindow Snipper = new SnippingToolWindow();
+        readonly SnippingToolWindow snipper = new SnippingToolWindow();
         bool snippingWindowActive = false;
 
         // Edit
         enum EditMode { Crop, Draw, ColorPicker }
         EditMode mode = EditMode.Crop;
-        int drawRadius = 10;
+        readonly int drawRadius = 10;
 
-        public Shortcut InstantKeys;
-        public Shortcut CropKeys;
+        public Shortcut instantKeys;
+        public Shortcut cropKeys;
 
         float HUDvisibility = 0;
         float HUDVisiblity
@@ -57,12 +57,12 @@ namespace ScreenshotTool
             }
         }
         
-        const int HalfExtraPreviewImages = 2;
-        const int PreviewImageWidth = 100;
-        const int PreviewImageHeight = 56;
-        const int PreviewImageOutlineThickness = 7;
-        const int PreviewImagePadding = 12;
-        const int SavedSignFontSize = 15;
+        const int halfExtraPreviewImages = 2;
+        const int previewImageWidth = 100;
+        const int previewImageHeight = 56;
+        const int previewImageOutlineThickness = 7;
+        const int previewImagePadding = 12;
+        const int savedSignFontSize = 15;
 
         public MainForm()
         {
@@ -79,23 +79,23 @@ namespace ScreenshotTool
             if (config.Default.primaryColor.Name == "0")
                 config.Default.primaryColor = Color.Red;
 
-            if (config.Default.instantShortcut.IsNullOrWhiteSpace()) InstantKeys = Shortcut.DefaultInstantKeys;
-            else InstantKeys = new Shortcut().FromString(config.Default.instantShortcut);
+            if (config.Default.instantShortcut.IsNullOrWhiteSpace()) instantKeys = Shortcut.DefaultInstantKeys;
+            else instantKeys = new Shortcut().FromString(config.Default.instantShortcut);
 
-            if (config.Default.cropShortcut.IsNullOrWhiteSpace()) CropKeys = Shortcut.DefaultCropKeys;
-            else CropKeys = new Shortcut().FromString(config.Default.cropShortcut);
+            if (config.Default.cropShortcut.IsNullOrWhiteSpace()) cropKeys = Shortcut.DefaultCropKeys;
+            else cropKeys = new Shortcut().FromString(config.Default.cropShortcut);
 
-            MiddleButtons.Add(bSave);
-            MiddleButtons.Add(bDelete);
+            middleButtons.Add(bSave);
+            middleButtons.Add(bDelete);
 
             int MiddleButtonWidth = 0;
-            foreach (Button B in MiddleButtons)
+            foreach (Button B in middleButtons)
                 MiddleButtonWidth += B.Width + 6;
             MiddleButtonWidth -= 6;
-            for (int i = 0; i < MiddleButtons.Count; i++)
-                MiddleButtons[i].Location = new Point(Width / 2 - MiddleButtonWidth / 2 + i * (6 + MiddleButtons[i].Width) - 8, MiddleButtons[i].Location.Y);
+            for (int i = 0; i < middleButtons.Count; i++)
+                middleButtons[i].Location = new Point(Width / 2 - MiddleButtonWidth / 2 + i * (6 + middleButtons[i].Width) - 8, middleButtons[i].Location.Y);
 
-            int MinWidth = MiddleButtonWidth + 6 * (MiddleButtons.Count + 1) + 90;
+            int MinWidth = MiddleButtonWidth + 6 * (middleButtons.Count + 1) + 90;
             MinimumSize = new Size(MinWidth, MinWidth);
 
             MainForm_SizeChanged(null, EventArgs.Empty);
@@ -108,10 +108,10 @@ namespace ScreenshotTool
                 Reverse().
                 ToArray();
             if (files.Length > 0)
-                Images.AddRange(files.Select(x => new Screenshot(x)).ToArray());
+                images.AddRange(files.Select(x => new Screenshot(x)).ToArray());
             else
-                Images.Add(new Screenshot(ScreenshotHelper.GetFullScreenshot(), GetScreenshotName()));
-            ImagesIndex = Images.Count - 1;
+                images.Add(new Screenshot(ScreenshotHelper.GetFullScreenshot(), GetScreenshotName()));
+            imagesIndex = images.Count - 1;
 
             cropMenuItem.Checked = true;
 
@@ -125,8 +125,8 @@ namespace ScreenshotTool
             try
             {
                 System.Media.SystemSounds.Exclamation.Play();
-                Images.Add(new Screenshot(ScreenshotHelper.GetFullScreenshot(), GetScreenshotName()));
-                ImagesIndex = Images.Count - 1;
+                images.Add(new Screenshot(ScreenshotHelper.GetFullScreenshot(), GetScreenshotName()));
+                imagesIndex = images.Count - 1;
                 UpdateUI();
             }
             catch (Exception e)
@@ -141,24 +141,24 @@ namespace ScreenshotTool
             if (snippingWindowActive)
                 return;
 
-            lock (Snipper)
+            lock (snipper)
             {
                 try
                 {
                     snippingWindowActive = true;
                     System.Media.SystemSounds.Exclamation.Play();
-                    Snipper.ShowDialog();
-                    if (Snipper.output != null)
+                    snipper.ShowDialog();
+                    if (snipper.output != null)
                     {
-                        Images.Add(new Screenshot(Snipper.output, GetScreenshotName()));
-                        ImagesIndex = Images.Count - 1;
+                        images.Add(new Screenshot(snipper.output, GetScreenshotName()));
+                        imagesIndex = images.Count - 1;
                         UpdateUI();
 
                         BSave_Click(null, EventArgs.Empty);
 
-                        Point mouseDownPoint = Snipper.pMouseDown;
-                        Rectangle imageDimensions = Snipper.ImageDimensions;
-                        Snipper.InvokeIfRequired(() => Location = new Point(mouseDownPoint.X + imageDimensions.X - 8 - pBox.Location.X,
+                        Point mouseDownPoint = snipper.pMouseDown;
+                        Rectangle imageDimensions = snipper.ImageDimensions;
+                        snipper.InvokeIfRequired(() => Location = new Point(mouseDownPoint.X + imageDimensions.X - 8 - pBox.Location.X,
                             mouseDownPoint.Y - 32 - pBox.Location.Y));
 
                         WindowState = FormWindowState.Normal;
@@ -186,7 +186,7 @@ namespace ScreenshotTool
                             X = blankPart;
                         }
                         Location = new Point(Location.X - (int)X, Location.Y - (int)Y);
-                        Snipper.CleanUp();
+                        snipper.CleanUp();
                     }
                 }
                 catch (Exception e)
@@ -212,54 +212,54 @@ namespace ScreenshotTool
         }
         public void SaveCurrentImage()
         {
-            Images[ImagesIndex].Save();
-            Images[ImagesIndex].PutInClipboard();
+            images[imagesIndex].Save();
+            images[imagesIndex].PutInClipboard();
             UpdateUI();
         }
         public void CopyCurrentImageToClipboard()
         {
-            Clipboard.SetImage(Images[ImagesIndex].Image);
+            Clipboard.SetImage(images[imagesIndex].Image);
         }
         public void DeleteCurrentImage()
         {
-            if (Images.Count > 1)
+            if (images.Count > 1)
             {
                 CurrentScreenshot.DisposeImageCache();
                 CurrentScreenshot.Delete();
-                Images.RemoveAt(ImagesIndex);
-                if (ImagesIndex > Images.Count - 1)
-                    ImagesIndex = Images.Count - 1;
+                images.RemoveAt(imagesIndex);
+                if (imagesIndex > images.Count - 1)
+                    imagesIndex = images.Count - 1;
                 UpdateUI();
             }
         }
-        public Screenshot CurrentScreenshot { get { return Images[ImagesIndex]; } }
+        public Screenshot CurrentScreenshot { get { return images[imagesIndex]; } }
 
         // UI
         public void UpdateUI()
         {
-            Text = $"Screenshot Tool - {Images.Count} saved screenshots!" +
+            Text = $"Screenshot Tool - {images.Count} saved screenshots!" +
                 $"{(CurrentScreenshot.Path.IsNullOrWhiteSpace() ? "" : $" - {Path.GetFileNameWithoutExtension(CurrentScreenshot.Path)} ")} - Dir: {config.Default.path}";
-            pBox.Image = Images[ImagesIndex].Image;
-            if (Images[ImagesIndex].Saved)
+            pBox.Image = images[imagesIndex].Image;
+            if (images[imagesIndex].Saved)
                 bSave.Text = "To Clipboard";
             else
                 bSave.Text = "Save";
 
-            bDelete.Enabled = ImagesIndex != 0;
-            bPrevious.Enabled = ImagesIndex != 0;
-            bNext.Enabled = ImagesIndex != Images.Count - 1;
+            bDelete.Enabled = imagesIndex != 0;
+            bPrevious.Enabled = imagesIndex != 0;
+            bNext.Enabled = imagesIndex != images.Count - 1;
         }
         public void UpdateWindowRatioWidth()
         {
-            Size R = GetProperRatioSize(pBox.Size, true, Images[ImagesIndex].Image.Width /
-                Images[ImagesIndex].Image.Height);
+            Size R = GetProperRatioSize(pBox.Size, true, images[imagesIndex].Image.Width /
+                images[imagesIndex].Image.Height);
             Width += R.Width - pBox.Width;
             Height += R.Height - pBox.Height;
         }
         public void UpdateWindowRatioHeight()
         {
-            Size R = GetProperRatioSize(pBox.Size, false, Images[ImagesIndex].Image.Width /
-                Images[ImagesIndex].Image.Height);
+            Size R = GetProperRatioSize(pBox.Size, false, images[imagesIndex].Image.Width /
+                images[imagesIndex].Image.Height);
             Height += R.Height - pBox.Height;
             Width += R.Width - pBox.Width;
         }
@@ -268,12 +268,12 @@ namespace ScreenshotTool
         // Window Size
         public void SetOriginalSize()
         {
-            Width = Images[ImagesIndex].Image.Width + Width - pBox.Width;
-            Height = Images[ImagesIndex].Image.Height + Height - pBox.Height;
+            Width = images[imagesIndex].Image.Width + Width - pBox.Width;
+            Height = images[imagesIndex].Image.Height + Height - pBox.Height;
 
             // doppelt hält besser :thonk:
-            Width = Images[ImagesIndex].Image.Width + Width - pBox.Width;
-            Height = Images[ImagesIndex].Image.Height + Height - pBox.Height;
+            Width = images[imagesIndex].Image.Width + Width - pBox.Width;
+            Height = images[imagesIndex].Image.Height + Height - pBox.Height;
         }
         public void CenterAroundMouse()
         {
@@ -353,7 +353,7 @@ namespace ScreenshotTool
         // Button Events
         private void BSave_Click(object sender, EventArgs e)
         {
-            if (Images[ImagesIndex].Saved)
+            if (images[imagesIndex].Saved)
                 CopyCurrentImageToClipboard();
             else
                 SaveCurrentImage();
@@ -372,18 +372,18 @@ namespace ScreenshotTool
         }
         private void BPrevious_Click(object sender, EventArgs e)
         {
-            if (ImagesIndex + 4 < Images.Count)
-                Images[ImagesIndex + 4].DisposeImageCache();
-            ImagesIndex--;
+            if (imagesIndex + 4 < images.Count)
+                images[imagesIndex + 4].DisposeImageCache();
+            imagesIndex--;
 
             ResetHudVisibility();
             UpdateUI();
         }
         private void BNext_Click(object sender, EventArgs e)
         {
-            if (ImagesIndex - 4 >= 0)
-                Images[ImagesIndex - 4].DisposeImageCache();
-            ImagesIndex++;
+            if (imagesIndex - 4 >= 0)
+                images[imagesIndex - 4].DisposeImageCache();
+            imagesIndex++;
 
             ResetHudVisibility();
             UpdateUI();
@@ -405,42 +405,42 @@ namespace ScreenshotTool
         // PictureBox Events
         private void PBox_Paint(object sender, PaintEventArgs e)
         {
-            if (IsMouseDown && mode == EditMode.Crop)
+            if (isMouseDown && mode == EditMode.Crop)
             {
                 Rectangle ee = GetRectangleFromPoints(pMouseDown, pMouseCurrently);
                 using (Pen pen = new Pen(Color.Red, 1))
                     e.Graphics.DrawRectangle(pen, ee);
             }
             // Saved title
-            if (Images[ImagesIndex].Saved && pBox.Height > 8)
+            if (images[imagesIndex].Saved && pBox.Height > 8)
             {
                 try
                 {
                     using (Pen pen = new Pen(Color.Red, 1))
-                        e.Graphics.DrawString("Saved!", new Font("BigNoodleTitling", Math.Min(SavedSignFontSize, pBox.Height) + 1, FontStyle.Italic),
-                            Brushes.Red, new PointF(0, HUDVisiblity * (SavedSignFontSize + 15) - SavedSignFontSize - 15));
+                        e.Graphics.DrawString("Saved!", new Font("BigNoodleTitling", Math.Min(savedSignFontSize, pBox.Height) + 1, FontStyle.Italic),
+                            Brushes.Red, new PointF(0, HUDVisiblity * (savedSignFontSize + 15) - savedSignFontSize - 15));
                 }
                 catch
                 {
                     using (Pen pen = new Pen(Color.Red, 1))
-                        e.Graphics.DrawString("Saved!", new Font("Arial", Math.Min(SavedSignFontSize, pBox.Height) + 1, FontStyle.Italic),
-                            Brushes.Red, new PointF(0, HUDVisiblity * (SavedSignFontSize + 15) - SavedSignFontSize - 15));
+                        e.Graphics.DrawString("Saved!", new Font("Arial", Math.Min(savedSignFontSize, pBox.Height) + 1, FontStyle.Italic),
+                            Brushes.Red, new PointF(0, HUDVisiblity * (savedSignFontSize + 15) - savedSignFontSize - 15));
                 }
             }
             // Previews
-            for (int i = ImagesIndex - HalfExtraPreviewImages; i < ImagesIndex + HalfExtraPreviewImages + 1; i++)
+            for (int i = imagesIndex - halfExtraPreviewImages; i < imagesIndex + halfExtraPreviewImages + 1; i++)
             {
-                if (i >= 0 && i < Images.Count)
+                if (i >= 0 && i < images.Count)
                 {
-                    int index = i - ImagesIndex;
-                    Rectangle draw = new Rectangle(pBox.Width / 2 - (PreviewImageWidth/2) + index * (PreviewImageWidth + PreviewImagePadding), 
-                        pBox.Height - (int)Math.Min((PreviewImageHeight + PreviewImageOutlineThickness * 2) * HUDVisiblity, pBox.Height) + PreviewImageOutlineThickness, 
-                        PreviewImageWidth, PreviewImageHeight);
+                    int index = i - imagesIndex;
+                    Rectangle draw = new Rectangle(pBox.Width / 2 - (previewImageWidth/2) + index * (previewImageWidth + previewImagePadding), 
+                        pBox.Height - (int)Math.Min((previewImageHeight + previewImageOutlineThickness * 2) * HUDVisiblity, pBox.Height) + previewImageOutlineThickness, 
+                        previewImageWidth, previewImageHeight);
                     
                     if (index == 0)
-                        using (Pen pen = new Pen(Color.Black, PreviewImageOutlineThickness))
+                        using (Pen pen = new Pen(Color.Black, previewImageOutlineThickness))
                             e.Graphics.DrawRectangle(pen, draw);
-                    e.Graphics.DrawImage(Images[i].Image, draw);
+                    e.Graphics.DrawImage(images[i].Image, draw);
                 }
             }
         }
@@ -470,7 +470,7 @@ namespace ScreenshotTool
                 //    catch { }
                 //})));
                 GraphicsUnit Unit = GraphicsUnit.Pixel;
-                if (Images[ImagesIndex].Image.GetBounds(ref Unit).Width == ScreenshotHelper.allScreenBounds.Width)
+                if (images[imagesIndex].Image.GetBounds(ref Unit).Width == ScreenshotHelper.allScreenBounds.Width)
                 {
                     int i = 1;
                     foreach (Screen S in Screen.AllScreens)
@@ -479,11 +479,11 @@ namespace ScreenshotTool
                         {
                             try
                             {
-                                Images.Insert(ImagesIndex + 1, new Screenshot(ScreenshotHelper.CropImage(Images[ImagesIndex].Image,
+                                images.Insert(imagesIndex + 1, new Screenshot(ScreenshotHelper.CropImage(images[imagesIndex].Image,
                                     new Rectangle(S.Bounds.X - ScreenshotHelper.allScreenBounds.X,
                                     S.Bounds.Y - ScreenshotHelper.allScreenBounds.Y,
-                                    S.Bounds.Width, S.Bounds.Height)), Images[ImagesIndex].FileName + "_CROPPED"));
-                                ImagesIndex++;
+                                    S.Bounds.Width, S.Bounds.Height)), images[imagesIndex].FileName + "_CROPPED"));
+                                imagesIndex++;
                                 UpdateUI();
                             }
                             catch { }
@@ -517,13 +517,13 @@ namespace ScreenshotTool
             pMouseCurrently = e.Location;
             ResetHudVisibility();
             
-            if (IsMouseDown && mode == EditMode.Draw)
+            if (isMouseDown && mode == EditMode.Draw)
             {
                 if (CurrentScreenshot.Saved)
                 {
-                    Images.Insert(ImagesIndex + 1, new Screenshot((Bitmap)Images[ImagesIndex].Image.Clone(), 
-                        Images[ImagesIndex].FileName + "_DRAWN"));
-                    ImagesIndex += 1;
+                    images.Insert(imagesIndex + 1, new Screenshot((Bitmap)images[imagesIndex].Image.Clone(), 
+                        images[imagesIndex].FileName + "_DRAWN"));
+                    imagesIndex += 1;
                     UpdateUI();
                 }
 
@@ -556,7 +556,7 @@ namespace ScreenshotTool
             if (e.Button == MouseButtons.Left)
             {
                 pMouseDown = e.Location;
-                IsMouseDown = true;
+                isMouseDown = true;
             }
         }
         private void PBox_MouseUp(object sender, MouseEventArgs e)
@@ -568,29 +568,29 @@ namespace ScreenshotTool
                         ZoomPicBoxCoordsToImageCoords(new Point(pMouseCurrently.X, pMouseCurrently.Y), pBox));
                 if (crop.Width == 0 || crop.Height == 0)
                 {
-                    IsMouseDown = false;
+                    isMouseDown = false;
                     return;
                 }
-                Images.Insert(ImagesIndex + 1, new Screenshot(ScreenshotHelper.CropImage(Images[ImagesIndex].Image, crop), 
-                    Images[ImagesIndex].FileName + "_CROPPED"));
-                ImagesIndex += 1;
+                images.Insert(imagesIndex + 1, new Screenshot(ScreenshotHelper.CropImage(images[imagesIndex].Image, crop), 
+                    images[imagesIndex].FileName + "_CROPPED"));
+                imagesIndex += 1;
                 UpdateUI();
             }
-            IsMouseDown = false;
+            isMouseDown = false;
         }
 
         // Other Events
         private void Form1_FormClosing(object sender, FormClosingEventArgs e)
         {
-            if (Images.Skip(1).ToList().Exists(x => !x.Saved) && 
+            if (images.Skip(1).ToList().Exists(x => !x.Saved) && 
                 MessageBox.Show("Oi, you have unsaved Images! Do you really want to close me?", "Close?", MessageBoxButtons.YesNo) == DialogResult.No)
                 e.Cancel = true;
         }
         private void Form1_FormClosed(object sender, FormClosedEventArgs e)
         {
             config.Default.windowSize = Size;
-            config.Default.instantShortcut = InstantKeys.ToString();
-            config.Default.cropShortcut = CropKeys.ToString();
+            config.Default.instantShortcut = instantKeys.ToString();
+            config.Default.cropShortcut = cropKeys.ToString();
             config.Default.Save();
         }
         private void MainForm_SizeChanged(object sender, EventArgs e)
@@ -604,14 +604,14 @@ namespace ScreenshotTool
 
             if (Height < 120)
             {
-                foreach (Button b in MiddleButtons)
+                foreach (Button b in middleButtons)
                     b.Location = new Point(b.Location.X, 46);
                 bNext.Location = new Point(bNext.Location.X, 46);
                 bPrevious.Location = new Point(bPrevious.Location.X, 46);
             }
             else
             {
-                foreach (Button b in MiddleButtons)
+                foreach (Button b in middleButtons)
                     b.Location = new Point(b.Location.X, Height - (120 - 46));
                 bNext.Location = new Point(bNext.Location.X, Height - (120 - 46));
                 bPrevious.Location = new Point(bPrevious.Location.X, Height - (120 - 46));
@@ -628,7 +628,7 @@ namespace ScreenshotTool
             //    Height += R.Height - pBox.Height;
 
             if (WindowState == FormWindowState.Maximized)
-                IsMouseDown = false;
+                isMouseDown = false;
         }
         private void Form1_ResizeEnd(object sender, EventArgs e)
         {
@@ -645,12 +645,12 @@ namespace ScreenshotTool
         {
             if (DateTime.Now.Subtract(lastKeyDownEvent).TotalMilliseconds > 300)
             {
-                if (Shift == InstantKeys.Shift && Ctrl == InstantKeys.Ctrl && Alt == InstantKeys.Alt && key == InstantKeys.Key)
+                if (Shift == instantKeys.Shift && Ctrl == instantKeys.Ctrl && Alt == instantKeys.Alt && key == instantKeys.Key)
                 {
                     AddScreenShot();
                     lastKeyDownEvent = DateTime.Now;
                 }
-                if (Shift == CropKeys.Shift && Ctrl == CropKeys.Ctrl && Alt == CropKeys.Alt && key == CropKeys.Key)
+                if (Shift == cropKeys.Shift && Ctrl == cropKeys.Ctrl && Alt == cropKeys.Alt && key == cropKeys.Key)
                 {
                     AddScreenShotSnippingToolStyle();
                     lastKeyDownEvent = DateTime.Now;
@@ -661,8 +661,8 @@ namespace ScreenshotTool
         // ToolStrip
         private void NeuToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            Images.Add(new Screenshot(new Bitmap(1000, 1000), "newBitmap"));
-            ImagesIndex = Images.Count - 1;
+            images.Add(new Screenshot(new Bitmap(1000, 1000), "newBitmap"));
+            imagesIndex = images.Count - 1;
             UpdateUI();
         }
         private void ShowFolderToolStripMenuItem_Click(object sender, EventArgs e)
@@ -675,7 +675,7 @@ namespace ScreenshotTool
         private void FileToClipboardToolStripMenuItem_Click(object sender, EventArgs e)
         {
             var path = new System.Collections.Specialized.StringCollection();
-            path.Add(Images[ImagesIndex].Path);
+            path.Add(images[imagesIndex].Path);
             Clipboard.SetFileDropList(path);
         }
         private void ImageToClipboardToolStripMenuItem_Click(object sender, EventArgs e) => CopyCurrentImageToClipboard();
