@@ -25,5 +25,15 @@ namespace ScreenshotTool.Src.Forms
 
             tbHTML.Text = ColorTranslator.ToHtml(c);
         }
+
+        private void ColorView_FormClosed(object sender, FormClosedEventArgs e)
+        {
+            Program.mainForm.SetModeToNone();
+        }
+
+        private void ColorView_Load(object sender, EventArgs e)
+        {
+
+        }
     }
 }
