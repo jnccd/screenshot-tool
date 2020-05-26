@@ -25,7 +25,7 @@ namespace ScreenshotTool
             } private set { } }
 
         public string FileName { get; private set; }
-        public bool Saved { get; private set; }
+        public bool Saved { get; set; }
         public string Path { get; private set; }
 
         public Screenshot(Bitmap Image, string FileName)
