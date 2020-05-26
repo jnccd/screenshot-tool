@@ -71,6 +71,12 @@
       <DependentUpon>config.settings</DependentUpon>
     </Compile>
     <Compile Include="Src\CurrentlyFocusedWindow.cs" />
+    <Compile Include="Src\Forms\ColorView.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Src\Forms\ColorView.Designer.cs">
+      <DependentUpon>ColorView.cs</DependentUpon>
+    </Compile>
     <Compile Include="Src\Forms\KeybindingsForm.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -97,6 +103,9 @@
       <DependentUpon>SnippingToolWindow.cs</DependentUpon>
     </Compile>
     <Compile Include="Src\User Input\Shortcut.cs" />
+    <EmbeddedResource Include="Src\Forms\ColorView.resx">
+      <DependentUpon>ColorView.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="Src\Forms\KeybindingsForm.resx">
       <DependentUpon>KeybindingsForm.cs</DependentUpon>
     </EmbeddedResource>

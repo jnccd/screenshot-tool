@@ -14,7 +14,7 @@
     <Setting Name="cropShortcut" Type="System.String" Scope="User">
       <Value Profile="(Default)" />
     </Setting>
-    <Setting Name="primaryColor" Type="System.Drawing.Color" Scope="User">
+    <Setting Name="PrimaryColor" Type="System.Drawing.Color" Scope="User">
       <Value Profile="(Default)" />
     </Setting>
   </Settings>

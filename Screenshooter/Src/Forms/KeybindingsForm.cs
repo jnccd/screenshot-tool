@@ -19,6 +19,11 @@ namespace ScreenshotTool
 
         private void KeybindingsForm_Load(object sender, EventArgs e)
         {
+            RefreshDefaults();
+        }
+
+        public void RefreshDefaults()
+        {
             ComboBoxSpeicalInstant.Items.AddRange(Shortcut.Specials);
             ComboBoxKeyInstant.Items.AddRange(Shortcut.AllKeys.Select(x => x.ToString()).OrderBy(x => x).ToArray());
 
