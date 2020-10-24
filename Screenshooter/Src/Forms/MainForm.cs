@@ -626,19 +626,25 @@ namespace ScreenshotTool
             bNext.Location = new Point(bDelete.Location.X + bDelete.Width + 6, bNext.Location.Y);
             bNext.Width = pBox.Width + pBox.Location.X - bNext.Location.X;
 
+            float dpiY;
+            Graphics graphics = this.CreateGraphics();
+            dpiY = graphics.DpiY;
+
+            int buttonHeight = (int)(46 * (96 / dpiY));
+
             if (Height < 120)
             {
                 foreach (Button b in middleButtons)
-                    b.Location = new Point(b.Location.X, 46);
-                bNext.Location = new Point(bNext.Location.X, 46);
-                bPrevious.Location = new Point(bPrevious.Location.X, 46);
+                    b.Location = new Point(b.Location.X, buttonHeight);
+                bNext.Location = new Point(bNext.Location.X, buttonHeight);
+                bPrevious.Location = new Point(bPrevious.Location.X, buttonHeight);
             }
             else
             {
                 foreach (Button b in middleButtons)
-                    b.Location = new Point(b.Location.X, Height - (120 - 46));
-                bNext.Location = new Point(bNext.Location.X, Height - (120 - 46));
-                bPrevious.Location = new Point(bPrevious.Location.X, Height - (120 - 46));
+                    b.Location = new Point(b.Location.X, Height - (120 - buttonHeight));
+                bNext.Location = new Point(bNext.Location.X, Height - (120 - buttonHeight));
+                bPrevious.Location = new Point(bPrevious.Location.X, Height - (120 - buttonHeight));
             }
 
             //// Snapping
