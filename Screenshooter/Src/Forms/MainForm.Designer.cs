@@ -64,7 +64,7 @@
             | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
             this.pBox.Location = new System.Drawing.Point(16, 33);
-            this.pBox.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.pBox.Margin = new System.Windows.Forms.Padding(4);
             this.pBox.Name = "pBox";
             this.pBox.Size = new System.Drawing.Size(992, 286);
             this.pBox.SizeMode = System.Windows.Forms.PictureBoxSizeMode.Zoom;
@@ -80,7 +80,7 @@
             // 
             this.bSave.Anchor = System.Windows.Forms.AnchorStyles.Bottom;
             this.bSave.Location = new System.Drawing.Point(379, 326);
-            this.bSave.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.bSave.Margin = new System.Windows.Forms.Padding(4);
             this.bSave.Name = "bSave";
             this.bSave.Size = new System.Drawing.Size(136, 28);
             this.bSave.TabIndex = 2;
@@ -92,11 +92,11 @@
             // 
             this.bPrevious.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
             this.bPrevious.Location = new System.Drawing.Point(16, 326);
-            this.bPrevious.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.bPrevious.Margin = new System.Windows.Forms.Padding(4);
             this.bPrevious.Name = "bPrevious";
             this.bPrevious.Size = new System.Drawing.Size(355, 28);
             this.bPrevious.TabIndex = 3;
-            this.bPrevious.Text = "<-";
+            this.bPrevious.Text = "<";
             this.bPrevious.UseVisualStyleBackColor = true;
             this.bPrevious.Click += new System.EventHandler(this.BPrevious_Click);
             // 
@@ -104,11 +104,11 @@
             // 
             this.bNext.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
             this.bNext.Location = new System.Drawing.Point(667, 326);
-            this.bNext.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.bNext.Margin = new System.Windows.Forms.Padding(4);
             this.bNext.Name = "bNext";
             this.bNext.Size = new System.Drawing.Size(341, 28);
             this.bNext.TabIndex = 4;
-            this.bNext.Text = "->";
+            this.bNext.Text = ">";
             this.bNext.UseVisualStyleBackColor = true;
             this.bNext.Click += new System.EventHandler(this.BNext_Click);
             // 
@@ -116,7 +116,7 @@
             // 
             this.bDelete.Anchor = System.Windows.Forms.AnchorStyles.Bottom;
             this.bDelete.Location = new System.Drawing.Point(523, 326);
-            this.bDelete.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.bDelete.Margin = new System.Windows.Forms.Padding(4);
             this.bDelete.Name = "bDelete";
             this.bDelete.Size = new System.Drawing.Size(136, 28);
             this.bDelete.TabIndex = 9;
@@ -286,7 +286,7 @@
             this.Controls.Add(this.menuStrip);
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.MainMenuStrip = this.menuStrip;
-            this.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.Margin = new System.Windows.Forms.Padding(4);
             this.MinimumSize = new System.Drawing.Size(37, 137);
             this.Name = "MainForm";
             this.Text = "Multi Screen Screenshot";
