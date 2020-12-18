@@ -1,4 +1,5 @@
-﻿using System;
+﻿using GoogleTranslateFreeApi;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
@@ -13,6 +14,8 @@ namespace ScreenshotTool
 {
     public partial class TextRecognitionView : Form
     {
+        readonly GoogleTranslator translator = new GoogleTranslator();
+
         public TextRecognitionView()
         {
             InitializeComponent();
@@ -35,7 +38,7 @@ namespace ScreenshotTool
             }
             catch
             {
-                tOutText.Text = "Error Reading the images text with the given Parameters!";
+                tOutText.Text = "Error reading the images text with the given parameters!";
                 lConf.Text = $"Confidence: x";
             }
         }
@@ -51,6 +54,25 @@ namespace ScreenshotTool
             if (e.KeyCode == Keys.Enter)
             {
                 UpdateReadings();
+            }
+        }
+
+        private void bTranslate_Click(object sender, EventArgs e)
+        {
+            try
+            {
+                throw new NotImplementedException();
+
+                Language from = string.IsNullOrWhiteSpace(tSourceLang.Text) || tSourceLang.Text == "Auto" ? Language.Auto : GoogleTranslator.GetLanguageByName(tSourceLang.Text);
+                Language to = GoogleTranslator.GetLanguageByName(tTargetLang.Text);
+
+                TranslationResult result = translator.TranslateLiteAsync(tOutText.Text, from, to).Result;
+
+                tTranslate.Text = result.MergedTranslation;
+            }
+            catch
+            {
+                tTranslate.Text = "Error translating the text with the given parameters!";
             }
         }
 
