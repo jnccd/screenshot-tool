@@ -45,12 +45,18 @@ namespace ScreenshotTool
         {
             UpdateReadings();
         }
+
         private void TLang_KeyDown(object sender, KeyEventArgs e)
         {
             if (e.KeyCode == Keys.Enter)
             {
                 UpdateReadings();
             }
+        }
+
+        private void TextRecognitionView_FormClosed(object sender, FormClosedEventArgs e)
+        {
+            Program.mainForm.SetModeToNone();
         }
     }
 }

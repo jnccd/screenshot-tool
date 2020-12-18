@@ -74,6 +74,7 @@
             this.Controls.Add(this.tOutText);
             this.Name = "TextRecognitionView";
             this.Text = "Text Recognition";
+            this.FormClosed += new System.Windows.Forms.FormClosedEventHandler(this.TextRecognitionView_FormClosed);
             this.Load += new System.EventHandler(this.TextRecognitionView_Load);
             this.ResumeLayout(false);
             this.PerformLayout();

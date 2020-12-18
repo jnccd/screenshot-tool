@@ -41,8 +41,7 @@ namespace ScreenshotTool
         bool snippingWindowActive = false;
 
         // Edit
-        enum EditMode { None, Crop, Draw, ColorPicker, TextRecognition }
-        EditMode mode = EditMode.None;
+        ToolStripMenuItem mode;
         readonly int drawRadius = 10;
 
         public Shortcut instantKeys;
@@ -269,13 +268,7 @@ namespace ScreenshotTool
         }
         private void ResetHudVisibility() => HUDvisibility = (7.5f - HUDvisibility) / 3f;
         public void Minimize() => DLLImports.ShowWindow(this.Handle, 2);
-        public void SetModeToNone()
-        {
-            foreach (ToolStripItem item in editMenuItem.DropDownItems)
-                if (item is ToolStripMenuItem)
-                    (item as ToolStripMenuItem).Checked = item == noneMenuItem;
-            mode = EditMode.None;
-        }
+        public void SetModeToNone() => ChangeEditMode(noneMenuItem, false);
         // Window Size
         public void SetOriginalSize()
         {
@@ -360,6 +353,44 @@ namespace ScreenshotTool
             }
             return new Point((int)X, (int)Y);
         }
+        private void ChangeEditMode(ToolStripMenuItem newMode, bool CloseWindow = true)
+        {
+            if (newMode == colorPickerMenuItem)
+            {
+                if (colorView == null || colorView.IsDisposed)
+                    colorView = new ColorView();
+                colorView.Show();
+            }
+            else if (CloseWindow)
+                colorView.Close();
+
+            if (newMode == textRecognitionMenuItem)
+            {
+                if (textView == null || textView.IsDisposed)
+                    textView = new TextRecognitionView();
+                textView.Show();
+            }
+            else if (CloseWindow)
+                textView.Close();
+
+            if (newMode == chooseColorMenuItem)
+            {
+                var LeDialog = new ColorDialog
+                {
+                    AllowFullOpen = true,
+                    AnyColor = true,
+                    Color = config.Default.PrimaryColor
+                };
+                if (LeDialog.ShowDialog() == DialogResult.OK)
+                    config.Default.PrimaryColor = LeDialog.Color;
+            }
+
+            foreach (ToolStripItem item in editMenuItem.DropDownItems)
+                if (item is ToolStripMenuItem)
+                    (item as ToolStripMenuItem).Checked = item == newMode;
+
+            mode = newMode;
+        }
         
         // Button Events
         private void BSave_Click(object sender, EventArgs e)
@@ -416,7 +447,7 @@ namespace ScreenshotTool
         // PictureBox Events
         private void PBox_Paint(object sender, PaintEventArgs e)
         {
-            if (isMouseDown && mode == EditMode.Crop)
+            if (isMouseDown && mode == cropMenuItem)
             {
                 Rectangle ee = GetRectangleFromPoints(pMouseDown, pMouseCurrently);
                 using (Pen pen = new Pen(config.Default.PrimaryColor, 1))
@@ -524,7 +555,7 @@ namespace ScreenshotTool
             pMouseCurrently = e.Location;
             ResetHudVisibility();
 
-            if (isMouseDown && mode == EditMode.ColorPicker)
+            if (isMouseDown && mode == colorPickerMenuItem)
             {
                 try
                 {
@@ -532,7 +563,7 @@ namespace ScreenshotTool
                     colorView.Update(CurrentScreenshot.Image.GetPixel(p.X, p.Y));
                 } catch { }
             }
-            if (isMouseDown && mode == EditMode.Draw)
+            if (isMouseDown && mode == drawMenuItem)
             {
                 if (CurrentScreenshot.Saved)
                 {
@@ -573,7 +604,7 @@ namespace ScreenshotTool
                 pMouseDown = e.Location;
                 isMouseDown = true;
 
-                if (mode == EditMode.ColorPicker)
+                if (mode == colorPickerMenuItem)
                 {
                     try
                     {
@@ -586,7 +617,7 @@ namespace ScreenshotTool
         }
         private void PBox_MouseUp(object sender, MouseEventArgs e)
         {
-            if (e.Button == MouseButtons.Left && mode == EditMode.Crop)
+            if (e.Button == MouseButtons.Left && mode == cropMenuItem)
             {
                 Rectangle crop = GetRectangleFromPoints(
                         ZoomPicBoxCoordsToImageCoords(pMouseDown, pBox),
@@ -729,67 +760,11 @@ namespace ScreenshotTool
                 Application.Exit();
             }
         }
-        private void CropMenuItem_Click(object sender, EventArgs e)
-        {
-            colorView.Close();
-
-            foreach (ToolStripItem item in editMenuItem.DropDownItems)
-                if (item is ToolStripMenuItem)
-                    (item as ToolStripMenuItem).Checked = item == cropMenuItem;
-            mode = EditMode.Crop;
-        }
-        private void DrawMenuItem_Click(object sender, EventArgs e)
-        {
-            colorView.Close();
-
-            foreach (ToolStripItem item in editMenuItem.DropDownItems)
-                if (item is ToolStripMenuItem)
-                    (item as ToolStripMenuItem).Checked = item == drawMenuItem;
-            mode = EditMode.Draw;
-        }
-        private void ColorPickerMenuItem_Click(object sender, EventArgs e)
-        {
-            if (colorView == null || colorView.IsDisposed)
-                colorView = new ColorView();
-            colorView.Show();
-
-            foreach (ToolStripItem item in editMenuItem.DropDownItems)
-                if (item is ToolStripMenuItem)
-                    (item as ToolStripMenuItem).Checked = item == colorPickerMenuItem;
-            mode = EditMode.ColorPicker;
-        }
-        private void TextRecognitionToolStripMenuItem_Click(object sender, EventArgs e)
-        {
-            if (textView == null || textView.IsDisposed)
-                textView = new TextRecognitionView();
-            textView.Show();
-
-            foreach (ToolStripItem item in editMenuItem.DropDownItems)
-                if (item is ToolStripMenuItem)
-                    (item as ToolStripMenuItem).Checked = item == colorPickerMenuItem;
-            mode = EditMode.TextRecognition;
-        }
-        private void ChooseColorMenuItem_Click(object sender, EventArgs e)
-        {
-            colorView.Close();
-
-            var LeDialog = new ColorDialog
-            {
-                AllowFullOpen = true,
-                AnyColor = true,
-                Color = config.Default.PrimaryColor
-            };
-            if (LeDialog.ShowDialog() == DialogResult.OK)
-                config.Default.PrimaryColor = LeDialog.Color;
-        }
-        private void NoneMenuItem_Click(object sender, EventArgs e)
-        {
-            colorView.Close();
-
-            foreach (ToolStripItem item in editMenuItem.DropDownItems)
-                if (item is ToolStripMenuItem)
-                    (item as ToolStripMenuItem).Checked = item == noneMenuItem;
-            mode = EditMode.None;
-        }
+        private void NoneMenuItem_Click(object sender, EventArgs e) => ChangeEditMode(noneMenuItem);
+        private void CropMenuItem_Click(object sender, EventArgs e) => ChangeEditMode(cropMenuItem);
+        private void DrawMenuItem_Click(object sender, EventArgs e) => ChangeEditMode(drawMenuItem);
+        private void ColorPickerMenuItem_Click(object sender, EventArgs e) => ChangeEditMode(colorPickerMenuItem);
+        private void TextRecognitionToolStripMenuItem_Click(object sender, EventArgs e) => ChangeEditMode(textRecognitionMenuItem);
+        private void ChooseColorMenuItem_Click(object sender, EventArgs e) => ChangeEditMode(chooseColorMenuItem);
     }
 }
