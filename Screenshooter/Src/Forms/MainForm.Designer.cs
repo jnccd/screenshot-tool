@@ -54,6 +54,7 @@
             this.chooseColorToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.extrasToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.KeybindingsMenuEntry = new System.Windows.Forms.ToolStripMenuItem();
+            this.textRecognitionToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             ((System.ComponentModel.ISupportInitialize)(this.pBox)).BeginInit();
             this.menuStrip.SuspendLayout();
             this.SuspendLayout();
@@ -209,6 +210,7 @@
             this.cropMenuItem,
             this.drawMenuItem,
             this.colorPickerMenuItem,
+            this.textRecognitionToolStripMenuItem,
             this.toolStripSeparator1,
             this.chooseColorToolStripMenuItem});
             this.editMenuItem.Name = "editMenuItem";
@@ -219,7 +221,7 @@
             // 
             this.noneMenuItem.CheckOnClick = true;
             this.noneMenuItem.Name = "noneMenuItem";
-            this.noneMenuItem.Size = new System.Drawing.Size(181, 26);
+            this.noneMenuItem.Size = new System.Drawing.Size(224, 26);
             this.noneMenuItem.Text = "None";
             this.noneMenuItem.Click += new System.EventHandler(this.NoneMenuItem_Click);
             // 
@@ -227,7 +229,7 @@
             // 
             this.cropMenuItem.CheckOnClick = true;
             this.cropMenuItem.Name = "cropMenuItem";
-            this.cropMenuItem.Size = new System.Drawing.Size(181, 26);
+            this.cropMenuItem.Size = new System.Drawing.Size(224, 26);
             this.cropMenuItem.Text = "Crop";
             this.cropMenuItem.Click += new System.EventHandler(this.CropMenuItem_Click);
             // 
@@ -235,26 +237,26 @@
             // 
             this.drawMenuItem.CheckOnClick = true;
             this.drawMenuItem.Name = "drawMenuItem";
-            this.drawMenuItem.Size = new System.Drawing.Size(181, 26);
+            this.drawMenuItem.Size = new System.Drawing.Size(224, 26);
             this.drawMenuItem.Text = "Draw";
             this.drawMenuItem.Click += new System.EventHandler(this.DrawMenuItem_Click);
             // 
             // colorPickerMenuItem
             // 
             this.colorPickerMenuItem.Name = "colorPickerMenuItem";
-            this.colorPickerMenuItem.Size = new System.Drawing.Size(181, 26);
+            this.colorPickerMenuItem.Size = new System.Drawing.Size(224, 26);
             this.colorPickerMenuItem.Text = "ColorViewer";
             this.colorPickerMenuItem.Click += new System.EventHandler(this.ColorPickerMenuItem_Click);
             // 
             // toolStripSeparator1
             // 
             this.toolStripSeparator1.Name = "toolStripSeparator1";
-            this.toolStripSeparator1.Size = new System.Drawing.Size(178, 6);
+            this.toolStripSeparator1.Size = new System.Drawing.Size(221, 6);
             // 
             // chooseColorToolStripMenuItem
             // 
             this.chooseColorToolStripMenuItem.Name = "chooseColorToolStripMenuItem";
-            this.chooseColorToolStripMenuItem.Size = new System.Drawing.Size(181, 26);
+            this.chooseColorToolStripMenuItem.Size = new System.Drawing.Size(224, 26);
             this.chooseColorToolStripMenuItem.Text = "Choose Color";
             this.chooseColorToolStripMenuItem.Click += new System.EventHandler(this.ChooseColorMenuItem_Click);
             // 
@@ -272,6 +274,13 @@
             this.KeybindingsMenuEntry.Size = new System.Drawing.Size(173, 26);
             this.KeybindingsMenuEntry.Text = "Keybindings";
             this.KeybindingsMenuEntry.Click += new System.EventHandler(this.KeybindingsToolStripMenuItem_Click);
+            // 
+            // textRecognitionToolStripMenuItem
+            // 
+            this.textRecognitionToolStripMenuItem.Name = "textRecognitionToolStripMenuItem";
+            this.textRecognitionToolStripMenuItem.Size = new System.Drawing.Size(224, 26);
+            this.textRecognitionToolStripMenuItem.Text = "Text Recognition";
+            this.textRecognitionToolStripMenuItem.Click += new System.EventHandler(this.TextRecognitionToolStripMenuItem_Click);
             // 
             // MainForm
             // 
@@ -328,6 +337,7 @@
         private System.Windows.Forms.ToolStripSeparator toolStripSeparator1;
         private System.Windows.Forms.ToolStripMenuItem chooseColorToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem noneMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem textRecognitionToolStripMenuItem;
     }
 }
 

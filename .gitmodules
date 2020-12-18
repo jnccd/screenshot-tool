@@ -1,0 +1,3 @@
+[submodule "Screenshooter/tessdata"]
+	path = Screenshooter/tessdata
+	url = https://github.com/tesseract-ocr/tessdata
