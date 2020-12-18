@@ -34,13 +34,14 @@ namespace ScreenshotTool
         DateTime lastKeyDownEvent = DateTime.Now;
         readonly KeybindingsForm keybindingsForm = new KeybindingsForm();
         ColorView colorView = new ColorView();
+        TextRecognitionView textView = new TextRecognitionView();
 
         // Snipper active
         readonly SnippingToolWindow snipper = new SnippingToolWindow();
         bool snippingWindowActive = false;
 
         // Edit
-        enum EditMode { None, Crop, Draw, ColorPicker }
+        enum EditMode { None, Crop, Draw, ColorPicker, TextRecognition }
         EditMode mode = EditMode.None;
         readonly int drawRadius = 10;
 
@@ -756,6 +757,17 @@ namespace ScreenshotTool
                 if (item is ToolStripMenuItem)
                     (item as ToolStripMenuItem).Checked = item == colorPickerMenuItem;
             mode = EditMode.ColorPicker;
+        }
+        private void TextRecognitionToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            if (textView == null || textView.IsDisposed)
+                textView = new TextRecognitionView();
+            textView.Show();
+
+            foreach (ToolStripItem item in editMenuItem.DropDownItems)
+                if (item is ToolStripMenuItem)
+                    (item as ToolStripMenuItem).Checked = item == colorPickerMenuItem;
+            mode = EditMode.TextRecognition;
         }
         private void ChooseColorMenuItem_Click(object sender, EventArgs e)
         {
