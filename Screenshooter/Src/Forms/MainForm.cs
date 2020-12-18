@@ -418,6 +418,8 @@ namespace ScreenshotTool
                 images[imagesIndex + 4].DisposeImageCache();
             imagesIndex--;
 
+            if (mode == textRecognitionMenuItem)
+                textView.UpdateReadings();
             ResetHudVisibility();
             UpdateUI();
         }
@@ -427,6 +429,8 @@ namespace ScreenshotTool
                 images[imagesIndex - 4].DisposeImageCache();
             imagesIndex++;
 
+            if (mode == textRecognitionMenuItem)
+                textView.UpdateReadings();
             ResetHudVisibility();
             UpdateUI();
         }

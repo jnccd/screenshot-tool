@@ -18,7 +18,7 @@ namespace ScreenshotTool
             InitializeComponent();
         }
 
-        private void UpdateReadings()
+        public void UpdateReadings()
         {
             try
             {
