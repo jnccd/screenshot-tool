@@ -44,7 +44,6 @@
             this.pBox.TabIndex = 0;
             this.pBox.TabStop = false;
             this.pBox.Paint += new System.Windows.Forms.PaintEventHandler(this.PBox_Paint);
-            this.pBox.MouseClick += new System.Windows.Forms.MouseEventHandler(this.PictureBox1_MouseClick);
             this.pBox.MouseDown += new System.Windows.Forms.MouseEventHandler(this.PictureBox1_MouseDown);
             this.pBox.MouseMove += new System.Windows.Forms.MouseEventHandler(this.PictureBox1_MouseMove);
             this.pBox.MouseUp += new System.Windows.Forms.MouseEventHandler(this.PictureBox1_MouseUp);
