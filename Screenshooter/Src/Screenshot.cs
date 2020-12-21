@@ -64,11 +64,15 @@ namespace ScreenshotTool
         }
         public void Delete()
         {
-            if (File.Exists(Path))
-                FileSystem.DeleteFile(Path,
-                        UIOption.AllDialogs,
-                        RecycleOption.SendToRecycleBin,
-                        UICancelOption.ThrowException);
+            try
+            {
+                if (File.Exists(Path))
+                    FileSystem.DeleteFile(Path,
+                            UIOption.AllDialogs,
+                            RecycleOption.SendToRecycleBin,
+                            UICancelOption.ThrowException);
+            }
+            catch (Exception e) { Console.WriteLine(e); }
         }
     }
 }

@@ -13,10 +13,11 @@ namespace ScreenshotTool
 {
     public partial class SnippingToolWindow : Form
     {
-        public Rectangle crop = new Rectangle(0, 0, 0, 0);
+        public Rectangle gifArea = new Rectangle(0, 0, 0, 0);
         public Point pMouseDown = new Point(0, 0);
         Point pMouseCurrently = new Point(0, 0);
-        bool IsMouseDown = false;
+        bool IsLeftMouseDown = false;
+        bool IsMiddleMouseDown = false;
 
         public Bitmap output;
         Bitmap fullScreenshot;
@@ -70,23 +71,39 @@ namespace ScreenshotTool
         {
             if (e.Button == MouseButtons.Left)
             {
-                if (true)
-                {
-                    crop = GetRectangleFromPoints(
+                Rectangle crop = GetRectangleFromPoints(
                         new Point((int)(pMouseDown.X * (double)fullScreenshot.Width / pBox.Width),
-                            (int)(pMouseDown.Y * (double)fullScreenshot.Height / pBox.Height)), 
+                            (int)(pMouseDown.Y * (double)fullScreenshot.Height / pBox.Height)),
                         new Point((int)(pMouseCurrently.X * (double)fullScreenshot.Width / pBox.Width),
                             (int)(pMouseCurrently.Y * (double)fullScreenshot.Height / pBox.Height)));
-                    if (crop.Width == 0 || crop.Height == 0)
-                    {
-                        MessageBox.Show("Thats a little too small, dont you think?", "Too Smol", MessageBoxButtons.OK);
-                        IsMouseDown = false;
-                        return;
-                    }
-                    output = ScreenshotHelper.CropImage(fullScreenshot, crop);
-                    this.Close();
+                if (crop.Width == 0 || crop.Height == 0)
+                {
+                    MessageBox.Show("Thats a little too small, dont you think?", "Too Smol", MessageBoxButtons.OK);
+                    IsLeftMouseDown = false;
+                    return;
                 }
-                IsMouseDown = false;
+                output = ScreenshotHelper.CropImage(fullScreenshot, crop);
+
+                IsLeftMouseDown = false;
+                this.Close();
+            }
+            else if (e.Button == MouseButtons.Middle)
+            {
+                gifArea = GetRectangleFromPoints(
+                        new Point((int)(pMouseDown.X * (double)fullScreenshot.Width / pBox.Width),
+                            (int)(pMouseDown.Y * (double)fullScreenshot.Height / pBox.Height)),
+                        new Point((int)(pMouseCurrently.X * (double)fullScreenshot.Width / pBox.Width),
+                            (int)(pMouseCurrently.Y * (double)fullScreenshot.Height / pBox.Height)));
+                if (gifArea.Width == 0 || gifArea.Height == 0)
+                {
+                    MessageBox.Show("Thats a little too small, dont you think?", "Too Smol", MessageBoxButtons.OK);
+                    IsMiddleMouseDown = false;
+                    return;
+                }
+
+                IsMiddleMouseDown = false;
+                Console.WriteLine("Set gif area to: " + gifArea);
+                this.Close();
             }
             else if (e.Button == MouseButtons.Right)
                 this.Close();
@@ -96,7 +113,12 @@ namespace ScreenshotTool
             if (e.Button == MouseButtons.Left)
             {
                 pMouseDown = e.Location;
-                IsMouseDown = true;
+                IsLeftMouseDown = true;
+            }
+            else if (e.Button == MouseButtons.Middle)
+            {
+                pMouseDown = e.Location;
+                IsMiddleMouseDown = true;
             }
         }
         private void PictureBox1_MouseMove(object sender, MouseEventArgs e)
@@ -106,19 +128,27 @@ namespace ScreenshotTool
                 pMouseCurrently = e.Location;
                 pBox.Refresh();
             }
-        }
-        private void PictureBox1_MouseClick(object sender, MouseEventArgs e)
-        {
-
+            else if (e.Button == MouseButtons.Middle)
+            {
+                pMouseCurrently = e.Location;
+                IsMiddleMouseDown = true;
+            }
         }
 
         private void PBox_Paint(object sender, PaintEventArgs e)
         {
-            if (IsMouseDown)
+            if (IsLeftMouseDown)
             {
                 Rectangle ee = GetRectangleFromPoints(pMouseDown, pMouseCurrently);
-                using (Pen pen = new Pen(Color.Red, 1))
-                    e.Graphics.DrawRectangle(pen, ee);
+                using Pen pen = new Pen(Color.Red, 1);
+                e.Graphics.DrawRectangle(pen, ee);
+            }
+            else if (IsMiddleMouseDown)
+            {
+                Rectangle ee = GetRectangleFromPoints(pMouseDown, pMouseCurrently);
+                Console.WriteLine("Drawing " + ee);
+                using Pen pen = new Pen(Color.Blue, 1);
+                e.Graphics.DrawRectangle(pen, ee);
             }
         }
 

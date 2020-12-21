@@ -261,20 +261,32 @@ namespace ScreenshotTool
 
             Task.Factory.StartNew(() =>
             {
+                List<Task> runners = new List<Task>();
                 while (recordingGif)
                 {
-                    Task.Factory.StartNew(() =>
+                    runners.Add(Task.Factory.StartNew(() =>
                     {
-                        gifShots.Add(ScreenshotHelper.CropImage(ScreenshotHelper.GetFullScreenshot(), snipper.crop));
-                    });
+                        gifShots.Add(ScreenshotHelper.CropImage(ScreenshotHelper.GetFullScreenshot(), snipper.gifArea));
+                        Console.WriteLine("Made gif shot!");
+                    }));
 
                     Task.Delay(32).Wait();
                 }
+                Task.WaitAll(runners.ToArray());
 
-                using MemoryStream s = new MemoryStream();
-                using (AnimatedGifCreator c = new AnimatedGifCreator(s, 33))
-                    foreach (Bitmap b in bs)
-                        c.AddFrame(b.CropImage(new Rectangle(0, 0, maxWidth, maxHeight)), -1, GifQuality.Bit8);
+                string path = config.Default.path + "\\" + GetScreenshotName() + ".gif";
+                using (FileStream s = new FileStream(path, FileMode.Create))
+                {
+                    using AnimatedGifCreator c = new AnimatedGifCreator(s, 33);
+                    foreach (Bitmap b in gifShots)
+                        c.AddFrame(b, -1, GifQuality.Bit8);
+                }
+
+                images.Add(new Screenshot(path));
+                imagesIndex = images.Count - 1;
+                CurrentScreenshot.Save();
+
+                this.InvokeIfRequired(() => UpdateUI());
 
                 processingGif = false;
             });
