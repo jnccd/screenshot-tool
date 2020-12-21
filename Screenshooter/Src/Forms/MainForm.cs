@@ -1,4 +1,5 @@
-﻿using ScreenshotTool.Properties;
+﻿using AnimatedGif;
+using ScreenshotTool.Properties;
 using ScreenshotTool.Src.Forms;
 using System;
 using System.Collections.Generic;
@@ -36,6 +37,11 @@ namespace ScreenshotTool
         ColorView colorView = new ColorView();
         TextRecognitionView textView = new TextRecognitionView();
 
+        // Gif
+        bool recordingGif = false;
+        bool processingGif = false;
+        List<Bitmap> gifShots = new List<Bitmap>();
+
         // Snipper active
         readonly SnippingToolWindow snipper = new SnippingToolWindow();
         bool snippingWindowActive = false;
@@ -46,6 +52,7 @@ namespace ScreenshotTool
 
         public Shortcut instantKeys;
         public Shortcut cropKeys;
+        public Shortcut gifKeys;
 
         float HUDvisibility = 0;
         float HUDVisiblity
@@ -70,9 +77,11 @@ namespace ScreenshotTool
         public MainForm()
         {
             InitializeComponent();
+            keyHook.KeyUp += KeyHook_KeyUp;
             keyHook.KeyDown += KeyHook_KeyDown;
             CurrentlyFocusedWindow.SetEventHook();
         }
+
         private void MainForm_Load(object sender, EventArgs e)
         {
             if (config.Default.path == "<Unset>" || !Directory.Exists(config.Default.path))
@@ -87,6 +96,9 @@ namespace ScreenshotTool
 
             if (config.Default.cropShortcut.IsNullOrWhiteSpace()) cropKeys = Shortcut.DefaultCropKeys;
             else cropKeys = new Shortcut().FromString(config.Default.cropShortcut);
+
+            if (config.Default.gifShortcut.IsNullOrWhiteSpace()) gifKeys = Shortcut.DefaultGifKeys;
+            else gifKeys = new Shortcut().FromString(config.Default.gifShortcut);
 
             middleButtons.Add(bSave);
             middleButtons.Add(bDelete);
@@ -105,7 +117,7 @@ namespace ScreenshotTool
             Minimize();
             
             string[] files = Directory.GetFiles(config.Default.path).
-                Where(s => s.EndsWith(".png") && 
+                Where(s => (s.EndsWith(".png") || s.EndsWith(".gif")) && 
                            Path.GetFileNameWithoutExtension(s).Contains("Screenshot_")).
                 OrderBy(x => x).
                 Reverse().
@@ -236,6 +248,41 @@ namespace ScreenshotTool
             }
         }
         public Screenshot CurrentScreenshot { get { return images[imagesIndex]; } }
+
+        // GIF
+        public void StartRecordingGif()
+        {
+            if (processingGif | recordingGif)
+                return;
+
+            processingGif = true;
+            recordingGif = true;
+            gifShots.Clear();
+
+            Task.Factory.StartNew(() =>
+            {
+                while (recordingGif)
+                {
+                    Task.Factory.StartNew(() =>
+                    {
+                        gifShots.Add(ScreenshotHelper.CropImage(ScreenshotHelper.GetFullScreenshot(), snipper.crop));
+                    });
+
+                    Task.Delay(32).Wait();
+                }
+
+                using MemoryStream s = new MemoryStream();
+                using (AnimatedGifCreator c = new AnimatedGifCreator(s, 33))
+                    foreach (Bitmap b in bs)
+                        c.AddFrame(b.CropImage(new Rectangle(0, 0, maxWidth, maxHeight)), -1, GifQuality.Bit8);
+
+                processingGif = false;
+            });
+        }
+        public void StopRecordingGif()
+        {
+            recordingGif = false;
+        }
 
         // UI
         public void UpdateUI()
@@ -651,6 +698,7 @@ namespace ScreenshotTool
             config.Default.windowSize = Size;
             config.Default.instantShortcut = instantKeys.ToString();
             config.Default.cropShortcut = cropKeys.ToString();
+            config.Default.gifShortcut = gifKeys.ToString();
             config.Default.Save();
         }
         private void MainForm_SizeChanged(object sender, EventArgs e)
@@ -709,21 +757,37 @@ namespace ScreenshotTool
         }
         private void KeyHook_KeyDown(Keys key, bool Shift, bool Ctrl, bool Alt)
         {
+            Console.WriteLine($"Pressed {key}");
+
             if (DateTime.Now.Subtract(lastKeyDownEvent).TotalMilliseconds > 300)
             {
-                if (Shift == instantKeys.Shift && Ctrl == instantKeys.Ctrl && Alt == instantKeys.Alt && key == instantKeys.Key)
+                if (instantKeys.IsPressed(Shift, Ctrl, Alt, key))
                 {
                     AddScreenShot();
                     lastKeyDownEvent = DateTime.Now;
                 }
-                if (Shift == cropKeys.Shift && Ctrl == cropKeys.Ctrl && Alt == cropKeys.Alt && key == cropKeys.Key)
+                else if (cropKeys.IsPressed(Shift, Ctrl, Alt, key))
                 {
                     AddScreenShotSnippingToolStyle();
                     lastKeyDownEvent = DateTime.Now;
                 }
+                else if (gifKeys.IsPressed(Shift, Ctrl, Alt, key))
+                {
+                    StartRecordingGif();
+                    lastKeyDownEvent = DateTime.Now;
+                }
             }
         }
-        
+        private void KeyHook_KeyUp(Keys key, bool Shift, bool Ctrl, bool Alt)
+        {
+            Console.WriteLine($"Released {key}");
+
+            if (gifKeys.IsPressed(Shift, Ctrl, Alt, key))
+            {
+                StopRecordingGif();
+            }
+        }
+
         // ToolStrip
         private void NeuToolStripMenuItem_Click(object sender, EventArgs e)
         {

@@ -13,6 +13,7 @@ namespace ScreenshotTool
 {
     public partial class SnippingToolWindow : Form
     {
+        public Rectangle crop = new Rectangle(0, 0, 0, 0);
         public Point pMouseDown = new Point(0, 0);
         Point pMouseCurrently = new Point(0, 0);
         bool IsMouseDown = false;
@@ -71,7 +72,7 @@ namespace ScreenshotTool
             {
                 if (true)
                 {
-                    Rectangle crop = GetRectangleFromPoints(
+                    crop = GetRectangleFromPoints(
                         new Point((int)(pMouseDown.X * (double)fullScreenshot.Width / pBox.Width),
                             (int)(pMouseDown.Y * (double)fullScreenshot.Height / pBox.Height)), 
                         new Point((int)(pMouseCurrently.X * (double)fullScreenshot.Width / pBox.Width),
