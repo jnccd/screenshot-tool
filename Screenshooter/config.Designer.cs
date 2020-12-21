@@ -12,7 +12,7 @@ namespace ScreenshotTool {
     
     
     [global::System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
-    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.VisualStudio.Editors.SettingsDesigner.SettingsSingleFileGenerator", "16.5.0.0")]
+    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.VisualStudio.Editors.SettingsDesigner.SettingsSingleFileGenerator", "16.7.0.0")]
     internal sealed partial class config : global::System.Configuration.ApplicationSettingsBase {
         
         private static config defaultInstance = ((config)(global::System.Configuration.ApplicationSettingsBase.Synchronized(new config())));
@@ -73,13 +73,24 @@ namespace ScreenshotTool {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("")]
         public global::System.Drawing.Color PrimaryColor {
             get {
                 return ((global::System.Drawing.Color)(this["PrimaryColor"]));
             }
             set {
                 this["PrimaryColor"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("")]
+        public string gifShortcut {
+            get {
+                return ((string)(this["gifShortcut"]));
+            }
+            set {
+                this["gifShortcut"] = value;
             }
         }
     }

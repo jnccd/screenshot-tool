@@ -31,9 +31,9 @@ namespace ScreenshotTool
 
         public static Shortcut DefaultInstantKeys => new Shortcut() { Key = Keys.Pause };
         public static Shortcut DefaultCropKeys => new Shortcut() { Alt = true, Key = Keys.Pause };
+        public static Shortcut DefaultGifKeys => new Shortcut() { Key = Keys.NumPad0 };
 
-        public override string ToString() => 
-            $"{Shift.ToString()}|{Ctrl.ToString()}|{Alt.ToString()}|{Key.ToString()}";
+        public override string ToString() => $"{Shift}|{Ctrl}|{Alt}|{Key}";
         public Shortcut FromString(string s)
         {
             string[] split = s.Split('|');
