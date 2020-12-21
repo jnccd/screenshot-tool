@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Drawing;
+using System.Drawing.Imaging;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -22,6 +24,17 @@ namespace ScreenshotTool
                 action();
             }
         }
+
+        public static bool IsAnimatedGif(this Bitmap bitmap)
+        {
+            return GetFrameCount(bitmap) > 1;
+        }
+        public static int GetFrameCount(this Bitmap bitmap)
+        {
+            FrameDimension dimensions = new FrameDimension(bitmap.FrameDimensionsList[0]);
+            return bitmap.GetFrameCount(dimensions);
+        }
+
         public static string ToShitEnglishNumberThingy(this int i)
         {
             if (i == 1)

@@ -161,45 +161,45 @@
             // showFolderMenuItem
             // 
             this.showFolderMenuItem.Name = "showFolderMenuItem";
-            this.showFolderMenuItem.Size = new System.Drawing.Size(222, 26);
+            this.showFolderMenuItem.Size = new System.Drawing.Size(224, 26);
             this.showFolderMenuItem.Text = "Show in Explorer";
             this.showFolderMenuItem.Click += new System.EventHandler(this.ShowFolderToolStripMenuItem_Click);
             // 
             // changeFolderMenuItem
             // 
             this.changeFolderMenuItem.Name = "changeFolderMenuItem";
-            this.changeFolderMenuItem.Size = new System.Drawing.Size(222, 26);
+            this.changeFolderMenuItem.Size = new System.Drawing.Size(224, 26);
             this.changeFolderMenuItem.Text = "Change Folder";
             this.changeFolderMenuItem.Click += new System.EventHandler(this.ChangeFolderToolStripMenuItem_Click);
             // 
             // toolStripSeparator
             // 
             this.toolStripSeparator.Name = "toolStripSeparator";
-            this.toolStripSeparator.Size = new System.Drawing.Size(219, 6);
+            this.toolStripSeparator.Size = new System.Drawing.Size(221, 6);
             // 
             // imageToClipboardMenuItem
             // 
             this.imageToClipboardMenuItem.Name = "imageToClipboardMenuItem";
-            this.imageToClipboardMenuItem.Size = new System.Drawing.Size(222, 26);
+            this.imageToClipboardMenuItem.Size = new System.Drawing.Size(224, 26);
             this.imageToClipboardMenuItem.Text = "Image to Clipboard";
             this.imageToClipboardMenuItem.Click += new System.EventHandler(this.ImageToClipboardToolStripMenuItem_Click);
             // 
             // fileToClipboardMenuItem
             // 
             this.fileToClipboardMenuItem.Name = "fileToClipboardMenuItem";
-            this.fileToClipboardMenuItem.Size = new System.Drawing.Size(222, 26);
+            this.fileToClipboardMenuItem.Size = new System.Drawing.Size(224, 26);
             this.fileToClipboardMenuItem.Text = "File to Clipboard";
             this.fileToClipboardMenuItem.Click += new System.EventHandler(this.FileToClipboardToolStripMenuItem_Click);
             // 
             // toolStripSeparator2
             // 
             this.toolStripSeparator2.Name = "toolStripSeparator2";
-            this.toolStripSeparator2.Size = new System.Drawing.Size(219, 6);
+            this.toolStripSeparator2.Size = new System.Drawing.Size(221, 6);
             // 
             // exitMenuItem
             // 
             this.exitMenuItem.Name = "exitMenuItem";
-            this.exitMenuItem.Size = new System.Drawing.Size(222, 26);
+            this.exitMenuItem.Size = new System.Drawing.Size(224, 26);
             this.exitMenuItem.Text = "Exit";
             this.exitMenuItem.Click += new System.EventHandler(this.BeendenToolStripMenuItem_Click);
             // 
@@ -221,7 +221,7 @@
             // 
             this.noneMenuItem.CheckOnClick = true;
             this.noneMenuItem.Name = "noneMenuItem";
-            this.noneMenuItem.Size = new System.Drawing.Size(224, 26);
+            this.noneMenuItem.Size = new System.Drawing.Size(203, 26);
             this.noneMenuItem.Text = "None";
             this.noneMenuItem.Click += new System.EventHandler(this.NoneMenuItem_Click);
             // 
@@ -229,7 +229,7 @@
             // 
             this.cropMenuItem.CheckOnClick = true;
             this.cropMenuItem.Name = "cropMenuItem";
-            this.cropMenuItem.Size = new System.Drawing.Size(224, 26);
+            this.cropMenuItem.Size = new System.Drawing.Size(203, 26);
             this.cropMenuItem.Text = "Crop";
             this.cropMenuItem.Click += new System.EventHandler(this.CropMenuItem_Click);
             // 
@@ -237,33 +237,33 @@
             // 
             this.drawMenuItem.CheckOnClick = true;
             this.drawMenuItem.Name = "drawMenuItem";
-            this.drawMenuItem.Size = new System.Drawing.Size(224, 26);
+            this.drawMenuItem.Size = new System.Drawing.Size(203, 26);
             this.drawMenuItem.Text = "Draw";
             this.drawMenuItem.Click += new System.EventHandler(this.DrawMenuItem_Click);
             // 
             // colorPickerMenuItem
             // 
             this.colorPickerMenuItem.Name = "colorPickerMenuItem";
-            this.colorPickerMenuItem.Size = new System.Drawing.Size(224, 26);
+            this.colorPickerMenuItem.Size = new System.Drawing.Size(203, 26);
             this.colorPickerMenuItem.Text = "ColorViewer";
             this.colorPickerMenuItem.Click += new System.EventHandler(this.ColorPickerMenuItem_Click);
             // 
             // textRecognitionMenuItem
             // 
             this.textRecognitionMenuItem.Name = "textRecognitionMenuItem";
-            this.textRecognitionMenuItem.Size = new System.Drawing.Size(224, 26);
+            this.textRecognitionMenuItem.Size = new System.Drawing.Size(203, 26);
             this.textRecognitionMenuItem.Text = "Text Recognition";
             this.textRecognitionMenuItem.Click += new System.EventHandler(this.TextRecognitionToolStripMenuItem_Click);
             // 
             // toolStripSeparator1
             // 
             this.toolStripSeparator1.Name = "toolStripSeparator1";
-            this.toolStripSeparator1.Size = new System.Drawing.Size(221, 6);
+            this.toolStripSeparator1.Size = new System.Drawing.Size(200, 6);
             // 
             // chooseColorMenuItem
             // 
             this.chooseColorMenuItem.Name = "chooseColorMenuItem";
-            this.chooseColorMenuItem.Size = new System.Drawing.Size(224, 26);
+            this.chooseColorMenuItem.Size = new System.Drawing.Size(203, 26);
             this.chooseColorMenuItem.Text = "Choose Color";
             this.chooseColorMenuItem.Click += new System.EventHandler(this.ChooseColorMenuItem_Click);
             // 

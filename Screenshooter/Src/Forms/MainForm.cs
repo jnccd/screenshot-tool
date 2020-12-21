@@ -40,7 +40,7 @@ namespace ScreenshotTool
         // Gif
         bool recordingGif = false;
         bool processingGif = false;
-        List<Bitmap> gifShots = new List<Bitmap>();
+        readonly List<Bitmap> gifShots = new List<Bitmap>();
 
         // Snipper active
         readonly SnippingToolWindow snipper = new SnippingToolWindow();
@@ -233,7 +233,12 @@ namespace ScreenshotTool
         }
         public void CopyCurrentImageToClipboard()
         {
-            Clipboard.SetImage(images[imagesIndex].Image);
+            if (CurrentScreenshot.Image.IsAnimatedGif())
+            {
+                string[] files = new string[1]; files[0] = CurrentScreenshot.Path;
+                this.DoDragDrop(new DataObject(DataFormats.FileDrop, files), DragDropEffects.Copy);
+            }
+            CurrentScreenshot.PutInClipboard();
         }
         public void DeleteCurrentImage()
         {
@@ -816,8 +821,10 @@ namespace ScreenshotTool
         }
         private void FileToClipboardToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            var path = new System.Collections.Specialized.StringCollection();
-            path.Add(images[imagesIndex].Path);
+            var path = new System.Collections.Specialized.StringCollection
+            {
+                images[imagesIndex].Path
+            };
             Clipboard.SetFileDropList(path);
         }
         private void ImageToClipboardToolStripMenuItem_Click(object sender, EventArgs e) => CopyCurrentImageToClipboard();
