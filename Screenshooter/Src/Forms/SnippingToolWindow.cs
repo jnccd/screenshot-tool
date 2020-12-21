@@ -123,15 +123,11 @@ namespace ScreenshotTool
         }
         private void PictureBox1_MouseMove(object sender, MouseEventArgs e)
         {
-            if (e.Button == MouseButtons.Left)
+            if (e.Button == MouseButtons.Left || 
+                e.Button == MouseButtons.Middle)
             {
                 pMouseCurrently = e.Location;
                 pBox.Refresh();
-            }
-            else if (e.Button == MouseButtons.Middle)
-            {
-                pMouseCurrently = e.Location;
-                IsMiddleMouseDown = true;
             }
         }
 
@@ -147,7 +143,7 @@ namespace ScreenshotTool
             {
                 Rectangle ee = GetRectangleFromPoints(pMouseDown, pMouseCurrently);
                 Console.WriteLine("Drawing " + ee);
-                using Pen pen = new Pen(Color.Blue, 1);
+                using Pen pen = new Pen(Color.LightBlue, 1);
                 e.Graphics.DrawRectangle(pen, ee);
             }
         }
