@@ -49,7 +49,7 @@
             this.tOutText.Name = "tOutText";
             this.tOutText.ReadOnly = true;
             this.tOutText.ScrollBars = System.Windows.Forms.ScrollBars.Vertical;
-            this.tOutText.Size = new System.Drawing.Size(464, 221);
+            this.tOutText.Size = new System.Drawing.Size(464, 243);
             this.tOutText.TabIndex = 0;
             // 
             // lConf
@@ -74,7 +74,7 @@
             // 
             this.label1.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
             this.label1.AutoSize = true;
-            this.label1.Location = new System.Drawing.Point(11, 270);
+            this.label1.Location = new System.Drawing.Point(11, 292);
             this.label1.Name = "label1";
             this.label1.Size = new System.Drawing.Size(100, 17);
             this.label1.TabIndex = 3;
@@ -84,7 +84,7 @@
             // 
             this.tTargetLang.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            this.tTargetLang.Location = new System.Drawing.Point(248, 267);
+            this.tTargetLang.Location = new System.Drawing.Point(248, 289);
             this.tTargetLang.Name = "tTargetLang";
             this.tTargetLang.Size = new System.Drawing.Size(99, 22);
             this.tTargetLang.TabIndex = 4;
@@ -93,7 +93,8 @@
             // bTranslate
             // 
             this.bTranslate.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-            this.bTranslate.Location = new System.Drawing.Point(353, 266);
+            this.bTranslate.Enabled = false;
+            this.bTranslate.Location = new System.Drawing.Point(353, 288);
             this.bTranslate.Name = "bTranslate";
             this.bTranslate.Size = new System.Drawing.Size(122, 24);
             this.bTranslate.TabIndex = 5;
@@ -105,18 +106,18 @@
             // 
             this.tTranslate.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            this.tTranslate.Location = new System.Drawing.Point(12, 295);
+            this.tTranslate.Location = new System.Drawing.Point(12, 317);
             this.tTranslate.Multiline = true;
             this.tTranslate.Name = "tTranslate";
             this.tTranslate.ReadOnly = true;
             this.tTranslate.ScrollBars = System.Windows.Forms.ScrollBars.Vertical;
-            this.tTranslate.Size = new System.Drawing.Size(464, 169);
+            this.tTranslate.Size = new System.Drawing.Size(464, 40);
             this.tTranslate.TabIndex = 6;
             // 
             // tSourceLang
             // 
             this.tSourceLang.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
-            this.tSourceLang.Location = new System.Drawing.Point(117, 267);
+            this.tSourceLang.Location = new System.Drawing.Point(117, 289);
             this.tSourceLang.Name = "tSourceLang";
             this.tSourceLang.Size = new System.Drawing.Size(99, 22);
             this.tSourceLang.TabIndex = 7;
@@ -126,7 +127,7 @@
             // 
             this.label2.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
             this.label2.AutoSize = true;
-            this.label2.Location = new System.Drawing.Point(222, 270);
+            this.label2.Location = new System.Drawing.Point(222, 292);
             this.label2.Name = "label2";
             this.label2.Size = new System.Drawing.Size(20, 17);
             this.label2.TabIndex = 8;
@@ -136,7 +137,7 @@
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(488, 476);
+            this.ClientSize = new System.Drawing.Size(488, 369);
             this.Controls.Add(this.label2);
             this.Controls.Add(this.tSourceLang);
             this.Controls.Add(this.tTranslate);
