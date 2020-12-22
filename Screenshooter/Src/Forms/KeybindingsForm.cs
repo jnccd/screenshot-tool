@@ -24,13 +24,19 @@ namespace ScreenshotTool
 
         public void RefreshDefaults()
         {
+            ComboBoxSpeicalInstant.Items.Clear();
             ComboBoxSpeicalInstant.Items.AddRange(Shortcut.Specials);
+            ComboBoxKeyInstant.Items.Clear();
             ComboBoxKeyInstant.Items.AddRange(Shortcut.AllKeys.Select(x => x.ToString()).OrderBy(x => x).ToArray());
 
+            ComboBoxSpeicalCrop.Items.Clear();
             ComboBoxSpeicalCrop.Items.AddRange(Shortcut.Specials);
+            ComboBoxKeyCrop.Items.Clear();
             ComboBoxKeyCrop.Items.AddRange(Shortcut.AllKeys.Select(x => x.ToString()).OrderBy(x => x).ToArray());
 
+            ComboBoxSpeicalGif.Items.Clear();
             ComboBoxSpeicalGif.Items.AddRange(Shortcut.Specials);
+            ComboBoxKeyGif.Items.Clear();
             ComboBoxKeyGif.Items.AddRange(Shortcut.AllKeys.Select(x => x.ToString()).OrderBy(x => x).ToArray());
 
             ComboBoxSpeicalInstant.Text = Program.mainForm.instantKeys.SpecialKey();
