@@ -1,6 +1,7 @@
 ﻿using Microsoft.VisualBasic.FileIO;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Drawing;
 using System.IO;
 using System.Linq;
@@ -72,7 +73,7 @@ namespace ScreenshotTool
                             RecycleOption.SendToRecycleBin,
                             UICancelOption.ThrowException);
             }
-            catch (Exception e) { Console.WriteLine(e); }
+            catch (Exception e) { Debug.WriteLine(e); }
         }
     }
 }

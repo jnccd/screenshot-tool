@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
+using System.Diagnostics;
 using System.Drawing;
 using System.Drawing.Imaging;
 using System.Linq;
@@ -102,7 +103,7 @@ namespace ScreenshotTool
                 }
 
                 IsMiddleMouseDown = false;
-                Console.WriteLine("Set gif area to: " + gifArea);
+                Debug.WriteLine("Set gif area to: " + gifArea);
                 this.Close();
             }
             else if (e.Button == MouseButtons.Right)
@@ -142,7 +143,7 @@ namespace ScreenshotTool
             else if (IsMiddleMouseDown)
             {
                 Rectangle ee = GetRectangleFromPoints(pMouseDown, pMouseCurrently);
-                Console.WriteLine("Drawing " + ee);
+                Debug.WriteLine("Drawing " + ee);
                 using Pen pen = new Pen(Color.LightBlue, 1);
                 e.Graphics.DrawRectangle(pen, ee);
             }

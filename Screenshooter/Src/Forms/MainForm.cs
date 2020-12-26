@@ -272,12 +272,14 @@ namespace ScreenshotTool
                     runners.Add(Task.Factory.StartNew(() =>
                     {
                         gifShots.Add(ScreenshotHelper.CropImage(ScreenshotHelper.GetFullScreenshot(), snipper.gifArea));
-                        Console.WriteLine("Made gif shot!");
+                        Debug.WriteLine("Made gif shot!");
                     }));
 
                     Task.Delay(32).Wait();
                 }
+                Debug.WriteLine("waiting for close...");
                 Task.WaitAll(runners.ToArray());
+                Debug.WriteLine("closed");
 
                 string path = config.Default.path + "\\" + GetScreenshotName() + ".gif";
                 using (FileStream s = new FileStream(path, FileMode.Create))
@@ -299,6 +301,7 @@ namespace ScreenshotTool
         public void StopRecordingGif()
         {
             recordingGif = false;
+            Debug.WriteLine("recordingGif is now false");
         }
 
         // UI
@@ -774,7 +777,7 @@ namespace ScreenshotTool
         }
         private void KeyHook_KeyDown(Keys key, bool Shift, bool Ctrl, bool Alt)
         {
-            Console.WriteLine($"Pressed {key}");
+            Debug.WriteLine($"Pressed {key}, {Shift}, {Ctrl}, {Alt}");
 
             if (DateTime.Now.Subtract(lastKeyDownEvent).TotalMilliseconds > 300)
             {
@@ -797,7 +800,7 @@ namespace ScreenshotTool
         }
         private void KeyHook_KeyUp(Keys key, bool Shift, bool Ctrl, bool Alt)
         {
-            Console.WriteLine($"Released {key}");
+            Debug.WriteLine($"Released {key}, {Shift}, {Ctrl}, {Alt}");
 
             if (gifKeys.IsPressed(Shift, Ctrl, Alt, key))
             {
