@@ -34,7 +34,7 @@ namespace ScreenshotTool
         }
         public static Bitmap GetFullScreenshot()
         {
-            Bitmap bmp = new Bitmap(allScreenBounds.Width, allScreenBounds.Height, PixelFormat.Format32bppArgb);
+            Bitmap bmp = new Bitmap(allScreenBounds.Width, allScreenBounds.Height, PixelFormat.Format32bppRgb);
             Graphics graphics = Graphics.FromImage(bmp);
             graphics.CopyFromScreen(allScreenBounds.X, allScreenBounds.Y, 0, 0, new Size(allScreenBounds.Width, allScreenBounds.Height), CopyPixelOperation.SourceCopy);
             return bmp;
