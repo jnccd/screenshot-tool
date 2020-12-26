@@ -267,12 +267,12 @@ namespace ScreenshotTool
             Task.Factory.StartNew(() =>
             {
                 List<Task> runners = new List<Task>();
-                while (recordingGif)
+                for (int i = 0; i < 65 && recordingGif; i++)
                 {
                     runners.Add(Task.Factory.StartNew(() =>
                     {
                         gifShots.Add(ScreenshotHelper.CropImage(ScreenshotHelper.GetFullScreenshot(), snipper.gifArea));
-                        Debug.WriteLine("Made gif shot!");
+                        Debug.WriteLine($"Made gif shot {i}!");
                     }));
 
                     Task.Delay(32).Wait();
