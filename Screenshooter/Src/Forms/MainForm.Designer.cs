@@ -103,7 +103,7 @@
             // 
             // bNext
             // 
-            this.bNext.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
+            this.bNext.Anchor = System.Windows.Forms.AnchorStyles.Bottom;
             this.bNext.Location = new System.Drawing.Point(667, 326);
             this.bNext.Margin = new System.Windows.Forms.Padding(4);
             this.bNext.Name = "bNext";
@@ -140,7 +140,7 @@
             this.extrasToolStripMenuItem});
             this.menuStrip.Location = new System.Drawing.Point(0, 0);
             this.menuStrip.Name = "menuStrip";
-            this.menuStrip.Size = new System.Drawing.Size(1024, 28);
+            this.menuStrip.Size = new System.Drawing.Size(1024, 30);
             this.menuStrip.TabIndex = 10;
             this.menuStrip.Text = "menuStrip";
             // 
@@ -155,51 +155,51 @@
             this.toolStripSeparator2,
             this.exitMenuItem});
             this.fileMenuItem.Name = "fileMenuItem";
-            this.fileMenuItem.Size = new System.Drawing.Size(46, 24);
+            this.fileMenuItem.Size = new System.Drawing.Size(46, 26);
             this.fileMenuItem.Text = "File";
             // 
             // showFolderMenuItem
             // 
             this.showFolderMenuItem.Name = "showFolderMenuItem";
-            this.showFolderMenuItem.Size = new System.Drawing.Size(224, 26);
+            this.showFolderMenuItem.Size = new System.Drawing.Size(222, 26);
             this.showFolderMenuItem.Text = "Show in Explorer";
             this.showFolderMenuItem.Click += new System.EventHandler(this.ShowFolderToolStripMenuItem_Click);
             // 
             // changeFolderMenuItem
             // 
             this.changeFolderMenuItem.Name = "changeFolderMenuItem";
-            this.changeFolderMenuItem.Size = new System.Drawing.Size(224, 26);
+            this.changeFolderMenuItem.Size = new System.Drawing.Size(222, 26);
             this.changeFolderMenuItem.Text = "Change Folder";
             this.changeFolderMenuItem.Click += new System.EventHandler(this.ChangeFolderToolStripMenuItem_Click);
             // 
             // toolStripSeparator
             // 
             this.toolStripSeparator.Name = "toolStripSeparator";
-            this.toolStripSeparator.Size = new System.Drawing.Size(221, 6);
+            this.toolStripSeparator.Size = new System.Drawing.Size(219, 6);
             // 
             // imageToClipboardMenuItem
             // 
             this.imageToClipboardMenuItem.Name = "imageToClipboardMenuItem";
-            this.imageToClipboardMenuItem.Size = new System.Drawing.Size(224, 26);
+            this.imageToClipboardMenuItem.Size = new System.Drawing.Size(222, 26);
             this.imageToClipboardMenuItem.Text = "Image to Clipboard";
             this.imageToClipboardMenuItem.Click += new System.EventHandler(this.ImageToClipboardToolStripMenuItem_Click);
             // 
             // fileToClipboardMenuItem
             // 
             this.fileToClipboardMenuItem.Name = "fileToClipboardMenuItem";
-            this.fileToClipboardMenuItem.Size = new System.Drawing.Size(224, 26);
+            this.fileToClipboardMenuItem.Size = new System.Drawing.Size(222, 26);
             this.fileToClipboardMenuItem.Text = "File to Clipboard";
             this.fileToClipboardMenuItem.Click += new System.EventHandler(this.FileToClipboardToolStripMenuItem_Click);
             // 
             // toolStripSeparator2
             // 
             this.toolStripSeparator2.Name = "toolStripSeparator2";
-            this.toolStripSeparator2.Size = new System.Drawing.Size(221, 6);
+            this.toolStripSeparator2.Size = new System.Drawing.Size(219, 6);
             // 
             // exitMenuItem
             // 
             this.exitMenuItem.Name = "exitMenuItem";
-            this.exitMenuItem.Size = new System.Drawing.Size(224, 26);
+            this.exitMenuItem.Size = new System.Drawing.Size(222, 26);
             this.exitMenuItem.Text = "Exit";
             this.exitMenuItem.Click += new System.EventHandler(this.BeendenToolStripMenuItem_Click);
             // 
@@ -214,7 +214,7 @@
             this.toolStripSeparator1,
             this.chooseColorMenuItem});
             this.editMenuItem.Name = "editMenuItem";
-            this.editMenuItem.Size = new System.Drawing.Size(49, 24);
+            this.editMenuItem.Size = new System.Drawing.Size(49, 26);
             this.editMenuItem.Text = "Edit";
             // 
             // noneMenuItem
@@ -272,7 +272,7 @@
             this.extrasToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.KeybindingsMenuEntry});
             this.extrasToolStripMenuItem.Name = "extrasToolStripMenuItem";
-            this.extrasToolStripMenuItem.Size = new System.Drawing.Size(75, 24);
+            this.extrasToolStripMenuItem.Size = new System.Drawing.Size(75, 26);
             this.extrasToolStripMenuItem.Text = "Options";
             // 
             // KeybindingsMenuEntry
