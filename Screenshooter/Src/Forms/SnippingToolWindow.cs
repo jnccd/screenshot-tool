@@ -91,10 +91,10 @@ namespace ScreenshotTool
             else if (e.Button == MouseButtons.Middle)
             {
                 gifArea = GetRectangleFromPoints(
-                        new Point((int)(pMouseDown.X * (double)fullScreenshot.Width / pBox.Width),
-                            (int)(pMouseDown.Y * (double)fullScreenshot.Height / pBox.Height)),
-                        new Point((int)(pMouseCurrently.X * (double)fullScreenshot.Width / pBox.Width),
-                            (int)(pMouseCurrently.Y * (double)fullScreenshot.Height / pBox.Height)));
+                        new Point((int)((pMouseDown.X + ScreenshotHelper.allScreenBounds.X) * (double)fullScreenshot.Width / pBox.Width),
+                            (int)((pMouseDown.Y + ScreenshotHelper.allScreenBounds.Y) * (double)fullScreenshot.Height / pBox.Height)),
+                        new Point((int)((pMouseCurrently.X + ScreenshotHelper.allScreenBounds.X) * (double)fullScreenshot.Width / pBox.Width),
+                            (int)((pMouseCurrently.Y + ScreenshotHelper.allScreenBounds.Y) * (double)fullScreenshot.Height / pBox.Height)));
                 if (gifArea.Width == 0 || gifArea.Height == 0)
                 {
                     MessageBox.Show("Thats a little too small, dont you think?", "Too Smol", MessageBoxButtons.OK);

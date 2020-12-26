@@ -271,7 +271,7 @@ namespace ScreenshotTool
                 {
                     runners.Add(Task.Factory.StartNew(() =>
                     {
-                        gifShots.Add(ScreenshotHelper.CropImage(ScreenshotHelper.GetFullScreenshot(), snipper.gifArea));
+                        gifShots.Add(ScreenshotHelper.GetRectScreenshot(snipper.gifArea));
                         Debug.WriteLine($"Made gif shot {i}!");
                     }));
 
@@ -730,24 +730,28 @@ namespace ScreenshotTool
             bNext.Location = new Point(bDelete.Location.X + bDelete.Width + 6, bNext.Location.Y);
             bNext.Width = pBox.Width + pBox.Location.X - bNext.Location.X;
 
-            float dpiY;
             Graphics graphics = this.CreateGraphics();
-            dpiY = graphics.DpiY;
-
+            float dpiY = graphics.DpiY, dpiX = graphics.DpiX;
+            
             int buttonHeight = (int)(46 * (96 / dpiY));
+            int spacing = (int)(8 * (96 / dpiX));
+
+            int nextPosX = bNext.Location.X;
+            if (middleButtons.Count > 0)
+                nextPosX = middleButtons.Last().Location.X + middleButtons.Last().Size.Width + spacing;
 
             if (Height < 120)
             {
                 foreach (Button b in middleButtons)
                     b.Location = new Point(b.Location.X, buttonHeight);
-                bNext.Location = new Point(bNext.Location.X, buttonHeight);
+                bNext.Location = new Point(nextPosX, buttonHeight);
                 bPrevious.Location = new Point(bPrevious.Location.X, buttonHeight);
             }
             else
             {
                 foreach (Button b in middleButtons)
                     b.Location = new Point(b.Location.X, Height - (120 - buttonHeight));
-                bNext.Location = new Point(bNext.Location.X, Height - (120 - buttonHeight));
+                bNext.Location = new Point(nextPosX, Height - (120 - buttonHeight));
                 bPrevious.Location = new Point(bPrevious.Location.X, Height - (120 - buttonHeight));
             }
 

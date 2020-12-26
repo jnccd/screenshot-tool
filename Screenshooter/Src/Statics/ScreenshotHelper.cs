@@ -39,6 +39,13 @@ namespace ScreenshotTool
             graphics.CopyFromScreen(allScreenBounds.X, allScreenBounds.Y, 0, 0, new Size(allScreenBounds.Width, allScreenBounds.Height), CopyPixelOperation.SourceCopy);
             return bmp;
         }
+        public static Bitmap GetRectScreenshot(Rectangle rect)
+        {
+            Bitmap bmp = new Bitmap(rect.Width, rect.Height, PixelFormat.Format32bppRgb);
+            Graphics graphics = Graphics.FromImage(bmp);
+            graphics.CopyFromScreen(rect.X, rect.Y, 0, 0, new Size(rect.Width, rect.Height), CopyPixelOperation.SourceCopy);
+            return bmp;
+        }
         public static Bitmap CropImage(Bitmap source, Rectangle section)
         {
             Bitmap bmp = new Bitmap(section.Width, section.Height);
