@@ -46,7 +46,7 @@ namespace ScreenshotTool
             ImageDimensions.Width -= ImageDimensions.X;
             ImageDimensions.Height -= ImageDimensions.Y;
 
-            fullScreenshot = new Bitmap(ImageDimensions.Width, ImageDimensions.Height, PixelFormat.Format32bppArgb);
+            fullScreenshot = new Bitmap(ImageDimensions.Width, ImageDimensions.Height, PixelFormat.Format32bppRgb);
             using (Graphics graphics = Graphics.FromImage(fullScreenshot))
                 graphics.CopyFromScreen(ImageDimensions.X, ImageDimensions.Y, 0, 0, new Size(ImageDimensions.Width, ImageDimensions.Height), CopyPixelOperation.SourceCopy);
             Location = new Point(ImageDimensions.X, ImageDimensions.Y);
