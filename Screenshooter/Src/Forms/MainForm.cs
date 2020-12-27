@@ -267,7 +267,7 @@ namespace ScreenshotTool
             Task.Factory.StartNew(() =>
             {
                 List<Task> runners = new List<Task>();
-                for (int i = 0; i < 65 && recordingGif; i++)
+                for (int i = 0; i < 750 && recordingGif; i++)
                 {
                     runners.Add(Task.Factory.StartNew(() =>
                     {
@@ -275,7 +275,7 @@ namespace ScreenshotTool
                         Debug.WriteLine($"Made gif shot {i}!");
                     }));
 
-                    Task.Delay(32).Wait();
+                    Task.Delay(33).Wait();
                 }
                 Debug.WriteLine("waiting for close...");
                 Task.WaitAll(runners.ToArray());
@@ -284,7 +284,7 @@ namespace ScreenshotTool
                 string path = config.Default.path + "\\" + GetScreenshotName() + ".gif";
                 using (FileStream s = new FileStream(path, FileMode.Create))
                 {
-                    using AnimatedGifCreator c = new AnimatedGifCreator(s, 33);
+                    using AnimatedGifCreator c = new AnimatedGifCreator(s, 40);
                     foreach (Bitmap b in gifShots)
                         c.AddFrame(b, -1, GifQuality.Bit8);
                 }
