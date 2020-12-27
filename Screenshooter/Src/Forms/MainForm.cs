@@ -286,7 +286,7 @@ namespace ScreenshotTool
                 {
                     using AnimatedGifCreator c = new AnimatedGifCreator(s, 40);
                     foreach (Bitmap b in gifShots)
-                        c.AddFrame(b, -1, GifQuality.Bit8);
+                        c.AddFrame(b, -1, GifQuality.Default);
                 }
 
                 images.Add(new Screenshot(path));
