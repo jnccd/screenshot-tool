@@ -82,5 +82,10 @@ namespace ScreenshotTool
                 MessageBox.Show(ex.ToString());
             }
         }
+
+        private void LabelHelpCrop_Click(object sender, EventArgs e)
+        {
+            MessageBox.Show("The SelectionForm™ allows you to \ndo a quick cropped screenshot using the [Left Mouse Button] or \nselect the area for a gif recording using the [Middle Mouse Button].");
+        }
     }
 }
