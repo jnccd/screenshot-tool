@@ -67,7 +67,7 @@ namespace ScreenshotTool
             }
         }
         
-        const int halfExtraPreviewImages = 2;
+        const int halfExtraPreviewImages = 4;
         const int previewImageWidth = 100;
         const int previewImageHeight = 56;
         const int previewImageOutlineThickness = 7;
