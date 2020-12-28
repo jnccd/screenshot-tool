@@ -26,8 +26,18 @@ namespace ScreenshotTool
                 return "";
         }
 
-        public bool IsPressed(bool Shift, bool Ctrl, bool Alt, Keys Key) => 
-            this.Shift == Shift && this.Ctrl == Ctrl && this.Alt == Alt && this.Key.Equals(Key);
+        public bool IsPressed(bool Shift, bool Ctrl, bool Alt, Keys Key)
+        {
+            var key = Key.ToString();
+            if (key.Contains("Shift"))
+                return this.Ctrl == Ctrl && this.Alt == Alt && this.Key.Equals(Key);
+            else if (key.Contains("Control"))
+                return this.Shift == Shift && this.Alt == Alt && this.Key.Equals(Key);
+            else if (key.Contains("Alt"))
+                return this.Shift == Shift && this.Ctrl == Ctrl && this.Key.Equals(Key);
+            else
+                return this.Shift == Shift && this.Ctrl == Ctrl && this.Alt == Alt && this.Key.Equals(Key);
+        }
 
         public static Shortcut DefaultInstantKeys => new Shortcut() { Key = Keys.Pause };
         public static Shortcut DefaultCropKeys => new Shortcut() { Alt = true, Key = Keys.Pause };
