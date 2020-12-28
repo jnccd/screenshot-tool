@@ -45,6 +45,7 @@ namespace ScreenshotTool
         // Snipper active
         readonly SnippingToolWindow snipper = new SnippingToolWindow();
         bool snippingWindowActive = false;
+        bool shownGifSnipperHelp = false;
 
         // Edit
         ToolStripMenuItem mode;
@@ -259,6 +260,18 @@ namespace ScreenshotTool
         {
             if (processingGif | recordingGif)
                 return;
+
+            if (snipper.gifArea.Width == 0 || snipper.gifArea.Height == 0)
+            {
+                if (!shownGifSnipperHelp)
+                {
+                    shownGifSnipperHelp = true;
+                    DialogResult result = MessageBox.Show("You need to select an gif area in the SelectionForm™ before recording a gif!", "Missing Gif Area", MessageBoxButtons.OK);
+                    if (result == DialogResult.OK)
+                        shownGifSnipperHelp = false;
+                }
+                return;
+            }
 
             processingGif = true;
             recordingGif = true;
