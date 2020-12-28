@@ -120,6 +120,7 @@ namespace ScreenshotTool
             {
                 pMouseDown = e.Location;
                 IsMiddleMouseDown = true;
+                IsLeftMouseDown = false;
             }
         }
         private void PictureBox1_MouseMove(object sender, MouseEventArgs e)
@@ -160,6 +161,11 @@ namespace ScreenshotTool
             fullScreenshot.Dispose();
             pBox.Image.Dispose();
             output = null;
+        }
+
+        private void pBox_Click(object sender, EventArgs e)
+        {
+
         }
     }
 }
