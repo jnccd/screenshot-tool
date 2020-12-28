@@ -39,10 +39,12 @@
             | System.Windows.Forms.AnchorStyles.Right)));
             this.pBox.Cursor = System.Windows.Forms.Cursors.Cross;
             this.pBox.Location = new System.Drawing.Point(0, 0);
+            this.pBox.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
             this.pBox.Name = "pBox";
-            this.pBox.Size = new System.Drawing.Size(284, 261);
+            this.pBox.Size = new System.Drawing.Size(379, 321);
             this.pBox.TabIndex = 0;
             this.pBox.TabStop = false;
+            this.pBox.Click += new System.EventHandler(this.pBox_Click);
             this.pBox.Paint += new System.Windows.Forms.PaintEventHandler(this.PBox_Paint);
             this.pBox.MouseDown += new System.Windows.Forms.MouseEventHandler(this.PictureBox1_MouseDown);
             this.pBox.MouseMove += new System.Windows.Forms.MouseEventHandler(this.PictureBox1_MouseMove);
@@ -50,11 +52,12 @@
             // 
             // SnippingToolWindow
             // 
-            this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
+            this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(284, 261);
+            this.ClientSize = new System.Drawing.Size(379, 321);
             this.Controls.Add(this.pBox);
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.None;
+            this.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
             this.MaximizeBox = false;
             this.MinimizeBox = false;
             this.Name = "SnippingToolWindow";
