@@ -55,6 +55,9 @@
             this.chooseColorMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.extrasToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.KeybindingsMenuEntry = new System.Windows.Forms.ToolStripMenuItem();
+            this.gifEncodingToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.toolStripSeparator3 = new System.Windows.Forms.ToolStripSeparator();
+            this.toolStripSeparator4 = new System.Windows.Forms.ToolStripSeparator();
             ((System.ComponentModel.ISupportInitialize)(this.pBox)).BeginInit();
             this.menuStrip.SuspendLayout();
             this.SuspendLayout();
@@ -140,7 +143,7 @@
             this.extrasToolStripMenuItem});
             this.menuStrip.Location = new System.Drawing.Point(0, 0);
             this.menuStrip.Name = "menuStrip";
-            this.menuStrip.Size = new System.Drawing.Size(1024, 30);
+            this.menuStrip.Size = new System.Drawing.Size(1024, 28);
             this.menuStrip.TabIndex = 10;
             this.menuStrip.Text = "menuStrip";
             // 
@@ -155,7 +158,7 @@
             this.toolStripSeparator2,
             this.exitMenuItem});
             this.fileMenuItem.Name = "fileMenuItem";
-            this.fileMenuItem.Size = new System.Drawing.Size(46, 26);
+            this.fileMenuItem.Size = new System.Drawing.Size(46, 24);
             this.fileMenuItem.Text = "File";
             // 
             // showFolderMenuItem
@@ -207,21 +210,23 @@
             // 
             this.editMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.noneMenuItem,
+            this.toolStripSeparator4,
             this.cropMenuItem,
             this.drawMenuItem,
+            this.toolStripSeparator3,
             this.colorPickerMenuItem,
             this.textRecognitionMenuItem,
             this.toolStripSeparator1,
             this.chooseColorMenuItem});
             this.editMenuItem.Name = "editMenuItem";
-            this.editMenuItem.Size = new System.Drawing.Size(49, 26);
-            this.editMenuItem.Text = "Edit";
+            this.editMenuItem.Size = new System.Drawing.Size(95, 24);
+            this.editMenuItem.Text = "Edit / View";
             // 
             // noneMenuItem
             // 
             this.noneMenuItem.CheckOnClick = true;
             this.noneMenuItem.Name = "noneMenuItem";
-            this.noneMenuItem.Size = new System.Drawing.Size(203, 26);
+            this.noneMenuItem.Size = new System.Drawing.Size(224, 26);
             this.noneMenuItem.Text = "None";
             this.noneMenuItem.Click += new System.EventHandler(this.NoneMenuItem_Click);
             // 
@@ -229,7 +234,7 @@
             // 
             this.cropMenuItem.CheckOnClick = true;
             this.cropMenuItem.Name = "cropMenuItem";
-            this.cropMenuItem.Size = new System.Drawing.Size(203, 26);
+            this.cropMenuItem.Size = new System.Drawing.Size(224, 26);
             this.cropMenuItem.Text = "Crop";
             this.cropMenuItem.Click += new System.EventHandler(this.CropMenuItem_Click);
             // 
@@ -237,50 +242,67 @@
             // 
             this.drawMenuItem.CheckOnClick = true;
             this.drawMenuItem.Name = "drawMenuItem";
-            this.drawMenuItem.Size = new System.Drawing.Size(203, 26);
+            this.drawMenuItem.Size = new System.Drawing.Size(224, 26);
             this.drawMenuItem.Text = "Draw";
             this.drawMenuItem.Click += new System.EventHandler(this.DrawMenuItem_Click);
             // 
             // colorPickerMenuItem
             // 
             this.colorPickerMenuItem.Name = "colorPickerMenuItem";
-            this.colorPickerMenuItem.Size = new System.Drawing.Size(203, 26);
+            this.colorPickerMenuItem.Size = new System.Drawing.Size(224, 26);
             this.colorPickerMenuItem.Text = "ColorViewer";
             this.colorPickerMenuItem.Click += new System.EventHandler(this.ColorPickerMenuItem_Click);
             // 
             // textRecognitionMenuItem
             // 
             this.textRecognitionMenuItem.Name = "textRecognitionMenuItem";
-            this.textRecognitionMenuItem.Size = new System.Drawing.Size(203, 26);
+            this.textRecognitionMenuItem.Size = new System.Drawing.Size(224, 26);
             this.textRecognitionMenuItem.Text = "Text Recognition";
             this.textRecognitionMenuItem.Click += new System.EventHandler(this.TextRecognitionToolStripMenuItem_Click);
             // 
             // toolStripSeparator1
             // 
             this.toolStripSeparator1.Name = "toolStripSeparator1";
-            this.toolStripSeparator1.Size = new System.Drawing.Size(200, 6);
+            this.toolStripSeparator1.Size = new System.Drawing.Size(221, 6);
             // 
             // chooseColorMenuItem
             // 
             this.chooseColorMenuItem.Name = "chooseColorMenuItem";
-            this.chooseColorMenuItem.Size = new System.Drawing.Size(203, 26);
+            this.chooseColorMenuItem.Size = new System.Drawing.Size(224, 26);
             this.chooseColorMenuItem.Text = "Choose Color";
             this.chooseColorMenuItem.Click += new System.EventHandler(this.ChooseColorMenuItem_Click);
             // 
             // extrasToolStripMenuItem
             // 
             this.extrasToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.KeybindingsMenuEntry});
+            this.KeybindingsMenuEntry,
+            this.gifEncodingToolStripMenuItem});
             this.extrasToolStripMenuItem.Name = "extrasToolStripMenuItem";
-            this.extrasToolStripMenuItem.Size = new System.Drawing.Size(75, 26);
+            this.extrasToolStripMenuItem.Size = new System.Drawing.Size(75, 24);
             this.extrasToolStripMenuItem.Text = "Options";
             // 
             // KeybindingsMenuEntry
             // 
             this.KeybindingsMenuEntry.Name = "KeybindingsMenuEntry";
-            this.KeybindingsMenuEntry.Size = new System.Drawing.Size(173, 26);
+            this.KeybindingsMenuEntry.Size = new System.Drawing.Size(224, 26);
             this.KeybindingsMenuEntry.Text = "Keybindings";
             this.KeybindingsMenuEntry.Click += new System.EventHandler(this.KeybindingsToolStripMenuItem_Click);
+            // 
+            // gifEncodingToolStripMenuItem
+            // 
+            this.gifEncodingToolStripMenuItem.Name = "gifEncodingToolStripMenuItem";
+            this.gifEncodingToolStripMenuItem.Size = new System.Drawing.Size(224, 26);
+            this.gifEncodingToolStripMenuItem.Text = "Gif Encoding";
+            // 
+            // toolStripSeparator3
+            // 
+            this.toolStripSeparator3.Name = "toolStripSeparator3";
+            this.toolStripSeparator3.Size = new System.Drawing.Size(221, 6);
+            // 
+            // toolStripSeparator4
+            // 
+            this.toolStripSeparator4.Name = "toolStripSeparator4";
+            this.toolStripSeparator4.Size = new System.Drawing.Size(221, 6);
             // 
             // MainForm
             // 
@@ -298,7 +320,7 @@
             this.Margin = new System.Windows.Forms.Padding(4);
             this.MinimumSize = new System.Drawing.Size(37, 137);
             this.Name = "MainForm";
-            this.Text = "Multi Screen Screenshot";
+            this.Text = "Screenshooter";
             this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.Form1_FormClosing);
             this.FormClosed += new System.Windows.Forms.FormClosedEventHandler(this.Form1_FormClosed);
             this.Load += new System.EventHandler(this.MainForm_Load);
@@ -338,6 +360,9 @@
         private System.Windows.Forms.ToolStripMenuItem chooseColorMenuItem;
         private System.Windows.Forms.ToolStripMenuItem noneMenuItem;
         private System.Windows.Forms.ToolStripMenuItem textRecognitionMenuItem;
+        private System.Windows.Forms.ToolStripSeparator toolStripSeparator4;
+        private System.Windows.Forms.ToolStripSeparator toolStripSeparator3;
+        private System.Windows.Forms.ToolStripMenuItem gifEncodingToolStripMenuItem;
     }
 }
 
