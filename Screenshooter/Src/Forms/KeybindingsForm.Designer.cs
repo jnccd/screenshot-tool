@@ -95,7 +95,7 @@
             // label4
             // 
             this.label4.AutoSize = true;
-            this.label4.Location = new System.Drawing.Point(13, 101);
+            this.label4.Location = new System.Drawing.Point(13, 99);
             this.label4.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.label4.Name = "label4";
             this.label4.Size = new System.Drawing.Size(137, 17);
@@ -105,7 +105,7 @@
             // ComboBoxSpeicalCrop
             // 
             this.ComboBoxSpeicalCrop.FormattingEnabled = true;
-            this.ComboBoxSpeicalCrop.Location = new System.Drawing.Point(208, 98);
+            this.ComboBoxSpeicalCrop.Location = new System.Drawing.Point(208, 96);
             this.ComboBoxSpeicalCrop.Margin = new System.Windows.Forms.Padding(4);
             this.ComboBoxSpeicalCrop.Name = "ComboBoxSpeicalCrop";
             this.ComboBoxSpeicalCrop.Size = new System.Drawing.Size(160, 24);
@@ -114,10 +114,10 @@
             // ComboBoxKeyCrop
             // 
             this.ComboBoxKeyCrop.FormattingEnabled = true;
-            this.ComboBoxKeyCrop.Location = new System.Drawing.Point(377, 98);
+            this.ComboBoxKeyCrop.Location = new System.Drawing.Point(376, 96);
             this.ComboBoxKeyCrop.Margin = new System.Windows.Forms.Padding(4);
             this.ComboBoxKeyCrop.Name = "ComboBoxKeyCrop";
-            this.ComboBoxKeyCrop.Size = new System.Drawing.Size(160, 24);
+            this.ComboBoxKeyCrop.Size = new System.Drawing.Size(161, 24);
             this.ComboBoxKeyCrop.TabIndex = 7;
             // 
             // ButtonSave
@@ -134,10 +134,10 @@
             // ComboBoxKeyGif
             // 
             this.ComboBoxKeyGif.FormattingEnabled = true;
-            this.ComboBoxKeyGif.Location = new System.Drawing.Point(377, 64);
+            this.ComboBoxKeyGif.Location = new System.Drawing.Point(376, 64);
             this.ComboBoxKeyGif.Margin = new System.Windows.Forms.Padding(4);
             this.ComboBoxKeyGif.Name = "ComboBoxKeyGif";
-            this.ComboBoxKeyGif.Size = new System.Drawing.Size(160, 24);
+            this.ComboBoxKeyGif.Size = new System.Drawing.Size(161, 24);
             this.ComboBoxKeyGif.TabIndex = 11;
             // 
             // ComboBoxSpeicalGif
@@ -163,7 +163,7 @@
             // 
             this.LabelHelpCrop.AutoSize = true;
             this.LabelHelpCrop.BackColor = System.Drawing.SystemColors.ControlLightLight;
-            this.LabelHelpCrop.Location = new System.Drawing.Point(150, 101);
+            this.LabelHelpCrop.Location = new System.Drawing.Point(149, 99);
             this.LabelHelpCrop.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.LabelHelpCrop.Name = "LabelHelpCrop";
             this.LabelHelpCrop.Size = new System.Drawing.Size(16, 17);
