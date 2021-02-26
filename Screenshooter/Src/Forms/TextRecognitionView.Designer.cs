@@ -28,6 +28,7 @@
         /// </summary>
         private void InitializeComponent()
         {
+            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(TextRecognitionView));
             this.tOutText = new System.Windows.Forms.TextBox();
             this.lConf = new System.Windows.Forms.Label();
             this.tLang = new System.Windows.Forms.TextBox();
@@ -37,6 +38,7 @@
             this.tTranslate = new System.Windows.Forms.TextBox();
             this.tSourceLang = new System.Windows.Forms.TextBox();
             this.label2 = new System.Windows.Forms.Label();
+            this.bSearch = new System.Windows.Forms.Button();
             this.SuspendLayout();
             // 
             // tOutText
@@ -86,7 +88,7 @@
             | System.Windows.Forms.AnchorStyles.Right)));
             this.tTargetLang.Location = new System.Drawing.Point(248, 289);
             this.tTargetLang.Name = "tTargetLang";
-            this.tTargetLang.Size = new System.Drawing.Size(99, 22);
+            this.tTargetLang.Size = new System.Drawing.Size(100, 22);
             this.tTargetLang.TabIndex = 4;
             this.tTargetLang.Text = "English";
             // 
@@ -94,7 +96,7 @@
             // 
             this.bTranslate.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
             this.bTranslate.Enabled = false;
-            this.bTranslate.Location = new System.Drawing.Point(353, 288);
+            this.bTranslate.Location = new System.Drawing.Point(354, 288);
             this.bTranslate.Name = "bTranslate";
             this.bTranslate.Size = new System.Drawing.Size(122, 24);
             this.bTranslate.TabIndex = 5;
@@ -133,11 +135,23 @@
             this.label2.TabIndex = 8;
             this.label2.Text = "to";
             // 
+            // bSearch
+            // 
+            this.bSearch.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
+            this.bSearch.Location = new System.Drawing.Point(391, 10);
+            this.bSearch.Name = "bSearch";
+            this.bSearch.Size = new System.Drawing.Size(85, 24);
+            this.bSearch.TabIndex = 9;
+            this.bSearch.Text = "Search";
+            this.bSearch.UseVisualStyleBackColor = true;
+            this.bSearch.Click += new System.EventHandler(this.bSearch_Click);
+            // 
             // TextRecognitionView
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(488, 369);
+            this.Controls.Add(this.bSearch);
             this.Controls.Add(this.label2);
             this.Controls.Add(this.tSourceLang);
             this.Controls.Add(this.tTranslate);
@@ -147,6 +161,7 @@
             this.Controls.Add(this.tLang);
             this.Controls.Add(this.lConf);
             this.Controls.Add(this.tOutText);
+            this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.MinimumSize = new System.Drawing.Size(474, 416);
             this.Name = "TextRecognitionView";
             this.Text = "Text Recognition";
@@ -168,5 +183,6 @@
         private System.Windows.Forms.TextBox tTranslate;
         private System.Windows.Forms.TextBox tSourceLang;
         private System.Windows.Forms.Label label2;
+        private System.Windows.Forms.Button bSearch;
     }
 }
