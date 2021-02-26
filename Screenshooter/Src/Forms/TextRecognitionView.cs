@@ -3,12 +3,14 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
+using System.Diagnostics;
 using System.Drawing;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using Tesseract;
+using System.Net;
 
 namespace ScreenshotTool
 {
@@ -79,6 +81,11 @@ namespace ScreenshotTool
         private void TextRecognitionView_FormClosed(object sender, FormClosedEventArgs e)
         {
             Program.mainForm.SetModeToNone();
+        }
+
+        private void bSearch_Click(object sender, EventArgs e)
+        {
+            Process.Start($"https://www.google.de/search?q={WebUtility.UrlEncode(tOutText.SelectedText)}");
         }
     }
 }
