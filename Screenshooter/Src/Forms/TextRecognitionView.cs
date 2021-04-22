@@ -1,5 +1,4 @@
-﻿using GoogleTranslateFreeApi;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
@@ -16,7 +15,7 @@ namespace ScreenshotTool
 {
     public partial class TextRecognitionView : Form
     {
-        readonly GoogleTranslator translator = new GoogleTranslator();
+        //readonly GoogleTranslator translator = new GoogleTranslator();
 
         public TextRecognitionView()
         {
@@ -61,21 +60,21 @@ namespace ScreenshotTool
 
         private void bTranslate_Click(object sender, EventArgs e)
         {
-            try
-            {
-                throw new NotImplementedException();
+            //try
+            //{
+            //    throw new NotImplementedException();
 
-                Language from = string.IsNullOrWhiteSpace(tSourceLang.Text) || tSourceLang.Text == "Auto" ? Language.Auto : GoogleTranslator.GetLanguageByName(tSourceLang.Text);
-                Language to = GoogleTranslator.GetLanguageByName(tTargetLang.Text);
+            //    Language from = string.IsNullOrWhiteSpace(tSourceLang.Text) || tSourceLang.Text == "Auto" ? Language.Auto : GoogleTranslator.GetLanguageByName(tSourceLang.Text);
+            //    Language to = GoogleTranslator.GetLanguageByName(tTargetLang.Text);
 
-                TranslationResult result = translator.TranslateLiteAsync(tOutText.Text, from, to).Result;
+            //    TranslationResult result = translator.TranslateLiteAsync(tOutText.Text, from, to).Result;
 
-                tTranslate.Text = result.MergedTranslation;
-            }
-            catch
-            {
-                tTranslate.Text = "Error translating the text with the given parameters!";
-            }
+            //    tTranslate.Text = result.MergedTranslation;
+            //}
+            //catch
+            //{
+            //    tTranslate.Text = "Error translating the text with the given parameters!";
+            //}
         }
 
         private void TextRecognitionView_FormClosed(object sender, FormClosedEventArgs e)
