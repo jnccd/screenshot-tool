@@ -69,7 +69,7 @@ namespace ScreenshotTool
             {
                 if (File.Exists(Path))
                     FileSystem.DeleteFile(Path,
-                            UIOption.AllDialogs,
+                            UIOption.OnlyErrorDialogs,
                             RecycleOption.SendToRecycleBin,
                             UICancelOption.ThrowException);
             }
