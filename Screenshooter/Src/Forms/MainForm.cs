@@ -165,45 +165,58 @@ namespace ScreenshotTool
                     System.Media.SystemSounds.Exclamation.Play();
                     snipper.ShowDialog();
                     if (snipper.output != null)
-                    {
-                        images.Add(new Screenshot(snipper.output, GetScreenshotName()));
-                        imagesIndex = images.Count - 1;
-                        UpdateUI();
+                        Task.Run(() => this.InvokeIfRequired(() => {
+                            try
+                            {
+                                images.Add(new Screenshot(snipper.output, GetScreenshotName()));
+                                imagesIndex = images.Count - 1;
+                                UpdateUI();
 
-                        BSave_Click(null, EventArgs.Empty);
+                                BSave_Click(null, EventArgs.Empty);
 
-                        Point mouseDownPoint = snipper.pMouseDown;
-                        Rectangle imageDimensions = snipper.ImageDimensions;
-                        snipper.InvokeIfRequired(() => Location = new Point(mouseDownPoint.X + imageDimensions.X - 8 - pBox.Location.X,
-                            mouseDownPoint.Y - 32 - pBox.Location.Y));
+                                Point mouseDownPoint = snipper.pMouseDown;
+                                Rectangle imageDimensions = snipper.ImageDimensions;
+                                snipper.InvokeIfRequired(() => Location = new Point(mouseDownPoint.X + imageDimensions.X - 8 - pBox.Location.X,
+                                    mouseDownPoint.Y - 32 - pBox.Location.Y));
 
-                        WindowState = FormWindowState.Normal;
-                        DLLImports.SetForegroundWindow(Handle);
+                                WindowState = FormWindowState.Normal;
+                                DLLImports.SetForegroundWindow(Handle);
 
-                        SetOriginalSize();
+                                SetOriginalSize();
 
-                        // Ausgleichen des blankParts
-                        int imgWidth = pBox.Image.Width;
-                        int imgHeight = pBox.Image.Height;
-                        int boxWidth = pBox.Size.Width;
-                        int boxHeight = pBox.Size.Height;
-                        float X = 0;
-                        float Y = 0;
-                        if (imgWidth / imgHeight > boxWidth / boxHeight)
-                        {
-                            float scale = boxWidth / (float)imgWidth;
-                            float blankPart = (boxHeight - scale * imgHeight) / 2;
-                            Y = blankPart;
-                        }
-                        else
-                        {
-                            float scale = boxHeight / (float)imgHeight;
-                            float blankPart = (boxWidth - scale * imgWidth) / 2;
-                            X = blankPart;
-                        }
-                        Location = new Point(Location.X - (int)X, Location.Y - (int)Y);
-                        snipper.CleanUp();
-                    }
+                                // Ausgleichen des blankParts
+                                int imgWidth = pBox.Image.Width;
+                                int imgHeight = pBox.Image.Height;
+                                int boxWidth = pBox.Size.Width;
+                                int boxHeight = pBox.Size.Height;
+                                float X = 0;
+                                float Y = 0;
+                                if (imgWidth / imgHeight > boxWidth / boxHeight)
+                                {
+                                    float scale = boxWidth / (float)imgWidth;
+                                    float blankPart = (boxHeight - scale * imgHeight) / 2;
+                                    Y = blankPart;
+                                }
+                                else
+                                {
+                                    float scale = boxHeight / (float)imgHeight;
+                                    float blankPart = (boxWidth - scale * imgWidth) / 2;
+                                    X = blankPart;
+                                }
+                                Location = new Point(Location.X - (int)X, Location.Y - (int)Y);
+                                snipper.CleanUp();
+                            }
+                            catch (Exception e)
+                            {
+                                if (MessageBox.Show("Oopsie woopsie, it seems like I cant make that screenshot!\nDo you want to see the error message in detail?", "Error", MessageBoxButtons.YesNo) == DialogResult.Yes)
+                                {
+                                    MessageBox.Show(e.Message + "\n\n" + e.InnerException + "\n\n" + e.StackTrace);
+                                }
+                            }
+                            snippingWindowActive = false;
+                        }));
+                    else
+                        snippingWindowActive = false;
                 }
                 catch (Exception e)
                 {
@@ -211,10 +224,6 @@ namespace ScreenshotTool
                     {
                         MessageBox.Show(e.Message + "\n\n" + e.InnerException + "\n\n" + e.StackTrace);
                     }
-                }
-                finally
-                {
-                    snippingWindowActive = false;
                 }
             }
         }
