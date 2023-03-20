@@ -819,7 +819,10 @@ namespace ScreenshotTool
                 }
                 else if (gifKeys.IsPressed(Shift, Ctrl, Alt, key))
                 {
-                    StartRecordingGif();
+                    if (!recordingGif)
+                        StartRecordingGif();
+                    else
+                        StopRecordingGif();
                     lastKeyDownEvent = DateTime.Now;
                 }
             }
@@ -828,10 +831,10 @@ namespace ScreenshotTool
         {
             Debug.WriteLine($"Released {key}, {Shift}, {Ctrl}, {Alt}");
 
-            if (gifKeys.IsPressed(Shift, Ctrl, Alt, key))
-            {
-                StopRecordingGif();
-            }
+            //if (gifKeys.IsPressed(Shift, Ctrl, Alt, key))
+            //{
+                
+            //}
         }
 
         // ToolStrip
