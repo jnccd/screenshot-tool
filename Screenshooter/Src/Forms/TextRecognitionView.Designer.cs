@@ -46,28 +46,31 @@
             this.tOutText.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
             | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            this.tOutText.Location = new System.Drawing.Point(12, 39);
+            this.tOutText.Location = new System.Drawing.Point(9, 32);
+            this.tOutText.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
             this.tOutText.Multiline = true;
             this.tOutText.Name = "tOutText";
             this.tOutText.ReadOnly = true;
             this.tOutText.ScrollBars = System.Windows.Forms.ScrollBars.Vertical;
-            this.tOutText.Size = new System.Drawing.Size(464, 243);
+            this.tOutText.Size = new System.Drawing.Size(349, 198);
             this.tOutText.TabIndex = 0;
             // 
             // lConf
             // 
             this.lConf.AutoSize = true;
-            this.lConf.Location = new System.Drawing.Point(140, 14);
+            this.lConf.Location = new System.Drawing.Point(105, 11);
+            this.lConf.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
             this.lConf.Name = "lConf";
-            this.lConf.Size = new System.Drawing.Size(83, 17);
+            this.lConf.Size = new System.Drawing.Size(64, 13);
             this.lConf.TabIndex = 1;
             this.lConf.Text = "Confidence:";
             // 
             // tLang
             // 
-            this.tLang.Location = new System.Drawing.Point(12, 11);
+            this.tLang.Location = new System.Drawing.Point(9, 9);
+            this.tLang.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
             this.tLang.Name = "tLang";
-            this.tLang.Size = new System.Drawing.Size(122, 22);
+            this.tLang.Size = new System.Drawing.Size(92, 20);
             this.tLang.TabIndex = 2;
             this.tLang.Text = "eng";
             this.tLang.KeyDown += new System.Windows.Forms.KeyEventHandler(this.TLang_KeyDown);
@@ -76,9 +79,10 @@
             // 
             this.label1.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
             this.label1.AutoSize = true;
-            this.label1.Location = new System.Drawing.Point(11, 292);
+            this.label1.Location = new System.Drawing.Point(8, 237);
+            this.label1.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
             this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(100, 17);
+            this.label1.Size = new System.Drawing.Size(74, 13);
             this.label1.TabIndex = 3;
             this.label1.Text = "Translate from";
             // 
@@ -86,9 +90,10 @@
             // 
             this.tTargetLang.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            this.tTargetLang.Location = new System.Drawing.Point(248, 289);
+            this.tTargetLang.Location = new System.Drawing.Point(186, 235);
+            this.tTargetLang.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
             this.tTargetLang.Name = "tTargetLang";
-            this.tTargetLang.Size = new System.Drawing.Size(100, 22);
+            this.tTargetLang.Size = new System.Drawing.Size(76, 20);
             this.tTargetLang.TabIndex = 4;
             this.tTargetLang.Text = "English";
             // 
@@ -96,9 +101,10 @@
             // 
             this.bTranslate.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
             this.bTranslate.Enabled = false;
-            this.bTranslate.Location = new System.Drawing.Point(354, 288);
+            this.bTranslate.Location = new System.Drawing.Point(266, 234);
+            this.bTranslate.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
             this.bTranslate.Name = "bTranslate";
-            this.bTranslate.Size = new System.Drawing.Size(122, 24);
+            this.bTranslate.Size = new System.Drawing.Size(92, 20);
             this.bTranslate.TabIndex = 5;
             this.bTranslate.Text = "Translate";
             this.bTranslate.UseVisualStyleBackColor = true;
@@ -108,20 +114,22 @@
             // 
             this.tTranslate.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            this.tTranslate.Location = new System.Drawing.Point(12, 317);
+            this.tTranslate.Location = new System.Drawing.Point(9, 258);
+            this.tTranslate.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
             this.tTranslate.Multiline = true;
             this.tTranslate.Name = "tTranslate";
             this.tTranslate.ReadOnly = true;
             this.tTranslate.ScrollBars = System.Windows.Forms.ScrollBars.Vertical;
-            this.tTranslate.Size = new System.Drawing.Size(464, 40);
+            this.tTranslate.Size = new System.Drawing.Size(349, 33);
             this.tTranslate.TabIndex = 6;
             // 
             // tSourceLang
             // 
             this.tSourceLang.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
-            this.tSourceLang.Location = new System.Drawing.Point(117, 289);
+            this.tSourceLang.Location = new System.Drawing.Point(88, 235);
+            this.tSourceLang.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
             this.tSourceLang.Name = "tSourceLang";
-            this.tSourceLang.Size = new System.Drawing.Size(99, 22);
+            this.tSourceLang.Size = new System.Drawing.Size(75, 20);
             this.tSourceLang.TabIndex = 7;
             this.tSourceLang.Text = "Auto";
             // 
@@ -129,18 +137,20 @@
             // 
             this.label2.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
             this.label2.AutoSize = true;
-            this.label2.Location = new System.Drawing.Point(222, 292);
+            this.label2.Location = new System.Drawing.Point(166, 237);
+            this.label2.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
             this.label2.Name = "label2";
-            this.label2.Size = new System.Drawing.Size(20, 17);
+            this.label2.Size = new System.Drawing.Size(16, 13);
             this.label2.TabIndex = 8;
             this.label2.Text = "to";
             // 
             // bSearch
             // 
-            this.bSearch.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-            this.bSearch.Location = new System.Drawing.Point(391, 10);
+            this.bSearch.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.bSearch.Location = new System.Drawing.Point(293, 8);
+            this.bSearch.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
             this.bSearch.Name = "bSearch";
-            this.bSearch.Size = new System.Drawing.Size(85, 24);
+            this.bSearch.Size = new System.Drawing.Size(64, 20);
             this.bSearch.TabIndex = 9;
             this.bSearch.Text = "Search";
             this.bSearch.UseVisualStyleBackColor = true;
@@ -148,9 +158,9 @@
             // 
             // TextRecognitionView
             // 
-            this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
+            this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(488, 369);
+            this.ClientSize = new System.Drawing.Size(366, 306);
             this.Controls.Add(this.bSearch);
             this.Controls.Add(this.label2);
             this.Controls.Add(this.tSourceLang);
@@ -162,7 +172,8 @@
             this.Controls.Add(this.lConf);
             this.Controls.Add(this.tOutText);
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
-            this.MinimumSize = new System.Drawing.Size(474, 416);
+            this.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.MinimumSize = new System.Drawing.Size(360, 345);
             this.Name = "TextRecognitionView";
             this.Text = "Text Recognition";
             this.FormClosed += new System.Windows.Forms.FormClosedEventHandler(this.TextRecognitionView_FormClosed);
