@@ -545,8 +545,8 @@ namespace ScreenshotTool
                 using (Pen pen = new Pen(config.Default.PrimaryColor, 1))
                     e.Graphics.DrawRectangle(pen, ee);
             }
-            // Saved title
-            if (images[imagesIndex].Saved && pBox.Height > 8)
+            // Unsaved title
+            if (!images[imagesIndex].Saved && pBox.Height > 8)
             {
                 //try
                 //{
@@ -557,7 +557,7 @@ namespace ScreenshotTool
                 //catch
                 //{
                     using (Pen pen = new Pen(Color.Red, 1))
-                        e.Graphics.DrawString("Saved!", new Font("Arial", Math.Min(savedSignFontSize, pBox.Height) + 1, FontStyle.Regular),
+                        e.Graphics.DrawString("Unsaved!", new Font("Arial", Math.Min(savedSignFontSize, pBox.Height) + 1, FontStyle.Italic),
                             Brushes.Red, new PointF(0, HUDVisiblity * (savedSignFontSize + 15) - savedSignFontSize - 15));
                 //}
             }
