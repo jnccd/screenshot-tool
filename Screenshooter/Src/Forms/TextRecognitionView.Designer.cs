@@ -31,7 +31,6 @@
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(TextRecognitionView));
             this.tOutText = new System.Windows.Forms.TextBox();
             this.lConf = new System.Windows.Forms.Label();
-            this.tLang = new System.Windows.Forms.TextBox();
             this.label1 = new System.Windows.Forms.Label();
             this.tTargetLang = new System.Windows.Forms.TextBox();
             this.bTranslate = new System.Windows.Forms.Button();
@@ -39,6 +38,7 @@
             this.tSourceLang = new System.Windows.Forms.TextBox();
             this.label2 = new System.Windows.Forms.Label();
             this.bSearch = new System.Windows.Forms.Button();
+            this.cLang = new System.Windows.Forms.ComboBox();
             this.SuspendLayout();
             // 
             // tOutText
@@ -47,34 +47,24 @@
             | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
             this.tOutText.Font = new System.Drawing.Font("Microsoft Sans Serif", 15.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.tOutText.Location = new System.Drawing.Point(9, 32);
+            this.tOutText.Location = new System.Drawing.Point(11, 38);
             this.tOutText.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
             this.tOutText.Multiline = true;
             this.tOutText.Name = "tOutText";
             this.tOutText.ReadOnly = true;
             this.tOutText.ScrollBars = System.Windows.Forms.ScrollBars.Vertical;
-            this.tOutText.Size = new System.Drawing.Size(349, 263);
+            this.tOutText.Size = new System.Drawing.Size(344, 257);
             this.tOutText.TabIndex = 0;
             // 
             // lConf
             // 
             this.lConf.AutoSize = true;
-            this.lConf.Location = new System.Drawing.Point(105, 11);
+            this.lConf.Location = new System.Drawing.Point(105, 16);
             this.lConf.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
             this.lConf.Name = "lConf";
             this.lConf.Size = new System.Drawing.Size(64, 13);
             this.lConf.TabIndex = 1;
             this.lConf.Text = "Confidence:";
-            // 
-            // tLang
-            // 
-            this.tLang.Location = new System.Drawing.Point(9, 9);
-            this.tLang.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
-            this.tLang.Name = "tLang";
-            this.tLang.Size = new System.Drawing.Size(92, 20);
-            this.tLang.TabIndex = 2;
-            this.tLang.Text = "eng";
-            this.tLang.KeyDown += new System.Windows.Forms.KeyEventHandler(this.TLang_KeyDown);
             // 
             // label1
             // 
@@ -148,22 +138,33 @@
             // bSearch
             // 
             this.bSearch.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.bSearch.Location = new System.Drawing.Point(293, 8);
+            this.bSearch.Location = new System.Drawing.Point(291, 12);
             this.bSearch.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
             this.bSearch.Name = "bSearch";
-            this.bSearch.Size = new System.Drawing.Size(64, 20);
+            this.bSearch.Size = new System.Drawing.Size(64, 21);
             this.bSearch.TabIndex = 9;
             this.bSearch.Text = "Search";
             this.bSearch.UseVisualStyleBackColor = true;
             this.bSearch.Click += new System.EventHandler(this.bSearch_Click);
+            // 
+            // cLang
+            // 
+            this.cLang.FormattingEnabled = true;
+            this.cLang.Location = new System.Drawing.Point(9, 12);
+            this.cLang.Name = "cLang";
+            this.cLang.Size = new System.Drawing.Size(91, 21);
+            this.cLang.TabIndex = 10;
+            this.cLang.Text = "eng";
+            this.cLang.SelectionChangeCommitted += new System.EventHandler(this.cLang_SelectionChangeCommitted);
+            this.cLang.KeyDown += new System.Windows.Forms.KeyEventHandler(this.cLang_KeyDown);
             // 
             // TextRecognitionView
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(366, 306);
+            this.Controls.Add(this.cLang);
             this.Controls.Add(this.bSearch);
-            this.Controls.Add(this.tLang);
             this.Controls.Add(this.lConf);
             this.Controls.Add(this.tOutText);
             this.Controls.Add(this.label2);
@@ -188,7 +189,6 @@
 
         private System.Windows.Forms.TextBox tOutText;
         private System.Windows.Forms.Label lConf;
-        private System.Windows.Forms.TextBox tLang;
         private System.Windows.Forms.Label label1;
         private System.Windows.Forms.TextBox tTargetLang;
         private System.Windows.Forms.Button bTranslate;
@@ -196,5 +196,6 @@
         private System.Windows.Forms.TextBox tSourceLang;
         private System.Windows.Forms.Label label2;
         private System.Windows.Forms.Button bSearch;
+        private System.Windows.Forms.ComboBox cLang;
     }
 }
