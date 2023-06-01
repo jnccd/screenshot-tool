@@ -337,6 +337,9 @@ namespace ScreenshotTool
             else
                 bSave.Text = "Save";
 
+            if (mode == textRecognitionMenuItem)
+                textView.UpdateReadings();
+
             bDelete.Enabled = imagesIndex != 0;
             bPrevious.Enabled = imagesIndex != 0;
             bNext.Enabled = imagesIndex != images.Count - 1;
@@ -507,8 +510,6 @@ namespace ScreenshotTool
                 images[imagesIndex + 4].DisposeImageCache();
             imagesIndex--;
 
-            if (mode == textRecognitionMenuItem)
-                textView.UpdateReadings();
             ResetHudVisibility();
             UpdateUI();
         }
@@ -518,8 +519,6 @@ namespace ScreenshotTool
                 images[imagesIndex - 4].DisposeImageCache();
             imagesIndex++;
 
-            if (mode == textRecognitionMenuItem)
-                textView.UpdateReadings();
             ResetHudVisibility();
             UpdateUI();
         }
