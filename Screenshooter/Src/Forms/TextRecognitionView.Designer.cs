@@ -52,7 +52,7 @@
             this.tOutText.Name = "tOutText";
             this.tOutText.ReadOnly = true;
             this.tOutText.ScrollBars = System.Windows.Forms.ScrollBars.Vertical;
-            this.tOutText.Size = new System.Drawing.Size(349, 198);
+            this.tOutText.Size = new System.Drawing.Size(349, 263);
             this.tOutText.TabIndex = 0;
             // 
             // lConf
@@ -162,15 +162,15 @@
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(366, 306);
             this.Controls.Add(this.bSearch);
+            this.Controls.Add(this.tLang);
+            this.Controls.Add(this.lConf);
+            this.Controls.Add(this.tOutText);
             this.Controls.Add(this.label2);
             this.Controls.Add(this.tSourceLang);
             this.Controls.Add(this.tTranslate);
             this.Controls.Add(this.bTranslate);
             this.Controls.Add(this.tTargetLang);
             this.Controls.Add(this.label1);
-            this.Controls.Add(this.tLang);
-            this.Controls.Add(this.lConf);
-            this.Controls.Add(this.tOutText);
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
             this.MinimumSize = new System.Drawing.Size(360, 345);
