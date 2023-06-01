@@ -104,5 +104,10 @@ namespace ScreenshotTool
         {
             UpdateReadings();
         }
+
+        private void bTranslateBrowser_Click(object sender, EventArgs e)
+        {
+            Process.Start($"https://translate.google.de/?sl=auto&tl=en&text={WebUtility.UrlEncode(tOutText.SelectedText)}&op=translate");
+        }
     }
 }
