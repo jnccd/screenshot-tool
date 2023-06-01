@@ -46,6 +46,7 @@
             this.tOutText.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
             | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
+            this.tOutText.Font = new System.Drawing.Font("Microsoft Sans Serif", 15.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.tOutText.Location = new System.Drawing.Point(9, 32);
             this.tOutText.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
             this.tOutText.Multiline = true;
