@@ -340,7 +340,7 @@ namespace ScreenshotTool
             if (mode == textRecognitionMenuItem)
                 textView.UpdateReadings();
 
-            bDelete.Enabled = imagesIndex != 0;
+            bDelete.Enabled = images.Count > 1;
             bPrevious.Enabled = imagesIndex != 0;
             bNext.Enabled = imagesIndex != images.Count - 1;
         }
