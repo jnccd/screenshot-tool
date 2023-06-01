@@ -39,6 +39,7 @@
             this.label2 = new System.Windows.Forms.Label();
             this.bSearch = new System.Windows.Forms.Button();
             this.cLang = new System.Windows.Forms.ComboBox();
+            this.bTranslateBrowser = new System.Windows.Forms.Button();
             this.SuspendLayout();
             // 
             // tOutText
@@ -138,10 +139,10 @@
             // bSearch
             // 
             this.bSearch.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.bSearch.Location = new System.Drawing.Point(291, 12);
+            this.bSearch.Location = new System.Drawing.Point(299, 12);
             this.bSearch.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
             this.bSearch.Name = "bSearch";
-            this.bSearch.Size = new System.Drawing.Size(64, 21);
+            this.bSearch.Size = new System.Drawing.Size(56, 21);
             this.bSearch.TabIndex = 9;
             this.bSearch.Text = "Search";
             this.bSearch.UseVisualStyleBackColor = true;
@@ -158,11 +159,24 @@
             this.cLang.SelectionChangeCommitted += new System.EventHandler(this.cLang_SelectionChangeCommitted);
             this.cLang.KeyDown += new System.Windows.Forms.KeyEventHandler(this.cLang_KeyDown);
             // 
+            // bTranslateBrowser
+            // 
+            this.bTranslateBrowser.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.bTranslateBrowser.Location = new System.Drawing.Point(231, 12);
+            this.bTranslateBrowser.Margin = new System.Windows.Forms.Padding(2);
+            this.bTranslateBrowser.Name = "bTranslateBrowser";
+            this.bTranslateBrowser.Size = new System.Drawing.Size(64, 21);
+            this.bTranslateBrowser.TabIndex = 11;
+            this.bTranslateBrowser.Text = "Translate";
+            this.bTranslateBrowser.UseVisualStyleBackColor = true;
+            this.bTranslateBrowser.Click += new System.EventHandler(this.bTranslateBrowser_Click);
+            // 
             // TextRecognitionView
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(366, 306);
+            this.Controls.Add(this.bTranslateBrowser);
             this.Controls.Add(this.cLang);
             this.Controls.Add(this.bSearch);
             this.Controls.Add(this.lConf);
@@ -197,5 +211,6 @@
         private System.Windows.Forms.Label label2;
         private System.Windows.Forms.Button bSearch;
         private System.Windows.Forms.ComboBox cLang;
+        private System.Windows.Forms.Button bTranslateBrowser;
     }
 }
