@@ -10,12 +10,14 @@ using System.Threading.Tasks;
 using System.Windows.Forms;
 using Tesseract;
 using System.Net;
+using System.IO;
 
 namespace ScreenshotTool
 {
     public partial class TextRecognitionView : Form
     {
         //readonly GoogleTranslator translator = new GoogleTranslator();
+        const string tessdataPath = @"./tessdata";
 
         public TextRecognitionView()
         {
@@ -26,13 +28,16 @@ namespace ScreenshotTool
         {
             try
             {
-                using var engine = new TesseractEngine(@"./tessdata", tLang.Text, EngineMode.Default);
+                using var engine = new TesseractEngine(tessdataPath, cLang.Text, EngineMode.Default);
                 using var img = Pix.LoadFromFile(Program.mainForm.CurrentScreenshot.Path);
                 using var page = engine.Process(img);
                 using var iter = page.GetIterator();
 
                 string text = page.GetText().Replace("\n", "\r\n");
                 string conf = page.GetMeanConfidence().ToString();
+
+                if (cLang.Text.StartsWith("chi"))
+                    text = text.Replace(" ", "");
 
                 tOutText.Text = text;
                 lConf.Text = $"Confidence: {conf}";
@@ -48,14 +53,14 @@ namespace ScreenshotTool
         private void TextRecognitionView_Load(object sender, EventArgs e)
         {
             UpdateReadings();
-        }
 
-        private void TLang_KeyDown(object sender, KeyEventArgs e)
-        {
-            if (e.KeyCode == Keys.Enter)
-            {
-                UpdateReadings();
-            }
+            // Fill combobox options
+            string tessFilePattern = "*.traineddata";
+            cLang.Items.AddRange(
+                new DirectoryInfo(tessdataPath).
+                GetFiles(tessFilePattern).
+                    Select(x => x.ToString().Remove(x.ToString().Length - tessFilePattern.Length + 1)).
+                    ToArray());
         }
 
         private void bTranslate_Click(object sender, EventArgs e)
@@ -85,6 +90,19 @@ namespace ScreenshotTool
         private void bSearch_Click(object sender, EventArgs e)
         {
             Process.Start($"https://www.google.de/search?q={WebUtility.UrlEncode(tOutText.SelectedText)}");
+        }
+
+        private void cLang_KeyDown(object sender, KeyEventArgs e)
+        {
+            if (e.KeyCode == Keys.Enter)
+            {
+                UpdateReadings();
+            }
+        }
+
+        private void cLang_SelectionChangeCommitted(object sender, EventArgs e)
+        {
+            UpdateReadings();
         }
     }
 }
