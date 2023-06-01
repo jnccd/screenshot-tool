@@ -548,18 +548,18 @@ namespace ScreenshotTool
             // Saved title
             if (images[imagesIndex].Saved && pBox.Height > 8)
             {
-                try
-                {
+                //try
+                //{
+                //    using (Pen pen = new Pen(Color.Red, 1))
+                //        e.Graphics.DrawString("Saved!", new Font("BigNoodleTitling", Math.Min(savedSignFontSize, pBox.Height) + 1, FontStyle.Italic),
+                //            Brushes.Red, new PointF(0, HUDVisiblity * (savedSignFontSize + 15) - savedSignFontSize - 15));
+                //}
+                //catch
+                //{
                     using (Pen pen = new Pen(Color.Red, 1))
-                        e.Graphics.DrawString("Saved!", new Font("BigNoodleTitling", Math.Min(savedSignFontSize, pBox.Height) + 1, FontStyle.Italic),
+                        e.Graphics.DrawString("Saved!", new Font("Arial", Math.Min(savedSignFontSize, pBox.Height) + 1, FontStyle.Regular),
                             Brushes.Red, new PointF(0, HUDVisiblity * (savedSignFontSize + 15) - savedSignFontSize - 15));
-                }
-                catch
-                {
-                    using (Pen pen = new Pen(Color.Red, 1))
-                        e.Graphics.DrawString("Saved!", new Font("Arial", Math.Min(savedSignFontSize, pBox.Height) + 1, FontStyle.Italic),
-                            Brushes.Red, new PointF(0, HUDVisiblity * (savedSignFontSize + 15) - savedSignFontSize - 15));
-                }
+                //}
             }
             // Previews
             for (int i = imagesIndex - halfExtraPreviewImages; i < imagesIndex + halfExtraPreviewImages + 1; i++)
