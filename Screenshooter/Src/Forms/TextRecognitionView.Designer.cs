@@ -70,7 +70,7 @@
             // 
             this.label1.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
             this.label1.AutoSize = true;
-            this.label1.Location = new System.Drawing.Point(8, 237);
+            this.label1.Location = new System.Drawing.Point(24, 238);
             this.label1.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
             this.label1.Name = "label1";
             this.label1.Size = new System.Drawing.Size(74, 13);
@@ -95,7 +95,7 @@
             this.bTranslate.Location = new System.Drawing.Point(266, 234);
             this.bTranslate.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
             this.bTranslate.Name = "bTranslate";
-            this.bTranslate.Size = new System.Drawing.Size(92, 20);
+            this.bTranslate.Size = new System.Drawing.Size(72, 20);
             this.bTranslate.TabIndex = 5;
             this.bTranslate.Text = "Translate";
             this.bTranslate.UseVisualStyleBackColor = true;
@@ -105,13 +105,13 @@
             // 
             this.tTranslate.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            this.tTranslate.Location = new System.Drawing.Point(9, 258);
+            this.tTranslate.Location = new System.Drawing.Point(27, 258);
             this.tTranslate.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
             this.tTranslate.Multiline = true;
             this.tTranslate.Name = "tTranslate";
             this.tTranslate.ReadOnly = true;
             this.tTranslate.ScrollBars = System.Windows.Forms.ScrollBars.Vertical;
-            this.tTranslate.Size = new System.Drawing.Size(349, 33);
+            this.tTranslate.Size = new System.Drawing.Size(311, 24);
             this.tTranslate.TabIndex = 6;
             // 
             // tSourceLang
