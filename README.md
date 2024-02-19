@@ -2,7 +2,7 @@
 
 ![image](https://github.com/jnccd/ScreenshotTool/assets/19777592/a5f4e179-ac51-4cac-82cd-655e09c94535)
 
-This is a simple winforms too for gif and png screenshots.
+This is a simple winforms tool for gif and png screenshots.
 
 ![image](https://github.com/jnccd/ScreenshotTool/assets/19777592/feecc34e-7619-4a05-be87-16028ab74b10)
 
