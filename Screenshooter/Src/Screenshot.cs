@@ -15,14 +15,17 @@ namespace ScreenshotTool
     {
         private Bitmap image;
         public Bitmap Image { get {
-                if (image != null)
-                    return image;
-                else if (!Path.IsNullOrWhiteSpace())
+                lock (this)
                 {
-                    image = (Bitmap)Bitmap.FromFile(Path);
-                    return image;
+                    if (image != null)
+                        return image;
+                    else if (!Path.IsNullOrWhiteSpace())
+                    {
+                        image = (Bitmap)Bitmap.FromFile(Path);
+                        return image;
+                    }
+                    return null;
                 }
-                return null;
             } private set { } }
 
         public string FileName { get; private set; }
@@ -44,36 +47,48 @@ namespace ScreenshotTool
         
         public void Save()
         {
-            if (!Saved)
+            lock (this)
             {
-                Path = config.Default.path + "\\" + FileName + ".png";
-                image.Save(Path);
-                Saved = true;
+                if (!Saved)
+                {
+                    Path = config.Default.path + "\\" + FileName + ".png";
+                    image.Save(Path);
+                    Saved = true;
+                }
             }
         }
         public void PutInClipboard()
         {
-            Clipboard.SetImage(image);
+            lock (this)
+            {
+                Clipboard.SetImage(image);
+            }
         }
         public void DisposeImageCache()
         {
-            if (Saved && image != null)
+            lock (this)
             {
-                image.Dispose();
-                image = null;
+                if (Saved && image != null)
+                {
+                    image.Dispose();
+                    image = null;
+                }
             }
         }
         public void Delete()
         {
-            try
+            lock (this)
             {
-                if (File.Exists(Path))
-                    FileSystem.DeleteFile(Path,
-                            UIOption.OnlyErrorDialogs,
-                            RecycleOption.SendToRecycleBin,
-                            UICancelOption.ThrowException);
+                try
+                {
+                    if (File.Exists(Path))
+                        FileSystem.DeleteFile(Path,
+                                UIOption.OnlyErrorDialogs,
+                                RecycleOption.SendToRecycleBin,
+                                UICancelOption.ThrowException);
+                }
+                catch (Exception e) { Debug.WriteLine(e); }
             }
-            catch (Exception e) { Debug.WriteLine(e); }
         }
     }
 }
