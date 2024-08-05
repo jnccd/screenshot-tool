@@ -47,15 +47,18 @@ namespace ScreenshotTool
         
         public void Save()
         {
+            Bitmap savingImage;
             lock (this)
             {
-                if (!Saved)
-                {
-                    Path = config.Default.path + "\\" + FileName + ".png";
-                    image.Save(Path);
-                    Saved = true;
-                }
+                savingImage = (Bitmap)image.Clone();
             }
+            if (!Saved)
+            {
+                Path = config.Default.path + "\\" + FileName + ".png";
+                savingImage.Save(Path);
+                Saved = true;
+            }
+            savingImage.Dispose();
         }
         public void PutInClipboard()
         {
