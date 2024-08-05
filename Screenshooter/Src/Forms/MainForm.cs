@@ -28,7 +28,7 @@ namespace ScreenshotTool
 
         // UI
         readonly List<Button> middleButtons = new List<Button>();
-        Point pMouseDown = new Point(0,0);
+        Point pMouseDown = new Point(0, 0);
         Point pMouseCurrently = new Point(0, 0);
         Point pMouseLast = new Point(0, 0);
         bool isMouseDown = false;
@@ -67,7 +67,7 @@ namespace ScreenshotTool
                     return 1;
             }
         }
-        
+
         const int halfExtraPreviewImages = 4;
         const int previewImageWidth = 100;
         const int previewImageHeight = 56;
@@ -116,9 +116,9 @@ namespace ScreenshotTool
 
             MainForm_SizeChanged(null, EventArgs.Empty);
             Minimize();
-            
+
             string[] files = Directory.GetFiles(config.Default.path).
-                Where(s => (s.EndsWith(".png") || s.EndsWith(".gif")) && 
+                Where(s => (s.EndsWith(".png") || s.EndsWith(".gif")) &&
                            Path.GetFileNameWithoutExtension(s).Contains("Screenshot_")).
                 OrderBy(x => x).
                 Reverse().
@@ -483,7 +483,7 @@ namespace ScreenshotTool
 
             mode = newMode;
         }
-        
+
         // Button Events
         private void BSave_Click(object sender, EventArgs e)
         {
@@ -556,9 +556,9 @@ namespace ScreenshotTool
                 //}
                 //catch
                 //{
-                    using (Pen pen = new Pen(Color.Red, 1))
-                        e.Graphics.DrawString("Unsaved!", new Font("Arial", Math.Min(savedSignFontSize, pBox.Height) + 1, FontStyle.Italic),
-                            Brushes.Red, new PointF(0, HUDVisiblity * (savedSignFontSize + 15) - savedSignFontSize - 15));
+                using (Pen pen = new Pen(Color.Red, 1))
+                    e.Graphics.DrawString("Unsaved!", new Font("Arial", Math.Min(savedSignFontSize, pBox.Height) + 1, FontStyle.Italic),
+                        Brushes.Red, new PointF(0, HUDVisiblity * (savedSignFontSize + 15) - savedSignFontSize - 15));
                 //}
             }
             // Previews
@@ -567,10 +567,10 @@ namespace ScreenshotTool
                 if (i >= 0 && i < images.Count)
                 {
                     int index = i - imagesIndex;
-                    Rectangle draw = new Rectangle(pBox.Width / 2 - (previewImageWidth/2) + index * (previewImageWidth + previewImagePadding), 
-                        pBox.Height - (int)Math.Min((previewImageHeight + previewImageOutlineThickness * 2) * HUDVisiblity, pBox.Height) + previewImageOutlineThickness, 
+                    Rectangle draw = new Rectangle(pBox.Width / 2 - (previewImageWidth / 2) + index * (previewImageWidth + previewImagePadding),
+                        pBox.Height - (int)Math.Min((previewImageHeight + previewImageOutlineThickness * 2) * HUDVisiblity, pBox.Height) + previewImageOutlineThickness,
                         previewImageWidth, previewImageHeight);
-                    
+
                     if (index == 0)
                         using (Pen pen = new Pen(Color.Black, previewImageOutlineThickness))
                             e.Graphics.DrawRectangle(pen, draw);
@@ -653,13 +653,14 @@ namespace ScreenshotTool
                 {
                     Point p = ZoomPicBoxCoordsToImageCoords(pMouseCurrently, pBox);
                     colorView.Update(CurrentScreenshot.Image.GetPixel(p.X, p.Y));
-                } catch { }
+                }
+                catch { }
             }
             if (isMouseDown && mode == drawMenuItem)
             {
                 if (CurrentScreenshot.Saved)
                 {
-                    images.Insert(imagesIndex + 1, new Screenshot((Bitmap)images[imagesIndex].Image.Clone(), 
+                    images.Insert(imagesIndex + 1, new Screenshot((Bitmap)images[imagesIndex].Image.Clone(),
                         images[imagesIndex].FileName + "_DRAWN"));
                     imagesIndex += 1;
                     UpdateUI();
@@ -680,7 +681,7 @@ namespace ScreenshotTool
                             g.FillEllipse(new SolidBrush(config.Default.PrimaryColor), new Rectangle(X, Y, drawRadius * 2, drawRadius * 2));
                         }
                     else
-                        g.FillEllipse(new SolidBrush(config.Default.PrimaryColor), 
+                        g.FillEllipse(new SolidBrush(config.Default.PrimaryColor),
                             new Rectangle(mCur.X - drawRadius, mCur.Y - drawRadius, drawRadius * 2, drawRadius * 2));
                 }
             }
@@ -719,7 +720,7 @@ namespace ScreenshotTool
                     isMouseDown = false;
                     return;
                 }
-                images.Insert(imagesIndex + 1, new Screenshot(ScreenshotHelper.CropImage(images[imagesIndex].Image, crop), 
+                images.Insert(imagesIndex + 1, new Screenshot(ScreenshotHelper.CropImage(images[imagesIndex].Image, crop),
                     images[imagesIndex].FileName + "_CROPPED"));
                 imagesIndex += 1;
                 UpdateUI();
@@ -730,7 +731,7 @@ namespace ScreenshotTool
         // Other Events
         private void Form1_FormClosing(object sender, FormClosingEventArgs e)
         {
-            if (images.Skip(1).ToList().Exists(x => !x.Saved) && 
+            if (images.Skip(1).ToList().Exists(x => !x.Saved) &&
                 MessageBox.Show("Oi, you have unsaved Images! Do you really want to close me?", "Close?", MessageBoxButtons.YesNo) == DialogResult.No)
                 e.Cancel = true;
         }
@@ -753,7 +754,7 @@ namespace ScreenshotTool
 
             Graphics graphics = this.CreateGraphics();
             float dpiY = graphics.DpiY, dpiX = graphics.DpiX;
-            
+
             int buttonHeight = (int)(46 * (96 / dpiY));
             int spacing = (int)(8 * (96 / dpiX));
 
@@ -832,7 +833,7 @@ namespace ScreenshotTool
 
             //if (gifKeys.IsPressed(Shift, Ctrl, Alt, key))
             //{
-                
+
             //}
         }
 
