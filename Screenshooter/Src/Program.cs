@@ -16,7 +16,7 @@ namespace ScreenshotTool
     {
         static readonly string RestartLocation = "Restart.bat";
         public static MainForm mainForm;
-        
+
         [STAThread]
         static void Main()
         {
