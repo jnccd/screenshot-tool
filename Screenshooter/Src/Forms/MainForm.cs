@@ -175,8 +175,8 @@ namespace ScreenshotTool
                             BSave_Click(null, EventArgs.Empty);
 
                             Point mouseDownPoint = snipper.pMouseDown;
-                            Rectangle imageDimensions = snipper.ImageDimensions;
-                            snipper.InvokeIfRequired(() => Location = new Point(mouseDownPoint.X + imageDimensions.X - 8 - pBox.Location.X,
+                            Rectangle imageDimensions = ScreenshotHelper.AllScreenBounds;
+                            snipper.InvokeIfRequired(() => this.Location = new Point(mouseDownPoint.X + imageDimensions.X - 8 - pBox.Location.X,
                                 mouseDownPoint.Y - 32 - pBox.Location.Y));
 
                             WindowState = FormWindowState.Normal;
@@ -364,12 +364,12 @@ namespace ScreenshotTool
         // Window Size
         public void SetOriginalSize()
         {
-            Width = images[imagesIndex].Image.Width + Width - pBox.Width;
-            Height = images[imagesIndex].Image.Height + Height - pBox.Height;
-
             // doppelt hält besser :thonk:
-            Width = images[imagesIndex].Image.Width + Width - pBox.Width;
-            Height = images[imagesIndex].Image.Height + Height - pBox.Height;
+            for (int i = 0; i < 2; i++)
+            {
+                Width = (int)(images[imagesIndex].Image.Width / ScreenshotHelper.MaxScreenScalingFactor) + Width - pBox.Width;
+                Height = (int)(images[imagesIndex].Image.Height / ScreenshotHelper.MaxScreenScalingFactor) + Height - pBox.Height;
+            }
         }
         public void CenterAroundMouse()
         {
@@ -600,7 +600,7 @@ namespace ScreenshotTool
                 //    catch { }
                 //})));
                 GraphicsUnit Unit = GraphicsUnit.Pixel;
-                if (images[imagesIndex].Image.GetBounds(ref Unit).Width == ScreenshotHelper.allScreenBounds.Width)
+                if (images[imagesIndex].Image.GetBounds(ref Unit).Width == ScreenshotHelper.AllScreenBounds.Width)
                 {
                     int i = 1;
                     foreach (Screen S in Screen.AllScreens)
@@ -610,8 +610,8 @@ namespace ScreenshotTool
                             try
                             {
                                 images.Insert(imagesIndex + 1, new Screenshot(ScreenshotHelper.CropImage(images[imagesIndex].Image,
-                                    new Rectangle(S.Bounds.X - ScreenshotHelper.allScreenBounds.X,
-                                    S.Bounds.Y - ScreenshotHelper.allScreenBounds.Y,
+                                    new Rectangle(S.Bounds.X - ScreenshotHelper.AllScreenBounds.X,
+                                    S.Bounds.Y - ScreenshotHelper.AllScreenBounds.Y,
                                     S.Bounds.Width, S.Bounds.Height)), images[imagesIndex].FileName + "_CROPPED"));
                                 imagesIndex++;
                                 UpdateUI();

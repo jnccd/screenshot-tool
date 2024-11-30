@@ -6,9 +6,14 @@ using System.Diagnostics;
 using System.Drawing;
 using System.Drawing.Imaging;
 using System.Linq;
+using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows;
 using System.Windows.Forms;
+using MessageBox = System.Windows.Forms.MessageBox;
+using Point = System.Drawing.Point;
+using Size = System.Drawing.Size;
 
 namespace ScreenshotTool
 {
@@ -23,38 +28,25 @@ namespace ScreenshotTool
         public Bitmap output;
         Bitmap fullScreenshot;
 
-        public Rectangle ImageDimensions;
-
         public SnippingToolWindow()
         {
             InitializeComponent();
         }
         private void SnippingToolWindow_Load(object sender, EventArgs e)
         {
-            TopMost = true;
-            ImageDimensions = new Rectangle(0, 0, 1, 1);
-            foreach (Screen S in Screen.AllScreens)
-            {
-                if (S.Bounds.X < ImageDimensions.X)
-                    ImageDimensions.X = S.Bounds.X;
-                if (S.Bounds.Y < ImageDimensions.Y)
-                    ImageDimensions.Y = S.Bounds.Y;
-                if (S.Bounds.X + S.Bounds.Width > ImageDimensions.Width)
-                    ImageDimensions.Width = S.Bounds.X + S.Bounds.Width;
-                if (S.Bounds.Y + S.Bounds.Height > ImageDimensions.Height)
-                    ImageDimensions.Height = S.Bounds.Y + S.Bounds.Height;
-            }
-            ImageDimensions.Width -= ImageDimensions.X;
-            ImageDimensions.Height -= ImageDimensions.Y;
-
-            fullScreenshot = new Bitmap(ImageDimensions.Width, ImageDimensions.Height, PixelFormat.Format32bppRgb);
+            //TopMost = true;
+            Rectangle AllScreensDimensions = ScreenshotHelper.AllScreenBounds;
+            fullScreenshot = new Bitmap(AllScreensDimensions.Width, AllScreensDimensions.Height, PixelFormat.Format32bppRgb);
             using (Graphics graphics = Graphics.FromImage(fullScreenshot))
-                graphics.CopyFromScreen(ImageDimensions.X, ImageDimensions.Y, 0, 0, new Size(ImageDimensions.Width, ImageDimensions.Height), CopyPixelOperation.SourceCopy);
-            Location = new Point(ImageDimensions.X, ImageDimensions.Y);
-            Size = new Size(ImageDimensions.Width, ImageDimensions.Height);
+                graphics.CopyFromScreen(AllScreensDimensions.X, AllScreensDimensions.Y, 0, 0, new Size(AllScreensDimensions.Width, AllScreensDimensions.Height), CopyPixelOperation.SourceCopy);
+            Location = new Point(AllScreensDimensions.X, AllScreensDimensions.Y);
+            Size = new Size(AllScreensDimensions.Width, AllScreensDimensions.Height);
             Bitmap TransparentScreenshot = (Bitmap)fullScreenshot.Clone();
             TransparentScreenshot.MakeTransparent(Color.Beige);
-            pBox.Image = TransparentScreenshot;
+            //pBox.Scale(new SizeF((float)ScreenshotHelper.MaxScreenScalingFactor, (float)ScreenshotHelper.MaxScreenScalingFactor));
+            pBox.Image = TransparentScreenshot.Stretch(new Size((int)(TransparentScreenshot.Width / (float)ScreenshotHelper.MaxScreenScalingFactor), 
+                (int)(TransparentScreenshot.Height / (float)ScreenshotHelper.MaxScreenScalingFactor)));
+            //pBox.Image = TransparentScreenshot;
 
             DLLImports.SetForegroundWindow(this.Handle);
         }
@@ -72,11 +64,8 @@ namespace ScreenshotTool
         {
             if (e.Button == MouseButtons.Left)
             {
-                Rectangle crop = GetRectangleFromPoints(
-                        new Point((int)(pMouseDown.X * (double)fullScreenshot.Width / pBox.Width),
-                            (int)(pMouseDown.Y * (double)fullScreenshot.Height / pBox.Height)),
-                        new Point((int)(pMouseCurrently.X * (double)fullScreenshot.Width / pBox.Width),
-                            (int)(pMouseCurrently.Y * (double)fullScreenshot.Height / pBox.Height)));
+                Rectangle crop = GetRectangleFromPoints(pMouseDown.Scale((double)ScreenshotHelper.MaxScreenScalingFactor), 
+                    pMouseCurrently.Scale((double)ScreenshotHelper.MaxScreenScalingFactor));
                 if (crop.Width == 0 || crop.Height == 0)
                 {
                     MessageBox.Show("Thats a little too small, dont you think?", "Too Smol", MessageBoxButtons.OK);
@@ -90,11 +79,8 @@ namespace ScreenshotTool
             }
             else if (e.Button == MouseButtons.Middle)
             {
-                gifArea = GetRectangleFromPoints(
-                        new Point((int)((pMouseDown.X + ScreenshotHelper.allScreenBounds.X) * (double)fullScreenshot.Width / pBox.Width),
-                            (int)((pMouseDown.Y + ScreenshotHelper.allScreenBounds.Y) * (double)fullScreenshot.Height / pBox.Height)),
-                        new Point((int)((pMouseCurrently.X + ScreenshotHelper.allScreenBounds.X) * (double)fullScreenshot.Width / pBox.Width),
-                            (int)((pMouseCurrently.Y + ScreenshotHelper.allScreenBounds.Y) * (double)fullScreenshot.Height / pBox.Height)));
+                gifArea = GetRectangleFromPoints(pMouseDown.Scale((double)ScreenshotHelper.MaxScreenScalingFactor),
+                    pMouseCurrently.Scale((double)ScreenshotHelper.MaxScreenScalingFactor));
                 if (gifArea.Width == 0 || gifArea.Height == 0)
                 {
                     MessageBox.Show("Thats a little too small, dont you think?", "Too Smol", MessageBoxButtons.OK);
@@ -126,7 +112,7 @@ namespace ScreenshotTool
         private void PictureBox1_MouseMove(object sender, MouseEventArgs e)
         {
             if (e.Button == MouseButtons.Left || 
-                e.Button == MouseButtons.Middle)
+                e.Button == MouseButtons.Middle || true)
             {
                 pMouseCurrently = e.Location;
                 pBox.Refresh();
@@ -135,6 +121,11 @@ namespace ScreenshotTool
 
         private void PBox_Paint(object sender, PaintEventArgs e)
         {
+            {
+                using Pen pen = new Pen(Color.Green, 4);
+                e.Graphics.DrawRectangle(pen, new Rectangle(pMouseCurrently.X, pMouseCurrently.Y, 4, 4));
+            }
+
             if (IsLeftMouseDown)
             {
                 Rectangle ee = GetRectangleFromPoints(pMouseDown, pMouseCurrently);
@@ -161,11 +152,6 @@ namespace ScreenshotTool
             fullScreenshot.Dispose();
             pBox.Image.Dispose();
             output = null;
-        }
-
-        private void pBox_Click(object sender, EventArgs e)
-        {
-
         }
     }
 }

@@ -11,32 +11,36 @@ namespace ScreenshotTool
 {
     public static class ScreenshotHelper
     {
-        public static Rectangle allScreenBounds = GetAllScreenBounds();
+        public static decimal[] AllScreenScalingFactors = DLLImports.GetScreenScalingfactors();
+        public static decimal MaxScreenScalingFactor = AllScreenScalingFactors.Max();
+        public static Rectangle AllScreenBounds = GetGlobalScreenBounds();
 
-        static Rectangle GetAllScreenBounds()
+        private static Rectangle GetGlobalScreenBounds()
         {
-            Rectangle ImageDimensions = new Rectangle(0, 0, 1, 1);
-            foreach (Screen S in Screen.AllScreens)
+            Rectangle AllScreensDimensions = new Rectangle(0, 0, 1, 1);
+            foreach ((Screen S, int i) in Screen.AllScreens.WithIndex())
             {
-                if (S.Bounds.X < ImageDimensions.X)
-                    ImageDimensions.X = S.Bounds.X;
-                if (S.Bounds.Y < ImageDimensions.Y)
-                    ImageDimensions.Y = S.Bounds.Y;
-                if (S.Bounds.X + S.Bounds.Width > ImageDimensions.Width)
-                    ImageDimensions.Width = S.Bounds.X + S.Bounds.Width;
-                if (S.Bounds.Y + S.Bounds.Height > ImageDimensions.Height)
-                    ImageDimensions.Height = S.Bounds.Y + S.Bounds.Height;
+                if (S.Bounds.X < AllScreensDimensions.X)
+                    AllScreensDimensions.X = S.Bounds.X;
+                if (S.Bounds.Y < AllScreensDimensions.Y)
+                    AllScreensDimensions.Y = S.Bounds.Y;
+                var bottom = S.Bounds.X + (int)(S.Bounds.Width * AllScreenScalingFactors[i]) + 1;
+                if (bottom > AllScreensDimensions.Width)
+                    AllScreensDimensions.Width = bottom;
+                var right = S.Bounds.Y + (int)(S.Bounds.Height * AllScreenScalingFactors[i]) + 1;
+                if (right > AllScreensDimensions.Height)
+                    AllScreensDimensions.Height = right;
             }
-            ImageDimensions.Width -= ImageDimensions.X;
-            ImageDimensions.Height -= ImageDimensions.Y;
+            AllScreensDimensions.Width -= AllScreensDimensions.X;
+            AllScreensDimensions.Height -= AllScreensDimensions.Y;
 
-            return ImageDimensions;
+            return AllScreensDimensions;
         }
         public static Bitmap GetFullScreenshot()
         {
-            Bitmap bmp = new Bitmap(allScreenBounds.Width, allScreenBounds.Height, PixelFormat.Format32bppRgb);
+            Bitmap bmp = new Bitmap(AllScreenBounds.Width, AllScreenBounds.Height, PixelFormat.Format32bppRgb);
             Graphics graphics = Graphics.FromImage(bmp);
-            graphics.CopyFromScreen(allScreenBounds.X, allScreenBounds.Y, 0, 0, new Size(allScreenBounds.Width, allScreenBounds.Height), CopyPixelOperation.SourceCopy);
+            graphics.CopyFromScreen(AllScreenBounds.X, AllScreenBounds.Y, 0, 0, new Size(AllScreenBounds.Width, AllScreenBounds.Height), CopyPixelOperation.SourceCopy);
             return bmp;
         }
         public static Bitmap GetRectScreenshot(Rectangle rect)
