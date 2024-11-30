@@ -174,10 +174,9 @@ namespace ScreenshotTool
 
                             BSave_Click(null, EventArgs.Empty);
 
-                            Point mouseDownPoint = snipper.pMouseDown;
+                            Point mouseDownPoint = snipper.cropStartPosInScreenCoords;
                             Rectangle imageDimensions = ScreenshotHelper.AllScreenBounds;
-                            snipper.InvokeIfRequired(() => this.Location = new Point(mouseDownPoint.X + imageDimensions.X - 8 - pBox.Location.X,
-                                mouseDownPoint.Y - 32 - pBox.Location.Y));
+                            snipper.InvokeIfRequired(() => this.Location = new Point(mouseDownPoint.X - 20, mouseDownPoint.Y - 58));
 
                             WindowState = FormWindowState.Normal;
                             DLLImports.SetForegroundWindow(Handle);

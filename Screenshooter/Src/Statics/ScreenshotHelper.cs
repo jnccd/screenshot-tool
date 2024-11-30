@@ -33,7 +33,7 @@ namespace ScreenshotTool
             }
             AllScreensDimensions.Width -= AllScreensDimensions.X;
             AllScreensDimensions.Height -= AllScreensDimensions.Y;
-
+            
             return AllScreensDimensions;
         }
         public static Bitmap GetFullScreenshot()
