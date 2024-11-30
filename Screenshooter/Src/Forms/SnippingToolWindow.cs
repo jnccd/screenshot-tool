@@ -20,7 +20,9 @@ namespace ScreenshotTool
     public partial class SnippingToolWindow : Form
     {
         public Rectangle gifArea = new Rectangle(0, 0, 0, 0);
-        public Point pMouseDown = new Point(0, 0);
+        public Point cropStartPosInScreenCoords;
+        public Point cropEndPosInScreenCoords;
+        Point pMouseDown = new Point(0, 0);
         Point pMouseCurrently = new Point(0, 0);
         bool IsLeftMouseDown = false;
         bool IsMiddleMouseDown = false;
@@ -74,6 +76,7 @@ namespace ScreenshotTool
                 }
                 output = ScreenshotHelper.CropImage(fullScreenshot, crop);
 
+                cropEndPosInScreenCoords = Cursor.Position.Scale(1);
                 IsLeftMouseDown = false;
                 this.Close();
             }
@@ -100,6 +103,7 @@ namespace ScreenshotTool
             if (e.Button == MouseButtons.Left)
             {
                 pMouseDown = e.Location;
+                cropStartPosInScreenCoords = Cursor.Position.Scale(1);
                 IsLeftMouseDown = true;
             }
             else if (e.Button == MouseButtons.Middle)
