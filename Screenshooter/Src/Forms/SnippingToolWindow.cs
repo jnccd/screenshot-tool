@@ -36,7 +36,7 @@ namespace ScreenshotTool
         }
         private void SnippingToolWindow_Load(object sender, EventArgs e)
         {
-            //TopMost = true;
+            TopMost = true;
             Rectangle AllScreensDimensions = ScreenshotHelper.AllScreenBounds;
             fullScreenshot = new Bitmap(AllScreensDimensions.Width, AllScreensDimensions.Height, PixelFormat.Format32bppRgb);
             using (Graphics graphics = Graphics.FromImage(fullScreenshot))
