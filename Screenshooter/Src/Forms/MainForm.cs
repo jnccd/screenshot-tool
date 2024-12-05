@@ -884,5 +884,6 @@ namespace ScreenshotTool
         private void ColorPickerMenuItem_Click(object sender, EventArgs e) => ChangeEditMode(colorPickerMenuItem);
         private void TextRecognitionToolStripMenuItem_Click(object sender, EventArgs e) => ChangeEditMode(textRecognitionMenuItem);
         private void ChooseColorMenuItem_Click(object sender, EventArgs e) => ChangeEditMode(chooseColorMenuItem);
+        private void topMostToolStripMenuItem_CheckedChanged(object sender, EventArgs e) => this.TopMost = topMostToolStripMenuItem.Checked;
     }
 }
