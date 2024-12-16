@@ -31,6 +31,7 @@ namespace ScreenshotTool
         public string FileName { get; private set; }
         public bool Saved { get; set; }
         public string Path { get; private set; }
+        private bool _saving = false;
 
         public Screenshot(Bitmap Image, string FileName)
         {
@@ -47,6 +48,7 @@ namespace ScreenshotTool
         
         public void Save()
         {
+            _saving = true;
             Bitmap savingImage;
             lock (this)
             {
@@ -59,6 +61,7 @@ namespace ScreenshotTool
                 Saved = true;
             }
             savingImage.Dispose();
+            _saving = false;
         }
         public void PutInClipboard()
         {
@@ -80,6 +83,8 @@ namespace ScreenshotTool
         }
         public void Delete()
         {
+            while (_saving)
+                Task.Delay(200).Wait();
             lock (this)
             {
                 try
