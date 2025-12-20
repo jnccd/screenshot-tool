@@ -795,10 +795,12 @@ namespace ScreenshotTool
         }
         private void HudDisappearance_Tick(object sender, EventArgs e)
         {
-            HUDvisibility -= 0.06f;
-            if (HUDvisibility < 0)
-                HUDvisibility = 0;
-            try { pBox.Refresh(); } catch { }
+            var disappearSpeed = 0.15f;
+            HUDvisibility -= disappearSpeed;
+            if (HUDvisibility < -disappearSpeed)
+                HUDvisibility = -disappearSpeed;
+            else
+                try { pBox.Refresh(); } catch { }
         }
         private void KeyHook_KeyDown(Keys key, bool Shift, bool Ctrl, bool Alt)
         {
