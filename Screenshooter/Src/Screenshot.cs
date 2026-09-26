@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Drawing;
+using System.Drawing.Drawing2D;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -16,6 +17,7 @@ namespace ScreenshotTool
         readonly object imageLock = new object();
 
         private Bitmap image;
+        private readonly Dictionary<long, Bitmap> scaledCache = new Dictionary<long, Bitmap>();
         private bool loading;
         private int cacheGeneration;
 
@@ -31,6 +33,45 @@ namespace ScreenshotTool
 
         /// <summary>True when the file could not be read the last time we tried.</summary>
         public bool LoadFailed { get; private set; }
+
+        /// <summary>
+        /// A copy of the image scaled to the given size. Scaling a multi monitor
+        /// screenshot down costs tens of milliseconds, and the same handful of sizes
+        /// is asked for again and again (the preview strip on every repaint, the fast
+        /// copy shown while the window is resized), so the results are cached.
+        /// Returns null while the image itself is not in memory yet.
+        /// </summary>
+        public Bitmap GetScaled(int width, int height)
+        {
+            if (width <= 0 || height <= 0)
+                return null;
+
+            lock (imageLock)
+            {
+                long key = ((long)width << 32) | (uint)height;
+                Bitmap cached;
+                if (scaledCache.TryGetValue(key, out cached))
+                    return cached;
+                if (image == null)
+                    return null;
+
+                Bitmap scaled = new Bitmap(width, height);
+                using (Graphics g = Graphics.FromImage(scaled))
+                {
+                    g.InterpolationMode = InterpolationMode.HighQualityBilinear;
+                    g.DrawImage(image, new Rectangle(0, 0, width, height));
+                }
+
+                scaledCache[key] = scaled;
+                return scaled;
+            }
+        }
+
+        /// <summary>A small copy for the preview strip drawn on the picture box.</summary>
+        public Bitmap GetThumbnail(int width, int height)
+        {
+            return GetScaled(width, height);
+        }
 
         public string FileName { get; private set; }
         public bool Saved { get; set; }
@@ -48,6 +89,26 @@ namespace ScreenshotTool
             FileName = System.IO.Path.GetFileNameWithoutExtension(path);
             Saved = true;
             Path = path;
+        }
+
+        /// <summary>
+        /// Drops the cached preview. Has to be called when the image itself was
+        /// drawn on, otherwise the preview strip would keep showing the old pixels.
+        /// </summary>
+        /// <summary>
+        /// Drops the cached scaled copies. Has to be called when the image itself was
+        /// drawn on, otherwise the preview strip would keep showing the old pixels.
+        /// </summary>
+        public void InvalidateScaledCopies()
+        {
+            lock (imageLock)
+                DisposeScaledCopies();
+        }
+        private void DisposeScaledCopies()
+        {
+            foreach (Bitmap scaled in scaledCache.Values)
+                scaled.Dispose();
+            scaledCache.Clear();
         }
 
         /// <summary>
@@ -150,6 +211,7 @@ namespace ScreenshotTool
                 {
                     image.Dispose();
                     image = null;
+                    DisposeScaledCopies();
                 }
                 // Invalidate reads that are still in flight so they cannot
                 // repopulate the cache we just dropped.

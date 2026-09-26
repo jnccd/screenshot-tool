@@ -30,7 +30,7 @@
         {
             this.components = new System.ComponentModel.Container();
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(MainForm));
-            this.pBox = new System.Windows.Forms.PictureBox();
+            this.pBox = new BufferedPictureBox();
             this.bSave = new System.Windows.Forms.Button();
             this.bPrevious = new System.Windows.Forms.Button();
             this.bNext = new System.Windows.Forms.Button();
@@ -346,7 +346,7 @@
         }
 
         #endregion
-        private System.Windows.Forms.PictureBox pBox;
+        private BufferedPictureBox pBox;
         private System.Windows.Forms.Button bSave;
         private System.Windows.Forms.Button bPrevious;
         private System.Windows.Forms.Button bNext;

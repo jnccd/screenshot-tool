@@ -116,6 +116,7 @@
       <DependentUpon>config.settings</DependentUpon>
     </Compile>
     <Compile Include="Src\CurrentlyFocusedWindow.cs" />
+    <Compile Include="Src\Forms\BufferedPictureBox.cs" />
     <Compile Include="Src\Forms\ColorView.cs">
       <SubType>Form</SubType>
     </Compile>

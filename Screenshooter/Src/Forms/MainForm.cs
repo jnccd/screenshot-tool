@@ -26,6 +26,9 @@ namespace ScreenshotTool
         int imagesIndex = 0;
         readonly List<Screenshot> images = new List<Screenshot>();
         const int imageLoadParallelism = 4;
+        const int resizePreviewWidth = 2048;
+        bool showingResizePreview;
+        readonly System.Windows.Forms.Timer resizeSettleTimer = new System.Windows.Forms.Timer { Interval = 250 };
         int imageLoadVersion = 0;
         readonly List<Action> pendingImageActions = new List<Action>();
 
@@ -59,6 +62,8 @@ namespace ScreenshotTool
         public Shortcut gifKeys;
 
         float HUDvisibility = 0;
+        Font hudFont;
+        int hudFontSize = -1;
         float HUDVisiblity
         {
             get
@@ -84,6 +89,9 @@ namespace ScreenshotTool
             keyHook.KeyUp += KeyHook_KeyUp;
             keyHook.KeyDown += KeyHook_KeyDown;
             CurrentlyFocusedWindow.SetEventHook();
+
+            // Restores the full quality image once the window stopped being resized
+            resizeSettleTimer.Tick += ResizeSettle_Tick;
         }
 
         private void MainForm_Load(object sender, EventArgs e)
@@ -187,8 +195,9 @@ namespace ScreenshotTool
                             SetOriginalSize();
 
                             // Ausgleichen des blankParts
-                            int imgWidth = pBox.Image.Width;
-                            int imgHeight = pBox.Image.Height;
+                            Bitmap shownImage = CurrentScreenshot.CachedImage;
+                            int imgWidth = shownImage.Width;
+                            int imgHeight = shownImage.Height;
                             int boxWidth = pBox.Size.Width;
                             int boxHeight = pBox.Size.Height;
                             float X = 0;
@@ -304,6 +313,9 @@ namespace ScreenshotTool
                             return;
 
                         shot.LoadOnCurrentThread();
+                        // build the preview here, on the worker, so a repaint never
+                        // has to scale a full size image down to thumbnail size
+                        shot.GetThumbnail(previewImageWidth, previewImageHeight);
                         OnImageLoaded(shot);
                     });
                 }
@@ -327,6 +339,71 @@ namespace ScreenshotTool
             }
         }
 
+        /// <summary>
+        /// Shows a bitmap in the picture box. Assigning PictureBox.Image invalidates
+        /// the control even when it is handed the very same bitmap, and a repaint
+        /// scales the whole image again - doing that for every mouse move is what
+        /// pegged a core.
+        /// </summary>
+        private void ShowImageInPictureBox(Bitmap image)
+        {
+            if (!ReferenceEquals(pBox.Image, image))
+                pBox.Image = image;
+        }
+
+        /// <summary>
+        /// Shows the current image. While the window is being resized a cached, much
+        /// smaller copy of it is used: every repaint scales the image down to the panel,
+        /// and doing that for a big multi monitor screenshot on every single size change
+        /// is what made dragging the window edge eat a whole core. Full quality comes
+        /// back shortly after the resizing stopped.
+        /// </summary>
+        private void ShowCurrentImage()
+        {
+            // MainForm_SizeChanged runs while the form loads, before any screenshot exists
+            if (images.Count == 0)
+            {
+                ShowImageInPictureBox(null);
+                return;
+            }
+
+            Screenshot current = CurrentScreenshot;
+            Bitmap image = current.CachedImage;
+            if (image == null)
+            {
+                ShowImageInPictureBox(null);
+                return;
+            }
+
+            if (showingResizePreview)
+            {
+                int width = Math.Min(resizePreviewWidth, image.Width);
+                Bitmap preview = current.GetScaled(width, Math.Max(1, (int)((long)image.Height * width / image.Width)));
+                if (preview != null)
+                    image = preview;
+            }
+
+            ShowImageInPictureBox(image);
+        }
+        /// <summary>
+        /// Leaves the fast resize preview and puts the full quality image back on
+        /// screen. Has to happen before anything drops the cached copies, otherwise
+        /// the picture box could be left holding a disposed bitmap.
+        /// </summary>
+        private void StopResizePreview()
+        {
+            resizeSettleTimer.Stop();
+            if (!showingResizePreview)
+                return;
+
+            showingResizePreview = false;
+            ShowCurrentImage();
+        }
+        private void ResizeSettle_Tick(object sender, EventArgs e)
+        {
+            StopResizePreview();     // full quality again, once resizing has stopped
+        }
+
         /// <summary>Called from a background thread once an image has been read from disk.</summary>
         private void OnImageLoaded(Screenshot shot)
         {
@@ -341,7 +418,7 @@ namespace ScreenshotTool
                         return;
                     if (shot == CurrentScreenshot)
                     {
-                        pBox.Image = shot.CachedImage;
+                        ShowCurrentImage();
                         if (shot.CachedImage != null)
                             RunPendingImageActions();
                     }
@@ -452,7 +529,7 @@ namespace ScreenshotTool
             Text = $"Screenshot Tool - {images.Count} saved screenshots!" +
                 $"{(current.Path.IsNullOrWhiteSpace() ? "" : $" - {Path.GetFileNameWithoutExtension(current.Path)} ")} - Dir: {config.Default.path}";
             // null while the file is still being read; it is set by OnImageLoaded
-            pBox.Image = current.CachedImage;
+            ShowCurrentImage();
             if (current.Saved)
                 bSave.Text = "To Clipboard";
             else
@@ -495,7 +572,18 @@ namespace ScreenshotTool
             Height += R.Height - pBox.Height;
             Width += R.Width - pBox.Width;
         }
-        private void ResetHudVisibility() => HUDvisibility = (7.5f - HUDvisibility) / 3f;
+        private void ResetHudVisibility()
+        {
+            // While the HUD is fully visible nothing it draws would change, so do not
+            // restart the fade animation - moving the mouse would otherwise repaint the
+            // picture box again and again for no visible difference.
+            if (HUDvisibility >= 1)
+                return;
+
+            HUDvisibility = (7.5f - HUDvisibility) / 3f;
+            HudDisappearance.Enabled = true;
+            try { pBox.Invalidate(); } catch { }     // show the HUD now, the timer fades it out
+        }
         public void Minimize() => DLLImports.ShowWindow(this.Handle, 2);
         public void SetModeToNone() => ChangeEditMode(noneMenuItem, false);
         // Window Size
@@ -543,8 +631,12 @@ namespace ScreenshotTool
         }
         public Point ZoomPicBoxCoordsToImageCoords(Point P, PictureBox pBox)
         {
-            int imgWidth = pBox.Image.Width;
-            int imgHeight = pBox.Image.Height;
+            Bitmap image = CurrentScreenshot.CachedImage;
+            if (image == null)
+                return P;
+
+            int imgWidth = image.Width;
+            int imgHeight = image.Height;
             int boxWidth = pBox.Size.Width;
             int boxHeight = pBox.Size.Height;
 
@@ -683,6 +775,22 @@ namespace ScreenshotTool
         private void BDelete_Click(object sender, EventArgs e) => DeleteCurrentImage();
 
         // PictureBox Events
+        /// <summary>
+        /// Font for the HUD texts. Cached, because the picture box can repaint many
+        /// times per second and creating a Font for every paint is needlessly slow.
+        /// </summary>
+        private Font GetHudFont()
+        {
+            int size = Math.Min(savedSignFontSize, Math.Max(pBox.Height, 1)) + 1;
+            if (hudFont == null || hudFontSize != size)
+            {
+                if (hudFont != null)
+                    hudFont.Dispose();
+                hudFont = new Font("Arial", size, FontStyle.Italic);
+                hudFontSize = size;
+            }
+            return hudFont;
+        }
         private void PBox_Paint(object sender, PaintEventArgs e)
         {
             if (isMouseDown && mode == cropMenuItem)
@@ -697,7 +805,7 @@ namespace ScreenshotTool
             // The image is still on its way from disk - drawing here must never wait for it
             if (current.CachedImage == null && !current.LoadFailed && pBox.Height > 8)
             {
-                using (Font font = new Font("Arial", Math.Min(savedSignFontSize, pBox.Height) + 1, FontStyle.Italic))
+                Font font = GetHudFont();
                 using (StringFormat format = new StringFormat
                 {
                     Alignment = StringAlignment.Center,
@@ -719,7 +827,7 @@ namespace ScreenshotTool
                 //catch
                 //{
                 using (Pen pen = new Pen(Color.Red, 1))
-                    e.Graphics.DrawString("Unsaved!", new Font("Arial", Math.Min(savedSignFontSize, pBox.Height) + 1, FontStyle.Italic),
+                    e.Graphics.DrawString("Unsaved!", GetHudFont(),
                         Brushes.Red, new PointF(0, HUDVisiblity * (savedSignFontSize + 15) - savedSignFontSize - 15));
                 //}
             }
@@ -739,7 +847,7 @@ namespace ScreenshotTool
 
                     // Neighbours that are not in memory yet are requested by
                     // RequestImageLoads and simply skipped until they arrive.
-                    Bitmap preview = images[i].CachedImage;
+                    Bitmap preview = images[i].GetThumbnail(previewImageWidth, previewImageHeight);
                     if (preview != null)
                         e.Graphics.DrawImage(preview, draw);
                 }
@@ -816,7 +924,9 @@ namespace ScreenshotTool
             ResetHudVisibility();
 
             Bitmap current = CurrentScreenshot.CachedImage;
-            pBox.Image = current;
+            ShowImageInPictureBox(current);
+
+            bool needsRepaint = false;
 
             if (isMouseDown && current != null && mode == colorPickerMenuItem)
             {
@@ -857,10 +967,17 @@ namespace ScreenshotTool
                             g.FillEllipse(new SolidBrush(config.Default.PrimaryColor),
                                 new Rectangle(mCur.X - drawRadius, mCur.Y - drawRadius, drawRadius * 2, drawRadius * 2));
                     }
-            }
 
-            pBox.Image = CurrentScreenshot.CachedImage;
-            pBox.Refresh();
+                needsRepaint = true;    // the drawn pixels changed
+                StopResizePreview();    // never drop a bitmap the picture box still shows
+                CurrentScreenshot.InvalidateScaledCopies();
+            }
+            if (isMouseDown && mode == cropMenuItem)
+                needsRepaint = true;    // the selection rectangle follows the mouse
+
+            ShowCurrentImage();
+            if (needsRepaint)
+                pBox.Invalidate();      // coalesced instead of Refresh(): never blocks the UI thread
             pMouseLast = e.Location;
         }
         private void PBox_MouseDown(object sender, MouseEventArgs e)
@@ -915,6 +1032,10 @@ namespace ScreenshotTool
         }
         private void Form1_FormClosed(object sender, FormClosedEventArgs e)
         {
+            if (hudFont != null)
+                hudFont.Dispose();
+            resizeSettleTimer.Stop();
+            resizeSettleTimer.Dispose();
             config.Default.windowSize = Size;
             config.Default.instantShortcut = instantKeys.ToString();
             config.Default.cropShortcut = cropKeys.ToString();
@@ -925,13 +1046,26 @@ namespace ScreenshotTool
         {
             ResetHudVisibility();
 
+            // Repaint from a cached smaller copy until the resizing stops
+            if (!showingResizePreview)
+            {
+                showingResizePreview = true;
+                ShowCurrentImage();
+            }
+            resizeSettleTimer.Stop();
+            resizeSettleTimer.Start();
+
             // Buttons
             bPrevious.Width = bSave.Location.X - bPrevious.Location.X - 6;
             bNext.Location = new Point(bDelete.Location.X + bDelete.Width + 6, bNext.Location.Y);
             bNext.Width = pBox.Width + pBox.Location.X - bNext.Location.X;
 
-            Graphics graphics = this.CreateGraphics();
-            float dpiY = graphics.DpiY, dpiX = graphics.DpiX;
+            float dpiX, dpiY;
+            using (Graphics graphics = this.CreateGraphics())
+            {
+                dpiY = graphics.DpiY;
+                dpiX = graphics.DpiX;
+            }
 
             int buttonHeight = (int)(46 * (96 / dpiY));
             int spacing = (int)(8 * (96 / dpiX));
@@ -975,11 +1109,23 @@ namespace ScreenshotTool
         private void HudDisappearance_Tick(object sender, EventArgs e)
         {
             var disappearSpeed = 0.15f;
+            float visibleBefore = HUDVisiblity;      // the clamped value the painting uses
+
             HUDvisibility -= disappearSpeed;
-            if (HUDvisibility < -disappearSpeed)
+            if (HUDvisibility <= -disappearSpeed)
+            {
                 HUDvisibility = -disappearSpeed;
-            else
-                try { pBox.Refresh(); } catch { }
+                // Fully hidden: stop the animation instead of repainting the picture
+                // box forever, there is nothing left to change.
+                HudDisappearance.Enabled = false;
+            }
+
+            if (Math.Abs(HUDVisiblity - visibleBefore) > 0.001f)
+            {
+                // Only when the HUD really moves - and asynchronously, Refresh() would
+                // paint right here and stall the UI thread for every single tick.
+                try { pBox.Invalidate(); } catch { }
+            }
         }
         private void KeyHook_KeyDown(Keys key, bool Shift, bool Ctrl, bool Alt)
         {
