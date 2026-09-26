@@ -19,7 +19,10 @@ namespace ScreenshotTool
 {
     public partial class SnippingToolWindow : Form
     {
-        public Rectangle gifArea = new Rectangle(0, 0, 0, 0);
+        // A property rather than a field: Form is a MarshalByRefObject and reaching
+        // into a field of one from the outside (MainForm) makes the compiler warn
+        // (CS1690) that the value might not have come through a proxy.
+        public Rectangle gifArea { get; set; } = new Rectangle(0, 0, 0, 0);
         public Point cropStartPosInScreenCoords;
         public Point cropEndPosInScreenCoords;
         Point pMouseDown = new Point(0, 0);
