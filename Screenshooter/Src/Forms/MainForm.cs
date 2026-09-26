@@ -25,6 +25,9 @@ namespace ScreenshotTool
         // Images
         int imagesIndex = 0;
         readonly List<Screenshot> images = new List<Screenshot>();
+        const int imageLoadParallelism = 4;
+        int imageLoadVersion = 0;
+        readonly List<Action> pendingImageActions = new List<Action>();
 
         // UI
         readonly List<Button> middleButtons = new List<Button>();
@@ -242,19 +245,25 @@ namespace ScreenshotTool
         }
         public void CopyCurrentImageToClipboard()
         {
-            if (CurrentScreenshot.Image.IsAnimatedGif())
+            RunWhenCurrentImageLoaded(() =>
             {
-                string[] files = new string[1]; files[0] = CurrentScreenshot.Path;
-                this.DoDragDrop(new DataObject(DataFormats.FileDrop, files), DragDropEffects.Copy);
-            }
-            CurrentScreenshot.PutInClipboard();
+                if (CurrentScreenshot.CachedImage.IsAnimatedGif())
+                {
+                    string[] files = new string[1]; files[0] = CurrentScreenshot.Path;
+                    this.DoDragDrop(new DataObject(DataFormats.FileDrop, files), DragDropEffects.Copy);
+                }
+                CurrentScreenshot.PutInClipboard();
+            });
         }
         public void DeleteCurrentImage()
         {
             if (images.Count > 1)
             {
-                CurrentScreenshot.DisposeImageCache();
-                CurrentScreenshot.Delete();
+                Screenshot deleting = CurrentScreenshot;
+                deleting.DisposeImageCache();
+                // Dropping the file (and waiting for a save that is still running)
+                // talks to the drive, so it must not happen on the UI thread.
+                Task.Run(() => deleting.Delete());
                 images.RemoveAt(imagesIndex);
                 if (imagesIndex > images.Count - 1)
                     imagesIndex = images.Count - 1;
@@ -262,6 +271,117 @@ namespace ScreenshotTool
             }
         }
         public Screenshot CurrentScreenshot { get { return images[imagesIndex]; } }
+
+        // Image cache
+        /// <summary>
+        /// Makes sure the current image and the ones drawn as previews are in memory.
+        /// The files are read in parallel on background threads, so a slow drive (a
+        /// spun down NAS) never freezes the UI - the images just pop in once they are
+        /// there. Work for a window the user has already navigated away from is
+        /// dropped as long as it has not started reading yet.
+        /// </summary>
+        private void RequestImageLoads()
+        {
+            // The list is only touched on the UI thread, so take the window with us.
+            List<Screenshot> window = new List<Screenshot>();
+            foreach (int i in PreviewWindowIndices(imagesIndex))
+                window.Add(images[i]);
+
+            if (!window.Any(s => s.CachedImage == null))
+                return;
+
+            int version = ++imageLoadVersion;
+
+            Task.Run(() =>
+            {
+                try
+                {
+                    Parallel.ForEach(window, new ParallelOptions { MaxDegreeOfParallelism = imageLoadParallelism }, shot =>
+                    {
+                        if (Volatile.Read(ref imageLoadVersion) != version)
+                            return;
+                        if (shot.CachedImage != null)
+                            return;
+
+                        shot.LoadOnCurrentThread();
+                        OnImageLoaded(shot);
+                    });
+                }
+                catch (Exception e)
+                {
+                    Debug.WriteLine($"Loading images failed: {e}");
+                }
+            });
+        }
+
+        /// <summary>Indices of the preview window around center, nearest images first.</summary>
+        private IEnumerable<int> PreviewWindowIndices(int center)
+        {
+            yield return center;
+            for (int offset = 1; offset <= halfExtraPreviewImages; offset++)
+            {
+                if (center - offset >= 0)
+                    yield return center - offset;
+                if (center + offset < images.Count)
+                    yield return center + offset;
+            }
+        }
+
+        /// <summary>Called from a background thread once an image has been read from disk.</summary>
+        private void OnImageLoaded(Screenshot shot)
+        {
+            if (IsDisposed || !IsHandleCreated)
+                return;
+
+            try
+            {
+                this.InvokeIfRequired(() =>
+                {
+                    if (IsDisposed)
+                        return;
+                    if (shot == CurrentScreenshot)
+                    {
+                        pBox.Image = shot.CachedImage;
+                        if (shot.CachedImage != null)
+                            RunPendingImageActions();
+                    }
+                    pBox.Invalidate();
+                });
+            }
+            catch (Exception e)
+            {
+                Debug.WriteLine($"Refreshing after loading an image failed: {e.Message}");
+            }
+        }
+
+        /// <summary>
+        /// Runs work that needs the pixels of the current image as soon as it has been
+        /// read from disk, so a button click never has to wait for a slow drive.
+        /// </summary>
+        private void RunWhenCurrentImageLoaded(Action action)
+        {
+            if (CurrentScreenshot.CachedImage != null)
+            {
+                action();
+                return;
+            }
+
+            pendingImageActions.Add(action);
+            RequestImageLoads();
+        }
+        private void RunPendingImageActions()
+        {
+            if (pendingImageActions.Count == 0)
+                return;
+
+            Action[] actions = pendingImageActions.ToArray();
+            pendingImageActions.Clear();
+            foreach (Action action in actions)
+            {
+                try { action(); }
+                catch (Exception e) { Debug.WriteLine($"Deferred image action failed: {e}"); }
+            }
+        }
 
         // GIF
         public void StartRecordingGif()
@@ -328,10 +448,12 @@ namespace ScreenshotTool
         // UI
         public void UpdateUI()
         {
+            Screenshot current = CurrentScreenshot;
             Text = $"Screenshot Tool - {images.Count} saved screenshots!" +
-                $"{(CurrentScreenshot.Path.IsNullOrWhiteSpace() ? "" : $" - {Path.GetFileNameWithoutExtension(CurrentScreenshot.Path)} ")} - Dir: {config.Default.path}";
-            pBox.Image = images[imagesIndex].Image;
-            if (images[imagesIndex].Saved)
+                $"{(current.Path.IsNullOrWhiteSpace() ? "" : $" - {Path.GetFileNameWithoutExtension(current.Path)} ")} - Dir: {config.Default.path}";
+            // null while the file is still being read; it is set by OnImageLoaded
+            pBox.Image = current.CachedImage;
+            if (current.Saved)
                 bSave.Text = "To Clipboard";
             else
                 bSave.Text = "Save";
@@ -342,18 +464,34 @@ namespace ScreenshotTool
             bDelete.Enabled = images.Count > 1;
             bPrevious.Enabled = imagesIndex != 0;
             bNext.Enabled = imagesIndex != images.Count - 1;
+
+            RequestImageLoads();
         }
         public void UpdateWindowRatioWidth()
         {
-            Size R = GetProperRatioSize(pBox.Size, true, images[imagesIndex].Image.Width /
-                images[imagesIndex].Image.Height);
+            Screenshot current = CurrentScreenshot;
+            if (current.CachedImage == null)
+            {
+                RunWhenCurrentImageLoaded(UpdateWindowRatioWidth);
+                return;
+            }
+
+            Size R = GetProperRatioSize(pBox.Size, true, current.CachedImage.Width /
+                current.CachedImage.Height);
             Width += R.Width - pBox.Width;
             Height += R.Height - pBox.Height;
         }
         public void UpdateWindowRatioHeight()
         {
-            Size R = GetProperRatioSize(pBox.Size, false, images[imagesIndex].Image.Width /
-                images[imagesIndex].Image.Height);
+            Screenshot current = CurrentScreenshot;
+            if (current.CachedImage == null)
+            {
+                RunWhenCurrentImageLoaded(UpdateWindowRatioHeight);
+                return;
+            }
+
+            Size R = GetProperRatioSize(pBox.Size, false, current.CachedImage.Width /
+                current.CachedImage.Height);
             Height += R.Height - pBox.Height;
             Width += R.Width - pBox.Width;
         }
@@ -363,11 +501,18 @@ namespace ScreenshotTool
         // Window Size
         public void SetOriginalSize()
         {
+            Screenshot current = CurrentScreenshot;
+            if (current.CachedImage == null)
+            {
+                RunWhenCurrentImageLoaded(SetOriginalSize);
+                return;
+            }
+
             // doppelt hält besser :thonk:
             for (int i = 0; i < 2; i++)
             {
-                Width = (int)(images[imagesIndex].Image.Width / ScreenshotHelper.MaxScreenScalingFactor) + Width - pBox.Width;
-                Height = (int)(images[imagesIndex].Image.Height / ScreenshotHelper.MaxScreenScalingFactor) + Height - pBox.Height;
+                Width = (int)(current.CachedImage.Width / ScreenshotHelper.MaxScreenScalingFactor) + Width - pBox.Width;
+                Height = (int)(current.CachedImage.Height / ScreenshotHelper.MaxScreenScalingFactor) + Height - pBox.Height;
             }
         }
         public void CenterAroundMouse()
@@ -509,6 +654,7 @@ namespace ScreenshotTool
                 images[imagesIndex + 4].DisposeImageCache();
             imagesIndex--;
 
+            pendingImageActions.Clear();
             ResetHudVisibility();
             UpdateUI();
         }
@@ -518,6 +664,7 @@ namespace ScreenshotTool
                 images[imagesIndex - 4].DisposeImageCache();
             imagesIndex++;
 
+            pendingImageActions.Clear();
             ResetHudVisibility();
             UpdateUI();
         }
@@ -544,8 +691,24 @@ namespace ScreenshotTool
                 using (Pen pen = new Pen(config.Default.PrimaryColor, 1))
                     e.Graphics.DrawRectangle(pen, ee);
             }
+
+            Screenshot current = CurrentScreenshot;
+
+            // The image is still on its way from disk - drawing here must never wait for it
+            if (current.CachedImage == null && !current.LoadFailed && pBox.Height > 8)
+            {
+                using (Font font = new Font("Arial", Math.Min(savedSignFontSize, pBox.Height) + 1, FontStyle.Italic))
+                using (StringFormat format = new StringFormat
+                {
+                    Alignment = StringAlignment.Center,
+                    LineAlignment = StringAlignment.Center
+                })
+                    e.Graphics.DrawString("Loading...", font, Brushes.Gray,
+                        new RectangleF(0, 0, pBox.Width, pBox.Height), format);
+            }
+
             // Unsaved title
-            if (!images[imagesIndex].Saved && pBox.Height > 8)
+            if (!current.Saved && pBox.Height > 8)
             {
                 //try
                 //{
@@ -573,7 +736,12 @@ namespace ScreenshotTool
                     if (index == 0)
                         using (Pen pen = new Pen(Color.Black, previewImageOutlineThickness))
                             e.Graphics.DrawRectangle(pen, draw);
-                    e.Graphics.DrawImage(images[i].Image, draw);
+
+                    // Neighbours that are not in memory yet are requested by
+                    // RequestImageLoads and simply skipped until they arrive.
+                    Bitmap preview = images[i].CachedImage;
+                    if (preview != null)
+                        e.Graphics.DrawImage(preview, draw);
                 }
             }
         }
@@ -599,7 +767,8 @@ namespace ScreenshotTool
                 //    catch { }
                 //})));
                 GraphicsUnit Unit = GraphicsUnit.Pixel;
-                if (images[imagesIndex].Image.GetBounds(ref Unit).Width == ScreenshotHelper.AllScreenBounds.Width)
+                Bitmap current = CurrentScreenshot.CachedImage;
+                if (current != null && current.GetBounds(ref Unit).Width == ScreenshotHelper.AllScreenBounds.Width)
                 {
                     int i = 1;
                     foreach (Screen S in Screen.AllScreens)
@@ -608,7 +777,7 @@ namespace ScreenshotTool
                         {
                             try
                             {
-                                images.Insert(imagesIndex + 1, new Screenshot(ScreenshotHelper.CropImage(images[imagesIndex].Image,
+                                images.Insert(imagesIndex + 1, new Screenshot(ScreenshotHelper.CropImage(current,
                                     new Rectangle(S.Bounds.X - ScreenshotHelper.AllScreenBounds.X,
                                     S.Bounds.Y - ScreenshotHelper.AllScreenBounds.Y,
                                     S.Bounds.Width, S.Bounds.Height)), images[imagesIndex].FileName + "_CROPPED"));
@@ -646,46 +815,51 @@ namespace ScreenshotTool
             pMouseCurrently = e.Location;
             ResetHudVisibility();
 
-            if (isMouseDown && mode == colorPickerMenuItem)
+            Bitmap current = CurrentScreenshot.CachedImage;
+            pBox.Image = current;
+
+            if (isMouseDown && current != null && mode == colorPickerMenuItem)
             {
                 try
                 {
                     Point p = ZoomPicBoxCoordsToImageCoords(pMouseCurrently, pBox);
-                    colorView.Update(CurrentScreenshot.Image.GetPixel(p.X, p.Y));
+                    colorView.Update(current.GetPixel(p.X, p.Y));
                 }
                 catch { }
             }
-            if (isMouseDown && mode == drawMenuItem)
+            if (isMouseDown && current != null && mode == drawMenuItem)
             {
                 if (CurrentScreenshot.Saved)
                 {
-                    images.Insert(imagesIndex + 1, new Screenshot((Bitmap)images[imagesIndex].Image.Clone(),
-                        images[imagesIndex].FileName + "_DRAWN"));
+                    images.Insert(imagesIndex + 1, new Screenshot((Bitmap)current.Clone(),
+                        CurrentScreenshot.FileName + "_DRAWN"));
                     imagesIndex += 1;
                     UpdateUI();
                 }
 
-                using (Graphics g = Graphics.FromImage(CurrentScreenshot.Image))
-                {
-                    Point mCur = ZoomPicBoxCoordsToImageCoords(pMouseCurrently, pBox);
-                    Point mLast = ZoomPicBoxCoordsToImageCoords(pMouseLast, pBox);
+                Bitmap drawTarget = CurrentScreenshot.CachedImage;
+                if (drawTarget != null)
+                    using (Graphics g = Graphics.FromImage(drawTarget))
+                    {
+                        Point mCur = ZoomPicBoxCoordsToImageCoords(pMouseCurrently, pBox);
+                        Point mLast = ZoomPicBoxCoordsToImageCoords(pMouseLast, pBox);
 
-                    int length = (int)Math.Sqrt(Math.Pow(pMouseCurrently.X - pMouseLast.X, 2) + Math.Pow(pMouseCurrently.Y - pMouseLast.Y, 2));
-                    if (length > drawRadius / 2)
-                        for (int i = 0; i < length; i++)
-                        {
-                            float uwu = i / (float)length;
-                            int X = (int)(uwu * (mCur.X - drawRadius) + (1 - uwu) * (mLast.X - drawRadius));
-                            int Y = (int)(uwu * (mCur.Y - drawRadius) + (1 - uwu) * (mLast.Y - drawRadius));
-                            g.FillEllipse(new SolidBrush(config.Default.PrimaryColor), new Rectangle(X, Y, drawRadius * 2, drawRadius * 2));
-                        }
-                    else
-                        g.FillEllipse(new SolidBrush(config.Default.PrimaryColor),
-                            new Rectangle(mCur.X - drawRadius, mCur.Y - drawRadius, drawRadius * 2, drawRadius * 2));
-                }
+                        int length = (int)Math.Sqrt(Math.Pow(pMouseCurrently.X - pMouseLast.X, 2) + Math.Pow(pMouseCurrently.Y - pMouseLast.Y, 2));
+                        if (length > drawRadius / 2)
+                            for (int i = 0; i < length; i++)
+                            {
+                                float uwu = i / (float)length;
+                                int X = (int)(uwu * (mCur.X - drawRadius) + (1 - uwu) * (mLast.X - drawRadius));
+                                int Y = (int)(uwu * (mCur.Y - drawRadius) + (1 - uwu) * (mLast.Y - drawRadius));
+                                g.FillEllipse(new SolidBrush(config.Default.PrimaryColor), new Rectangle(X, Y, drawRadius * 2, drawRadius * 2));
+                            }
+                        else
+                            g.FillEllipse(new SolidBrush(config.Default.PrimaryColor),
+                                new Rectangle(mCur.X - drawRadius, mCur.Y - drawRadius, drawRadius * 2, drawRadius * 2));
+                    }
             }
 
-            pBox.Image = CurrentScreenshot.Image;
+            pBox.Image = CurrentScreenshot.CachedImage;
             pBox.Refresh();
             pMouseLast = e.Location;
         }
@@ -700,8 +874,12 @@ namespace ScreenshotTool
                 {
                     try
                     {
-                        Point p = ZoomPicBoxCoordsToImageCoords(pMouseCurrently, pBox);
-                        colorView.Update(CurrentScreenshot.Image.GetPixel(p.X, p.Y));
+                        Bitmap current = CurrentScreenshot.CachedImage;
+                        if (current != null)
+                        {
+                            Point p = ZoomPicBoxCoordsToImageCoords(pMouseCurrently, pBox);
+                            colorView.Update(current.GetPixel(p.X, p.Y));
+                        }
                     }
                     catch { }
                 }
@@ -714,13 +892,14 @@ namespace ScreenshotTool
                 Rectangle crop = GetRectangleFromPoints(
                         ZoomPicBoxCoordsToImageCoords(pMouseDown, pBox),
                         ZoomPicBoxCoordsToImageCoords(pMouseCurrently, pBox));
-                if (crop.Width == 0 || crop.Height == 0)
+                Bitmap current = CurrentScreenshot.CachedImage;
+                if (current == null || crop.Width == 0 || crop.Height == 0)
                 {
                     isMouseDown = false;
                     return;
                 }
-                images.Insert(imagesIndex + 1, new Screenshot(ScreenshotHelper.CropImage(images[imagesIndex].Image, crop),
-                    images[imagesIndex].FileName + "_CROPPED"));
+                images.Insert(imagesIndex + 1, new Screenshot(ScreenshotHelper.CropImage(current, crop),
+                    CurrentScreenshot.FileName + "_CROPPED"));
                 imagesIndex += 1;
                 UpdateUI();
             }

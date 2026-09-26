@@ -13,20 +13,24 @@ namespace ScreenshotTool
 {
     public class Screenshot
     {
+        readonly object imageLock = new object();
+
         private Bitmap image;
-        public Bitmap Image { get {
-                lock (this)
-                {
-                    if (image != null)
-                        return image;
-                    else if (!Path.IsNullOrWhiteSpace())
-                    {
-                        image = (Bitmap)Bitmap.FromFile(Path);
-                        return image;
-                    }
-                    return null;
-                }
-            } private set { } }
+        private bool loading;
+        private int cacheGeneration;
+
+        /// <summary>
+        /// The image if it is already in memory, otherwise null. This never touches
+        /// the disk, so it is safe to use from the UI thread - reading the file can
+        /// take seconds while the drive it lives on (a spun down NAS) wakes up.
+        /// </summary>
+        public Bitmap CachedImage
+        {
+            get { lock (imageLock) return image; }
+        }
+
+        /// <summary>True when the file could not be read the last time we tried.</summary>
+        public bool LoadFailed { get; private set; }
 
         public string FileName { get; private set; }
         public bool Saved { get; set; }
@@ -45,40 +49,112 @@ namespace ScreenshotTool
             Saved = true;
             Path = path;
         }
-        
+
+        /// <summary>
+        /// Reads the image off the disk. This blocks until the file has been read,
+        /// so it must only be called from a background thread. A second thread
+        /// asking for the same image while it is loading gets null instead of
+        /// starting a second read - the first one still updates the cache.
+        /// </summary>
+        public Bitmap LoadOnCurrentThread()
+        {
+            string path;
+            int generation;
+            lock (imageLock)
+            {
+                if (image != null)
+                    return image;
+                if (loading)
+                    return null;
+                if (Path.IsNullOrWhiteSpace())
+                    return null;
+
+                loading = true;
+                generation = cacheGeneration;
+                path = Path;
+            }
+
+            Bitmap loaded = null;
+            try
+            {
+                loaded = (Bitmap)Bitmap.FromFile(path);
+            }
+            catch (Exception e)
+            {
+                Debug.WriteLine($"Could not load {path}: {e.Message}");
+            }
+
+            lock (imageLock)
+            {
+                loading = false;
+                if (loaded == null)
+                {
+                    LoadFailed = true;
+                    return null;
+                }
+                if (generation != cacheGeneration)
+                {
+                    // The cache was dropped while we were reading, so this bitmap
+                    // belongs to nobody - hand it to the GC instead of the cache.
+                    loaded.Dispose();
+                    return null;
+                }
+                image = loaded;
+                LoadFailed = false;
+                return loaded;
+            }
+        }
+
         public void Save()
         {
+            if (Saved)
+                return;     // already on disk, nothing to write
+
             _saving = true;
-            Bitmap savingImage;
-            lock (this)
+            try
             {
-                savingImage = (Bitmap)image.Clone();
-            }
-            if (!Saved)
-            {
+                Bitmap source = CachedImage ?? LoadOnCurrentThread();
+                if (source == null)
+                    return;
+
+                Bitmap savingImage;
+                lock (imageLock)
+                    savingImage = (Bitmap)source.Clone();
+
                 Path = config.Default.path + "\\" + FileName + ".png";
                 savingImage.Save(Path);
+                savingImage.Dispose();
                 Saved = true;
             }
-            savingImage.Dispose();
-            _saving = false;
+            finally
+            {
+                _saving = false;
+            }
         }
         public void PutInClipboard()
         {
-            lock (this)
+            Bitmap cached = CachedImage;
+            if (cached == null)
+                return;     // still on its way from disk, the caller has to wait for it
+
+            lock (imageLock)
             {
-                Clipboard.SetImage(image);
+                Clipboard.SetImage(cached);
             }
         }
         public void DisposeImageCache()
         {
-            lock (this)
+            lock (imageLock)
             {
                 if (Saved && image != null)
                 {
                     image.Dispose();
                     image = null;
                 }
+                // Invalidate reads that are still in flight so they cannot
+                // repopulate the cache we just dropped.
+                cacheGeneration++;
+                LoadFailed = false;
             }
         }
         public void Delete()
