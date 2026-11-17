@@ -124,7 +124,7 @@ namespace ScreenshotTool
                 }
                 catch (Exception e)
                 {
-                    Log($"capture {physicalRect} FAILED: {e.GetType().Name}: {e.Message} ({watch.ElapsedMilliseconds}ms)");
+                    Diagnostics.LogError($"capture {physicalRect} FAILED: {e.GetType().Name}: {e.Message} ({watch.ElapsedMilliseconds}ms)");
                     Debug.WriteLine("HDR capture failed, falling back to GDI: " + e);
                     result?.Dispose();
                     Reset();

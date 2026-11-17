@@ -57,8 +57,8 @@ namespace ScreenshotTool
 
             // Anything that escapes the message loop lands here instead of vanishing with the
             // process, so a crash always leaves a trace in the capture log.
-            Application.ThreadException += (s, e) => Diagnostics.Log("UNHANDLED (ui): " + e.Exception);
-            AppDomain.CurrentDomain.UnhandledException += (s, e) => Diagnostics.Log("UNHANDLED: " + e.ExceptionObject);
+            Application.ThreadException += (s, e) => Diagnostics.LogError("UNHANDLED (ui): " + e.Exception);
+            AppDomain.CurrentDomain.UnhandledException += (s, e) => Diagnostics.LogError("UNHANDLED: " + e.ExceptionObject);
             if (File.Exists(RestartLocation))
                 File.Delete(RestartLocation);
 

@@ -421,7 +421,7 @@ namespace ScreenshotTool
                 {
                     // A DPI change must never take the tool down: revert to the state the
                     // window had and leave a trace of what went wrong.
-                    Diagnostics.Log($"dpi change FAILED - {dpiError}");
+                    Diagnostics.LogError($"dpi change FAILED - {dpiError}");
                     dpiScale = 1f;
                     adjustingForDpi = false;
                     try { LayoutChildren(); } catch { }
@@ -519,7 +519,7 @@ namespace ScreenshotTool
             if (config.Default.gifShortcut.IsNullOrWhiteSpace()) gifKeys = Shortcut.DefaultGifKeys;
             else gifKeys = new Shortcut().FromString(config.Default.gifShortcut);
             Diagnostics.Log($"load: shortcuts instant={instantKeys} crop={cropKeys} gif={gifKeys}");
-            } catch (Exception loadException) { Diagnostics.Log("load: FAILED " + loadException); throw; }
+            } catch (Exception loadException) { Diagnostics.LogError("load: FAILED " + loadException); throw; }
 
             middleButtons.Add(bSave);
             middleButtons.Add(bDelete);
@@ -565,7 +565,7 @@ namespace ScreenshotTool
                     try { fresh = ScreenshotFolderCache.Scan(scannedFolder); }
                     catch (Exception scanError)
                     {
-                        Diagnostics.Log("load: background scan failed - " + scanError.Message);
+                        Diagnostics.LogError("load: background scan failed - " + scanError.Message);
                         return;
                     }
                     ScreenshotFolderCache.Save(scannedFolder, fresh);
@@ -735,7 +735,7 @@ namespace ScreenshotTool
                         }
                         catch (Exception e)
                         {
-                            Diagnostics.Log($"snipper: failed - {e.GetType().Name}: {e.Message}");
+                            Diagnostics.LogError($"snipper: failed - {e.GetType().Name}: {e.Message}");
                             if (MessageBox.Show("Oopsie woopsie, it seems like I cant make that screenshot!\nDo you want to see the error message in detail?", "Error", MessageBoxButtons.YesNo) == DialogResult.Yes)
                             {
                                 MessageBox.Show(e.Message + "\n\n" + e.InnerException + "\n\n" + e.StackTrace);
