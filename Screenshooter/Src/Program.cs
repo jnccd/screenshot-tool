@@ -15,6 +15,39 @@ namespace ScreenshotTool
     public static class Program
     {
         static readonly string RestartLocation = "Restart.bat";
+        static System.IO.Stream appIconStream;
+
+        /// <summary>
+        /// The application icon (embedded from icon.ico). Every window uses it, which
+        /// keeps the icon out of the form resources - those use a binary resource format
+        /// that current MSBuild versions refuse to build.
+        /// </summary>
+        internal static readonly Icon AppIcon = LoadAppIcon();
+
+        static Icon LoadAppIcon()
+        {
+            try
+            {
+                // The manifest name depends on how the resource is embedded, so look it
+                // up instead of assuming one (Icon keeps the stream alive, do not dispose)
+                foreach (string resource in typeof(Program).Assembly.GetManifestResourceNames())
+                {
+                    if (!resource.EndsWith("icon.ico", StringComparison.OrdinalIgnoreCase))
+                        continue;
+                    appIconStream = typeof(Program).Assembly.GetManifestResourceStream(resource);
+                    if (appIconStream != null)
+                        return new Icon(appIconStream);
+                }
+
+                // last resort: the icon the executable itself carries
+                return Icon.ExtractAssociatedIcon(Application.ExecutablePath);
+            }
+            catch (Exception e)
+            {
+                Debug.WriteLine("Could not load the application icon: " + e.Message);
+                return null;
+            }
+        }
         public static MainForm mainForm;
 
         [STAThread]

@@ -72,6 +72,8 @@ namespace ScreenshotTool
                 HookID = SetWindowsHookEx(HookType.WH_KEYBOARD_LL, TheHookCB,
                     0, //0 for local hook. eller hwnd til user32 for global
                     0); //0 for global hook. eller thread for hooken
+                if (HookID == 0)
+                    LastError = Marshal.GetLastWin32Error();
             }
             else
             {
@@ -80,6 +82,12 @@ namespace ScreenshotTool
                     GetCurrentThreadId()); //0 for global hook. or thread for the hook
             }
         }
+
+        /// <summary>Handle returned by SetWindowsHookEx, 0 when the hook could not be installed.</summary>
+        public int HookId => HookID;
+
+        /// <summary>Win32 error of a failed SetWindowsHookEx call.</summary>
+        public int LastError { get; private set; }
 
         bool IsFinalized = false;
         ~KeyboardHook()

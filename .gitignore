@@ -243,3 +243,7 @@ ModelManifest.xml
 
 # FAKE - F# Make
 .fake/
+
+# Local scratch folders (dotnet CLI home, HDR capture probes)
+.dotnethome/
+.probe2/

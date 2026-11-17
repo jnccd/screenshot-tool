@@ -32,6 +32,13 @@ namespace ScreenshotTool
 
         public Bitmap output;
         Bitmap fullScreenshot;
+        Bitmap preparedScreenshot;
+
+        /// <summary>
+        /// Hands in a screenshot taken before this fullscreen window was shown - the HDR
+        /// capable capture has to run while the screen is still visible.
+        /// </summary>
+        public void Prepare(Bitmap screenshot) => preparedScreenshot = screenshot;
 
         public SnippingToolWindow()
         {
@@ -41,9 +48,8 @@ namespace ScreenshotTool
         {
             TopMost = true;
             Rectangle AllScreensDimensions = ScreenshotHelper.AllScreenBounds;
-            fullScreenshot = new Bitmap(AllScreensDimensions.Width, AllScreensDimensions.Height, PixelFormat.Format32bppRgb);
-            using (Graphics graphics = Graphics.FromImage(fullScreenshot))
-                graphics.CopyFromScreen(AllScreensDimensions.X, AllScreensDimensions.Y, 0, 0, new Size(AllScreensDimensions.Width, AllScreensDimensions.Height), CopyPixelOperation.SourceCopy);
+            fullScreenshot = preparedScreenshot ?? ScreenshotHelper.GetFullScreenshot();
+            preparedScreenshot = null;
             Location = new Point(AllScreensDimensions.X, AllScreensDimensions.Y);
             Size = new Size(AllScreensDimensions.Width, AllScreensDimensions.Height);
             Bitmap TransparentScreenshot = (Bitmap)fullScreenshot.Clone();

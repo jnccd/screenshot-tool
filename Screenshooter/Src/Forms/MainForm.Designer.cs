@@ -326,7 +326,6 @@
             this.Controls.Add(this.bSave);
             this.Controls.Add(this.pBox);
             this.Controls.Add(this.menuStrip);
-            this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.MainMenuStrip = this.menuStrip;
             this.Margin = new System.Windows.Forms.Padding(6, 6, 6, 6);
             this.MinimumSize = new System.Drawing.Size(38, 163);

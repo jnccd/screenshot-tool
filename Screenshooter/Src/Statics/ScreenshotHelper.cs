@@ -38,16 +38,19 @@ namespace ScreenshotTool
         }
         public static Bitmap GetFullScreenshot()
         {
-            Bitmap bmp = new Bitmap(AllScreenBounds.Width, AllScreenBounds.Height, PixelFormat.Format32bppRgb);
-            Graphics graphics = Graphics.FromImage(bmp);
-            graphics.CopyFromScreen(AllScreenBounds.X, AllScreenBounds.Y, 0, 0, new Size(AllScreenBounds.Width, AllScreenBounds.Height), CopyPixelOperation.SourceCopy);
-            return bmp;
+            // HDR displays need the composited frame, otherwise HDR content is clipped;
+            // on SDR desktops HdrCapture returns null and plain GDI is used.
+            return HdrCapture.Capture(AllScreenBounds) ?? GetGdiScreenshot(AllScreenBounds);
         }
         public static Bitmap GetRectScreenshot(Rectangle rect)
         {
+            return HdrCapture.Capture(rect) ?? GetGdiScreenshot(rect);
+        }
+        private static Bitmap GetGdiScreenshot(Rectangle rect)
+        {
             Bitmap bmp = new Bitmap(rect.Width, rect.Height, PixelFormat.Format32bppRgb);
-            Graphics graphics = Graphics.FromImage(bmp);
-            graphics.CopyFromScreen(rect.X, rect.Y, 0, 0, new Size(rect.Width, rect.Height), CopyPixelOperation.SourceCopy);
+            using (Graphics graphics = Graphics.FromImage(bmp))
+                graphics.CopyFromScreen(rect.X, rect.Y, 0, 0, new Size(rect.Width, rect.Height), CopyPixelOperation.SourceCopy);
             return bmp;
         }
         public static Bitmap CropImage(Bitmap source, Rectangle section)

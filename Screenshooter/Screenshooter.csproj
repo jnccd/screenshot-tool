@@ -86,7 +86,18 @@
       <HintPath>..\packages\Newtonsoft.Json.13.0.2\lib\net45\Newtonsoft.Json.dll</HintPath>
     </Reference>
     <Reference Include="PresentationFramework" />
-    <Reference Include="System" />
+    <Reference Include="SharpDX">
+      <HintPath>..\packages\SharpDX.4.2.0\lib\net45\SharpDX.dll</HintPath>
+    </Reference>
+    <Reference Include="SharpDX.Direct3D11">
+      <HintPath>..\packages\SharpDX.Direct3D11.4.2.0\lib\net45\SharpDX.Direct3D11.dll</HintPath>
+    </Reference>
+    <Reference Include="SharpDX.DXGI">
+      <HintPath>..\packages\SharpDX.DXGI.4.2.0\lib\net45\SharpDX.DXGI.dll</HintPath>
+    </Reference>
+    <Reference Include="SharpDX.Mathematics">
+      <HintPath>..\packages\SharpDX.Mathematics.4.2.0\lib\net45\SharpDX.Mathematics.dll</HintPath>
+    </Reference>    <Reference Include="System" />
     <Reference Include="System.ComponentModel.Composition" />
     <Reference Include="System.Core" />
     <Reference Include="System.Drawing.Common, Version=4.0.0.2, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51">
@@ -135,7 +146,9 @@
     <Compile Include="Src\Forms\TextRecognitionView.Designer.cs">
       <DependentUpon>TextRecognitionView.cs</DependentUpon>
     </Compile>
+    <Compile Include="Src\Statics\Diagnostics.cs" />
     <Compile Include="Src\Statics\DLLImports.cs" />
+    <Compile Include="Src\Statics\HdrCapture.cs" />
     <Compile Include="Src\Statics\Extensions.cs" />
     <Compile Include="Src\Forms\MainForm.cs">
       <SubType>Form</SubType>
@@ -638,7 +651,7 @@
     </None>
   </ItemGroup>
   <ItemGroup>
-    <Content Include="icon.ico" />
+    <EmbeddedResource Include="icon.ico" />
     <Content Include="tessdata\.gitmodules" />
   </ItemGroup>
   <ItemGroup>

@@ -86,6 +86,9 @@ namespace ScreenshotTool
         public MainForm()
         {
             InitializeComponent();
+            // the window icon is embedded once in the exe instead of inside every form resource
+            Icon = Program.AppIcon == null ? null : (Icon)Program.AppIcon.Clone();
+            Diagnostics.Log($"startup: hook id={keyHook.HookId} error={keyHook.LastError} integrity={Diagnostics.IntegrityLevel()} crop={cropKeys} instant={instantKeys} gif={gifKeys}");
             keyHook.KeyUp += KeyHook_KeyUp;
             keyHook.KeyDown += KeyHook_KeyDown;
             CurrentlyFocusedWindow.SetEventHook();
@@ -96,11 +99,16 @@ namespace ScreenshotTool
 
         private void MainForm_Load(object sender, EventArgs e)
         {
+            Diagnostics.Log("load: start");
+            try {
             if (config.Default.path == "<Unset>" || !Directory.Exists(config.Default.path))
                 config.Default.path = Environment.GetFolderPath(Environment.SpecialFolder.MyPictures);
             if (config.Default.windowSize.Width != 0)
                 Size = config.Default.windowSize;
-            if (config.Default.PrimaryColor.Name == "0")
+            // A missing or unparsable setting unboxes to null here, and that used to throw
+            // and abort this handler - which left the shortcut objects null, so every
+            // hotkey silently threw inside the keyboard hook and stopped working.
+            if (!(config.Default["PrimaryColor"] is Color primaryColor) || primaryColor.Name == "0")
                 config.Default.PrimaryColor = Color.Red;
 
             if (config.Default.instantShortcut.IsNullOrWhiteSpace()) instantKeys = Shortcut.DefaultInstantKeys;
@@ -111,6 +119,8 @@ namespace ScreenshotTool
 
             if (config.Default.gifShortcut.IsNullOrWhiteSpace()) gifKeys = Shortcut.DefaultGifKeys;
             else gifKeys = new Shortcut().FromString(config.Default.gifShortcut);
+            Diagnostics.Log($"load: shortcuts instant={instantKeys} crop={cropKeys} gif={gifKeys}");
+            } catch (Exception loadException) { Diagnostics.Log("load: FAILED " + loadException); throw; }
 
             middleButtons.Add(bSave);
             middleButtons.Add(bDelete);
@@ -174,7 +184,13 @@ namespace ScreenshotTool
                 {
                     snippingWindowActive = true;
                     System.Media.SystemSounds.Exclamation.Play();
+                    // Capture first: the snipper window covers the whole screen, and the
+                    // HDR aware capture has to read the screen while it is still visible.
+                    Diagnostics.Log("snipper: capturing");
+                    snipper.Prepare(ScreenshotHelper.GetFullScreenshot());
+                    Diagnostics.Log("snipper: showing the selection window");
                     snipper.ShowDialog();
+                    Diagnostics.Log($"snipper: closed, output={(snipper.output == null ? "none" : "crop")}");
                     if (snipper.output != null)
                     {
                         try
@@ -219,6 +235,7 @@ namespace ScreenshotTool
                         }
                         catch (Exception e)
                         {
+                            Diagnostics.Log($"snipper: failed - {e.GetType().Name}: {e.Message}");
                             if (MessageBox.Show("Oopsie woopsie, it seems like I cant make that screenshot!\nDo you want to see the error message in detail?", "Error", MessageBoxButtons.YesNo) == DialogResult.Yes)
                             {
                                 MessageBox.Show(e.Message + "\n\n" + e.InnerException + "\n\n" + e.StackTrace);
@@ -1036,11 +1053,22 @@ namespace ScreenshotTool
                 hudFont.Dispose();
             resizeSettleTimer.Stop();
             resizeSettleTimer.Dispose();
-            config.Default.windowSize = Size;
-            config.Default.instantShortcut = instantKeys.ToString();
-            config.Default.cropShortcut = cropKeys.ToString();
-            config.Default.gifShortcut = gifKeys.ToString();
-            config.Default.Save();
+
+            // Saving the user settings writes to %LOCALAPPDATA%; if that is not writable
+            // (roaming profile, restricted token, antivirus) the exception would surface
+            // as a crash dialog while closing the tool - losing the settings is bad enough.
+            try
+            {
+                config.Default.windowSize = Size;
+                config.Default.instantShortcut = instantKeys.ToString();
+                config.Default.cropShortcut = cropKeys.ToString();
+                config.Default.gifShortcut = gifKeys.ToString();
+                config.Default.Save();
+            }
+            catch (Exception exception)
+            {
+                Debug.WriteLine("Could not save the settings: " + exception);
+            }
         }
         private void MainForm_SizeChanged(object sender, EventArgs e)
         {
@@ -1131,25 +1159,34 @@ namespace ScreenshotTool
         {
             Debug.WriteLine($"Pressed {key}, {Shift}, {Ctrl}, {Alt}");
 
+            // Only the configured hotkeys are logged, so ordinary typing never ends up in the file
+            bool isShortcut = instantKeys.IsPressed(Shift, Ctrl, Alt, key) || cropKeys.IsPressed(Shift, Ctrl, Alt, key) || gifKeys.IsPressed(Shift, Ctrl, Alt, key);
+            if (isShortcut)
+                Diagnostics.Log($"hotkey {key} shift={Shift} ctrl={Ctrl} alt={Alt} gap={DateTime.Now.Subtract(lastKeyDownEvent).TotalMilliseconds:F0}ms");
+
+            // This runs inside a WH_KEYBOARD_LL hook: Windows silently removes a hook whose
+            // callback takes too long, so the actual work is posted to the message queue
+            // instead of being done here. Capturing the screen takes a few hundred ms and
+            // the snipper keeps a modal loop open, both far too slow for a hook callback.
             if (DateTime.Now.Subtract(lastKeyDownEvent).TotalMilliseconds > 300)
             {
                 if (instantKeys.IsPressed(Shift, Ctrl, Alt, key))
                 {
-                    AddScreenShot();
                     lastKeyDownEvent = DateTime.Now;
+                    BeginInvoke((MethodInvoker)AddScreenShot);
                 }
                 else if (cropKeys.IsPressed(Shift, Ctrl, Alt, key))
                 {
-                    AddScreenShotSnippingToolStyle();
                     lastKeyDownEvent = DateTime.Now;
+                    BeginInvoke((MethodInvoker)AddScreenShotSnippingToolStyle);
                 }
                 else if (gifKeys.IsPressed(Shift, Ctrl, Alt, key))
                 {
-                    if (!recordingGif)
-                        StartRecordingGif();
-                    else
-                        StopRecordingGif();
                     lastKeyDownEvent = DateTime.Now;
+                    if (!recordingGif)
+                        BeginInvoke((MethodInvoker)StartRecordingGif);
+                    else
+                        BeginInvoke((MethodInvoker)StopRecordingGif);
                 }
             }
         }

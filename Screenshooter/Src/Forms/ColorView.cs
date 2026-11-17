@@ -15,6 +15,8 @@ namespace ScreenshotTool.Src.Forms
         public ColorView()
         {
             InitializeComponent();
+            // the window icon is embedded once in the exe instead of inside every form resource
+            Icon = Program.AppIcon == null ? null : (Icon)Program.AppIcon.Clone();
         }
 
         public void Update(Color c)

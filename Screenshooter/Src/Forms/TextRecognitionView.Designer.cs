@@ -187,7 +187,6 @@
             this.Controls.Add(this.bTranslate);
             this.Controls.Add(this.tTargetLang);
             this.Controls.Add(this.label1);
-            this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
             this.MinimumSize = new System.Drawing.Size(360, 345);
             this.Name = "TextRecognitionView";
