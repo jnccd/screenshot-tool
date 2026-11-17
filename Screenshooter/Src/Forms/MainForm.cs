@@ -592,11 +592,18 @@ namespace ScreenshotTool
             // while the form was created, so if that is not the monitor it landed on, the whole
             // UI is off by that ratio until the first monitor change. Normalise it right here.
             float assumedDpi = CurrentDpi();
-            baseDpi = WindowDpi();
-            dpiFactor = Math.Max(0.5f, baseDpi / 96f);
+            float landedDpi = WindowDpi();
+
+            // baseDpi must be the DPI the fonts and the layout constants were built at - the one
+            // WinForms used while creating the form - because every later scale is measured
+            // against it and logicalClientSize is stored in that space. Using the landed monitor
+            // here made the first crossing compute 192/96 on top of an already doubled size,
+            // which is why a window opened on the 1x screen came back at about 4x on the 4K one.
+            baseDpi = assumedDpi > 0 ? assumedDpi : 96f;
+            dpiFactor = Math.Max(0.5f, landedDpi / 96f);
             CaptureBaseFonts();
 
-            float startupScale = baseDpi > 0 ? Math.Max(0.25f, Math.Min(4f, baseDpi / assumedDpi)) : 1f;
+            float startupScale = landedDpi > 0 ? Math.Max(0.25f, Math.Min(4f, landedDpi / baseDpi)) : 1f;
             if (Math.Abs(startupScale - 1f) > 0.01f)
             {
                 dpiScale = startupScale;
@@ -612,8 +619,8 @@ namespace ScreenshotTool
                 {
                     adjustingForDpi = false;
                 }
-                Diagnostics.Log($"startup: window dpi {baseDpi:F0} differs from assumed {assumedDpi:F0}, " +
-                                $"scaled by {startupScale:F2}");
+                Diagnostics.Log($"startup: landed on {landedDpi:F0} dpi, built for {baseDpi:F0}, " +
+                                $"scaled by {startupScale:F2}, client {ClientSize.Width}x{ClientSize.Height}");
             }
             logicalClientSize = new Size(
                 (int)Math.Round(ClientSize.Width / Math.Max(dpiScale, 0.25f)),
