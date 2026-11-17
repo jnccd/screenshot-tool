@@ -10,6 +10,7 @@ using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Drawing.Imaging;
 using System.IO;
+using System.Runtime.InteropServices;
 using System.Linq;
 using System.Text;
 using System.Threading;
@@ -47,6 +48,188 @@ namespace ScreenshotTool
         bool recordingGif = false;
         bool processingGif = false;
         readonly List<Bitmap> gifShots = new List<Bitmap>();
+
+        float CurrentDpi()
+        {
+            try { using (Graphics graphics = CreateGraphics()) return graphics.DpiX; }
+            catch { return 96f; }
+        }
+
+        [DllImport("user32.dll")]
+        static extern uint GetDpiForWindow(IntPtr hwnd);
+
+        /// <summary>
+        /// DPI of the monitor the window is on. CreateGraphics reports the DPI of the monitor
+        /// the form is created for, which is not necessarily the one it opens on, so the
+        /// startup scaling has to be normalised against this.
+        /// </summary>
+        float WindowDpi()
+        {
+            try
+            {
+                if (IsHandleCreated)
+                {
+                    uint dpi = GetDpiForWindow(Handle);
+                    if (dpi >= 48)
+                        return dpi;
+                }
+            }
+            catch { }
+            return CurrentDpi();
+        }
+
+        void CaptureBaseFonts()
+        {
+            baseFonts = new Dictionary<Control, Font>();
+            baseFonts[this] = Font;
+            foreach (Control control in AllControls(this))
+                baseFonts[control] = control.Font;
+        }
+
+        /// <summary>Re-applies the load time fonts scaled by the current dpiScale.</summary>
+        void ApplyFonts()
+        {
+            if (baseFonts == null)
+                return;
+            foreach (KeyValuePair<Control, Font> entry in baseFonts)
+            {
+                Font scaled = ScaleFont(entry.Value, dpiScale);
+                if (!ReferenceEquals(entry.Key.Font, scaled))
+                    entry.Key.Font = scaled;
+            }
+        }
+
+        /// <summary>
+        /// Keeps the window from being shrunk below what the button row needs to stay
+        /// readable - measured from the text, so it follows the font size.
+        /// </summary>
+        void UpdateMinimumSize()
+        {
+            // The two text buttons must stay readable; the arrows only carry a glyph, so they
+            // may shrink to a small square.
+            int textMinimum = TextRenderer.MeasureText("To Clipboard", bSave.Font).Width + 2 * S(10);
+            int arrowMinimum = Math.Max(S(24), textMinimum / 3);
+
+            int margin = Math.Max(2, S(6));
+            int gap = Math.Max(2, S(6));
+            int rowHeight = Math.Max(12, (int)Math.Round(baseButtonHeight * dpiScale));
+
+            // tall enough for the row plus a usable strip of image, wide enough for the row.
+            // The image strip is a physical requirement (it has to stay usable on the screen
+            // you are looking at), so it follows the monitor DPI and not the DPI the window
+            // happened to load at - otherwise it was half as tall on the 4K screen.
+            int fixedTextWidth = Math.Max(textMinimum, S(150));
+            int imageStrip = Math.Max(S(24), (int)Math.Round(48 * CurrentDpi() / 96.0));
+            int minClientWidth = 2 * margin + 3 * gap + 2 * fixedTextWidth + 2 * arrowMinimum;
+            int minClientHeight = menuStrip.Bottom + margin + imageStrip + gap + rowHeight + margin;
+
+            Rectangle work = Screen.FromControl(this).WorkingArea;
+            Size wanted = new Size(
+                Math.Min(minClientWidth + Math.Max(Width - ClientSize.Width, 0), work.Width),
+                Math.Min(minClientHeight + Math.Max(Height - ClientSize.Height, 0), work.Height));
+            MinimumSize = wanted;
+        }
+
+        /// <summary>
+        /// Places the image box and the button row from the client size alone, so the result
+        /// has the same proportions at any window size and DPI: the row spans the full width,
+        /// the image box fills everything above it, and both start below the menu strip.
+        /// </summary>
+        void LayoutChildren()
+        {
+            if (ClientSize.Width <= 0 || ClientSize.Height <= 0)
+                return;
+
+            int margin = Math.Max(2, S(6));
+            int gap = Math.Max(2, S(6));
+            if (baseButtonHeight == 0)
+                baseButtonHeight = Math.Max(12, bSave.Height);
+            int rowHeight = Math.Max(12, (int)Math.Round(baseButtonHeight * dpiScale));
+            int rowTop = ClientSize.Height - rowHeight - margin;
+            if (rowTop < menuStrip.Bottom + margin)
+                rowTop = menuStrip.Bottom + margin;
+
+            int available = ClientSize.Width - 2 * margin - 3 * gap;
+            if (available > 0)
+            {
+                // The label decides how narrow a button may get; "To Clipboard" is the widest
+                // label, so all four share its minimum and stay readable (the window itself is
+                // kept wide enough by MinimumSize).
+                int textMinimum = TextRenderer.MeasureText("To Clipboard", bSave.Font).Width + 2 * S(10);
+                int arrowMinimum = Math.Max(S(24), textMinimum / 3);
+
+                // "To Clipboard" and "Delete" keep a fixed width and sit centred; only the two
+                // arrows grow with the window, which keeps the pair centred by construction.
+                int textWidth = Math.Max(textMinimum, S(150));
+                int arrowWidth = Math.Max(arrowMinimum, (available - 2 * textWidth) / 2);
+                int previousWidth = arrowWidth;
+                int saveWidth = textWidth;
+                int deleteWidth = textWidth;
+                int nextWidth = Math.Max(arrowMinimum, available - previousWidth - saveWidth - deleteWidth);
+
+                bPrevious.SetBounds(margin, rowTop, previousWidth, rowHeight);
+                bSave.SetBounds(bPrevious.Right + gap, rowTop, saveWidth, rowHeight);
+                bDelete.SetBounds(bSave.Right + gap, rowTop, deleteWidth, rowHeight);
+                bNext.SetBounds(bDelete.Right + gap, rowTop, nextWidth, rowHeight);
+            }
+
+            UpdateMinimumSize();
+
+            int imageTop = menuStrip.Bottom + margin;
+            int imageHeight = rowTop - gap - imageTop;
+            if (imageHeight > 0)
+                pBox.SetBounds(margin, imageTop, ClientSize.Width - 2 * margin, imageHeight);
+
+        }
+
+        /// <summary>
+        /// How much the window tree has been scaled relative to the DPI it was built at.
+        /// The layout constants are captured once at that DPI and multiplied by this, so a
+        /// later layout pass stays consistent with a tree that was scaled on a DPI change.
+        /// </summary>
+        float dpiScale = 1f;
+
+
+        /// <summary>DPI the window was built at; dpiScale is always relative to it.</summary>
+        float baseDpi;
+
+        /// <summary>
+        /// The window size in the DPI the form was built at. Keeping this (instead of
+        /// multiplying the current size) is what stops the window from growing or shrinking
+        /// a little on every trip between monitors with different scaling.
+        /// </summary>
+        Size logicalClientSize;
+
+        /// <summary>Fonts as they were at load, so scaling is always applied to the original.</summary>
+        System.Collections.Generic.Dictionary<Control, Font> baseFonts;
+
+        bool adjustingForDpi;
+
+        /// <summary>When the last DPI change was applied, to debounce a monitor crossing.</summary>
+        DateTime lastDpiChange = DateTime.MinValue;
+
+        /// <summary>
+        /// True while a monitor crossing is still settling. Crossing the edge produces several
+        /// DPI messages and WinForms resizes the window for its own scaling at the same time;
+        /// freezing the logical size in that window is what stops the two from feeding back
+        /// into each other and making the window oscillate.
+        /// </summary>
+        bool crossingMonitors => (DateTime.UtcNow - lastDpiChange).TotalMilliseconds < 400;
+
+        /// <summary>Design pixels to device pixels at the current monitor scale.</summary>
+        int S(int designPixels) => Math.Max(1, (int)Math.Round(designPixels * dpiScale));
+
+        /// <summary>Monitor DPI relative to 96. The HUD constants are authored at 96 dpi.</summary>
+        float dpiFactor = 1f;
+
+        /// <summary>Design pixels (96 dpi) to device pixels on the current monitor.</summary>
+        int Px(int designPixels) => Math.Max(1, (int)Math.Round(designPixels * dpiFactor));
+
+        /// <summary>
+        /// Height the buttons got when the form loaded. The row uses it (scaled by dpiScale)
+        /// so the buttons always fill it exactly, instead of a guessed fraction of the window.
+        /// </summary>
+        int baseButtonHeight;
 
         // Snipper active
         readonly SnippingToolWindow snipper = new SnippingToolWindow();
@@ -88,23 +271,239 @@ namespace ScreenshotTool
             InitializeComponent();
             // the window icon is embedded once in the exe instead of inside every form resource
             Icon = Program.AppIcon == null ? null : (Icon)Program.AppIcon.Clone();
+
+            // These are laid out by LayoutChildren, so nothing else may fight for their
+            // bounds: the designer anchors kept recomputing them on every resize and they
+            // ignore the menu strip, which left the image box under the toolbar.
+            foreach (Control laidOut in new Control[] { pBox, bPrevious, bSave, bDelete, bNext })
+                laidOut.Anchor = AnchorStyles.None;
+
+            // Restore the window where it was closed. Without Manual, WinForms repositions the
+            // form when it is shown (WindowsDefaultLocation), discarding the Location restored
+            // in MainForm_Load and dropping the window at the top left of the primary screen.
+            StartPosition = FormStartPosition.Manual;
             Diagnostics.Log($"startup: hook id={keyHook.HookId} error={keyHook.LastError} integrity={Diagnostics.IntegrityLevel()} crop={cropKeys} instant={instantKeys} gif={gifKeys}");
+            Diagnostics.Log("ctor: before event hook");
             keyHook.KeyUp += KeyHook_KeyUp;
             keyHook.KeyDown += KeyHook_KeyDown;
             CurrentlyFocusedWindow.SetEventHook();
+            Diagnostics.Log("ctor: after event hook");
 
             // Restores the full quality image once the window stopped being resized
             resizeSettleTimer.Tick += ResizeSettle_Tick;
         }
 
+        bool savedGeometryApplied;
+
+        /// <summary>
+        /// Puts the window where it was closed. The tool minimises itself during Load (it lives
+        /// in the tray) and Windows ignores position changes for a minimised window - it restores
+        /// to the placement captured when the window was minimised, which is the default corner.
+        /// So this has to run once the window is actually normal: on first show, or when it is
+        /// restored from the tray.
+        /// </summary>
+        void ApplySavedGeometry()
+        {
+            if (savedGeometryApplied || WindowState != FormWindowState.Normal)
+                return;
+            savedGeometryApplied = true;
+
+            if (config.Default.windowLocation.IsNullOrWhiteSpace())
+                return;
+            string[] parts = config.Default.windowLocation.Split(',');
+            if (parts.Length == 2 &&
+                int.TryParse(parts[0], out int savedX) &&
+                int.TryParse(parts[1], out int savedY))
+                Location = new Point(savedX, savedY);
+        }
+
+
+        bool startedMinimized;
+
+        protected override void OnShown(EventArgs e)
+        {
+            base.OnShown(e);
+            ApplySavedGeometry();
+
+            // Minimising here (rather than in Load) is what makes Windows store the correct
+            // placement for the tray restore; doing it before the window has its final position
+            // is what dropped it in the corner. It costs a brief flash on startup.
+            if (!startedMinimized)
+            {
+                startedMinimized = true;
+                Minimize();
+            }
+        }
+
+        protected override void OnResize(EventArgs e)
+        {
+            base.OnResize(e);
+            ApplySavedGeometry();
+        }
+
+        [StructLayout(LayoutKind.Sequential)]
+        struct WindowRect { public int Left, Top, Right, Bottom; }
+
+        protected override void WndProc(ref Message m)
+        {
+            base.WndProc(ref m);
+
+            // WM_DPICHANGED: Windows hands over the window rectangle that keeps the logical
+            // size on the new monitor. Adopting it (and re-running the layout) is what makes
+            // the UI rescale when the window is dragged between monitors with different
+            // scaling. Without it the window keeps its old physical size, so the UI looks
+            // oversized on the lower DPI monitor.
+            if (m.Msg == 0x02E0 && m.LParam != IntPtr.Zero)
+            {
+                // Windows hands over the rectangle that keeps the logical size on the new
+                // monitor, so its ratio is exactly the factor the window tree needs. Scaling
+                // the tree and keeping that layout (instead of re-deriving it) is what makes
+                // the UI follow the monitor scaling without mangling the row.
+                WindowRect suggested = (WindowRect)Marshal.PtrToStructure(m.LParam, typeof(WindowRect));
+                int newWidth = suggested.Right - suggested.Left;
+                int newHeight = suggested.Bottom - suggested.Top;
+                float ratio = Width > 0 ? newWidth / (float)Width : 1f;
+                try
+                {
+                if (Math.Abs(ratio - 1f) > 0.01f && Width > 0 && Height > 0)
+                {
+                    // Absolute, never incremental: the new monitor's DPI comes straight from
+                    // the message (LOWORD of wParam) and the scale is computed against the DPI
+                    // the window was built at, so repeated trips between monitors cannot
+                    // compound into a window that is far too big or far too small.
+                    if (logicalClientSize.Width <= 0 || logicalClientSize.Height <= 0)
+                        logicalClientSize = ClientSize;
+                    if (baseDpi <= 0)
+                        baseDpi = CurrentDpi();
+                    int messageDpi = (int)(m.WParam.ToInt64() & 0xFFFF);
+                    float newDpi = messageDpi > 0 ? messageDpi : baseDpi * dpiScale * ratio;
+                    float wantedScale = Math.Max(0.25f, Math.Min(4f, newDpi / baseDpi));
+
+                    // Crossing the monitor edge produces several of these messages. Acting on
+                    // every one of them - and on the ones that do not change the scale at all -
+                    // is what made the window wobble, so only a real scale change is applied.
+                    if (crossingMonitors)
+                    {
+                        Diagnostics.Log($"dpi message debounced: dpi {newDpi:F0}, scale stays {dpiScale:F2}");
+                    }
+                    else if (Math.Abs(wantedScale - dpiScale) > 0.001f)
+                    {
+                        lastDpiChange = DateTime.UtcNow;
+                        dpiScale = wantedScale;
+                        Size wantedClient = new Size(
+                            (int)Math.Round(logicalClientSize.Width * dpiScale),
+                            (int)Math.Round(logicalClientSize.Height * dpiScale));
+                        adjustingForDpi = true;
+                        try
+                        {
+                            ApplyFonts();
+                            dpiFactor = Math.Max(0.5f, newDpi / 96f);
+                            Bounds = new Rectangle(suggested.Left, suggested.Top,
+                                wantedClient.Width + Math.Max(Width - ClientSize.Width, 0),
+                                wantedClient.Height + Math.Max(Height - ClientSize.Height, 0));
+                        }
+                        finally
+                        {
+                            adjustingForDpi = false;
+                        }
+                        LayoutChildren();
+                        ShowCurrentImage();
+                        Diagnostics.Log($"dpi changed: dpi {newDpi:F0}, base {baseDpi:F0}, ratio {ratio:F2}, " +
+                                        $"scale {dpiScale:F2}, window {Width}x{Height}, logical {logicalClientSize.Width}x{logicalClientSize.Height}");
+                    }
+                    else
+                    {
+                        Diagnostics.Log($"dpi message ignored: dpi {newDpi:F0}, scale already {dpiScale:F2}");
+                    }
+                }
+                }
+                catch (Exception dpiError)
+                {
+                    // A DPI change must never take the tool down: revert to the state the
+                    // window had and leave a trace of what went wrong.
+                    Diagnostics.Log($"dpi change FAILED - {dpiError}");
+                    dpiScale = 1f;
+                    adjustingForDpi = false;
+                    try { LayoutChildren(); } catch { }
+                }
+            }
+        }
+
+        /// <summary>
+        /// Scales the fonts of the window by the given factor. The app builds its fonts with
+        /// pixel sizes, so they do not follow the monitor DPI on their own - without this the
+        /// text stays at the old monitor's size while the rest of the window rescales.
+        /// </summary>
+        void ScaleFonts(float ratio)
+        {
+            Font = ScaleFont(Font, ratio);
+            foreach (Control control in AllControls(this))
+                control.Font = ScaleFont(control.Font, ratio);
+        }
+
+        /// <summary>Scales every control and font of the window by the given factor.</summary>
+        void ScaleWindowTree(float ratio)
+        {
+            Font = ScaleFont(Font, ratio);
+            foreach (Control control in AllControls(this))
+            {
+                Rectangle bounds = control.Bounds;
+                control.Bounds = new Rectangle(
+                    (int)Math.Round(bounds.X * ratio), (int)Math.Round(bounds.Y * ratio),
+                    (int)Math.Round(bounds.Width * ratio), (int)Math.Round(bounds.Height * ratio));
+                control.Font = ScaleFont(control.Font, ratio);
+            }
+        }
+
+        static Font ScaleFont(Font font, float ratio)
+        {
+            if (font == null || Math.Abs(ratio - 1f) < 0.001f)
+                return font;
+            try { return new Font(font.FontFamily, font.SizeInPoints * ratio, font.Style, font.Unit); }
+            catch { return font; }
+        }
+
+        static IEnumerable<Control> AllControls(Control root)
+        {
+            foreach (Control child in root.Controls)
+            {
+                yield return child;
+                foreach (Control descendant in AllControls(child))
+                    yield return descendant;
+            }
+        }
         private void MainForm_Load(object sender, EventArgs e)
         {
             Diagnostics.Log("load: start");
             try {
             if (config.Default.path == "<Unset>" || !Directory.Exists(config.Default.path))
                 config.Default.path = Environment.GetFolderPath(Environment.SpecialFolder.MyPictures);
+            if (!config.Default.windowLocation.IsNullOrWhiteSpace())
+            {
+                string[] locationParts = config.Default.windowLocation.Split(',');
+                if (locationParts.Length == 2 &&
+                    int.TryParse(locationParts[0], out int savedX) &&
+                    int.TryParse(locationParts[1], out int savedY))
+                    Location = new Point(savedX, savedY);
+            }
+            else
+            {
+                // first run: no stored position, so open centred instead of at 0,0
+                Rectangle primaryWork = Screen.PrimaryScreen.WorkingArea;
+                Location = new Point(
+                    primaryWork.X + (primaryWork.Width - Width) / 2,
+                    primaryWork.Y + (primaryWork.Height - Height) / 2);
+            }
             if (config.Default.windowSize.Width != 0)
-                Size = config.Default.windowSize;
+            {
+                // The saved size is in 96 dpi units, but an aware process works in real
+                // pixels - restoring it unscaled is what clipped the button row.
+                float windowScale = 1f;
+                using (Graphics dpiGraphics = CreateGraphics())
+                    windowScale = dpiGraphics.DpiX / 96f;
+                Size savedSize = config.Default.windowSize;
+                Size = new Size((int)(savedSize.Width * windowScale), (int)(savedSize.Height * windowScale));
+            }
             // A missing or unparsable setting unboxes to null here, and that used to throw
             // and abort this handler - which left the shortcut objects null, so every
             // hotkey silently threw inside the keyboard hook and stopped working.
@@ -136,24 +535,118 @@ namespace ScreenshotTool
             MinimumSize = new Size(MinWidth, MinWidth);
 
             MainForm_SizeChanged(null, EventArgs.Empty);
-            Minimize();
+            // Minimising happens in OnShown: Windows captures the placement when a window is
+            // minimised and restores to that, so doing it here (before the window has its final
+            // position) is what made it come back in the corner.
 
-            string[] files = Directory.GetFiles(config.Default.path).
-                Where(s => (s.EndsWith(".png") || s.EndsWith(".gif")) &&
-                           Path.GetFileNameWithoutExtension(s).Contains("Screenshot_")).
-                OrderBy(x => x).
-                Reverse().
-                ToArray();
-            if (files.Length > 0)
-                images.AddRange(files.Select(x => new Screenshot(x)).ToArray());
+            Diagnostics.Log("load: listing the screenshot folder");
+            bool listingWasCached;
+            string[] listedFiles = ScreenshotFolderCache.Load(config.Default.path, out listingWasCached);
+            if (listedFiles.Length > 0)
+            {
+                images.AddRange(listedFiles.Select(x => new Screenshot(x)));
+                imagesIndex = images.Count - 1;
+            }
             else
+            {
                 images.Add(new Screenshot(ScreenshotHelper.GetFullScreenshot(), GetScreenshotName()));
-            imagesIndex = images.Count - 1;
+                imagesIndex = 0;
+            }
+
+            if (listingWasCached)
+            {
+                // The window is already usable; rescan off the UI thread and only touch the
+                // strip when the folder really changed, so the listing can never end up stale.
+                string scannedFolder = config.Default.path;
+                string[] shownListing = listedFiles;
+                Task.Run(() =>
+                {
+                    string[] fresh;
+                    try { fresh = ScreenshotFolderCache.Scan(scannedFolder); }
+                    catch (Exception scanError)
+                    {
+                        Diagnostics.Log("load: background scan failed - " + scanError.Message);
+                        return;
+                    }
+                    ScreenshotFolderCache.Save(scannedFolder, fresh);
+                    if (!fresh.SequenceEqual(shownListing, StringComparer.Ordinal))
+                        try { BeginInvoke((MethodInvoker)(() => ApplyListing(fresh))); } catch (ObjectDisposedException) { }
+                    else
+                        Diagnostics.Log("load: cached listing is still current");
+                });
+            }
+            else
+            {
+                ScreenshotFolderCache.Save(config.Default.path, listedFiles);
+            }
 
             noneMenuItem.Checked = true;
 
             UpdateWindowRatioWidth();
             UpdateUI();
+
+            // Baseline for the per-monitor scaling: the DPI this window was built at, its
+            // logical size, and the fonts before any scaling is applied.
+
+            // The window can open on either monitor. WinForms scaled it for the DPI it assumed
+            // while the form was created, so if that is not the monitor it landed on, the whole
+            // UI is off by that ratio until the first monitor change. Normalise it right here.
+            float assumedDpi = CurrentDpi();
+            baseDpi = WindowDpi();
+            dpiFactor = Math.Max(0.5f, baseDpi / 96f);
+            CaptureBaseFonts();
+
+            float startupScale = baseDpi > 0 ? Math.Max(0.25f, Math.Min(4f, baseDpi / assumedDpi)) : 1f;
+            if (Math.Abs(startupScale - 1f) > 0.01f)
+            {
+                dpiScale = startupScale;
+                ApplyFonts();
+                adjustingForDpi = true;
+                try
+                {
+                    ClientSize = new Size(
+                        (int)Math.Round(ClientSize.Width * startupScale),
+                        (int)Math.Round(ClientSize.Height * startupScale));
+                }
+                finally
+                {
+                    adjustingForDpi = false;
+                }
+                Diagnostics.Log($"startup: window dpi {baseDpi:F0} differs from assumed {assumedDpi:F0}, " +
+                                $"scaled by {startupScale:F2}");
+            }
+            logicalClientSize = new Size(
+                (int)Math.Round(ClientSize.Width / Math.Max(dpiScale, 0.25f)),
+                (int)Math.Round(ClientSize.Height / Math.Max(dpiScale, 0.25f)));
+
+            // Keep the stored geometry usable: the window may have been saved on the other
+            // monitor, so clamp it into the working area of the screen it belongs to, and never
+            // outside the virtual desktop - but do not drag it onto the primary screen.
+            Rectangle virtualScreen = SystemInformation.VirtualScreen;
+            Rectangle targetScreen = Screen.FromRectangle(new Rectangle(Location, Size)).WorkingArea;
+            Size fit = Size;
+            fit.Width = Math.Min(fit.Width, targetScreen.Width);
+            fit.Height = Math.Min(fit.Height, targetScreen.Height);
+            Size = fit;
+            Location = new Point(
+                Math.Max(virtualScreen.Left, Math.Min(Location.X, virtualScreen.Right - Width)),
+                Math.Max(virtualScreen.Top, Math.Min(Location.Y, virtualScreen.Bottom - Height)));
+
+            LayoutChildren();
+        }
+
+        /// <summary>Replaces the strip with a freshly scanned listing, keeping the selection.</summary>
+        void ApplyListing(string[] files)
+        {
+            string viewing = CurrentScreenshot?.Path;
+            images.Clear();
+            foreach (string file in files)
+                images.Add(new Screenshot(file));
+            imagesIndex = viewing == null ? 0 : images.FindIndex(x => string.Equals(x.Path, viewing, StringComparison.OrdinalIgnoreCase));
+            if (imagesIndex < 0)
+                imagesIndex = Math.Max(0, images.Count - 1);
+            UpdateUI();
+            Diagnostics.Log($"load: listing refreshed, {files.Length} screenshot(s)");
         }
 
         // Image
@@ -798,7 +1291,7 @@ namespace ScreenshotTool
         /// </summary>
         private Font GetHudFont()
         {
-            int size = Math.Min(savedSignFontSize, Math.Max(pBox.Height, 1)) + 1;
+            int size = Math.Min(Px(savedSignFontSize), Math.Max(pBox.Height, 1)) + 1;
             if (hudFont == null || hudFontSize != size)
             {
                 if (hudFont != null)
@@ -845,26 +1338,30 @@ namespace ScreenshotTool
                 //{
                 using (Pen pen = new Pen(Color.Red, 1))
                     e.Graphics.DrawString("Unsaved!", GetHudFont(),
-                        Brushes.Red, new PointF(0, HUDVisiblity * (savedSignFontSize + 15) - savedSignFontSize - 15));
+                        Brushes.Red, new PointF(0, HUDVisiblity * (Px(savedSignFontSize) + Px(15)) - Px(savedSignFontSize) - Px(15)));
                 //}
             }
-            // Previews
+            // Previews (the constants are 96 dpi values, so they follow the monitor DPI)
+            int previewWidth = Px(previewImageWidth);
+            int previewHeight = Px(previewImageHeight);
+            int previewGap = Px(previewImagePadding);
+            int previewOutline = Px(previewImageOutlineThickness);
             for (int i = imagesIndex - halfExtraPreviewImages; i < imagesIndex + halfExtraPreviewImages + 1; i++)
             {
                 if (i >= 0 && i < images.Count)
                 {
                     int index = i - imagesIndex;
-                    Rectangle draw = new Rectangle(pBox.Width / 2 - (previewImageWidth / 2) + index * (previewImageWidth + previewImagePadding),
-                        pBox.Height - (int)Math.Min((previewImageHeight + previewImageOutlineThickness * 2) * HUDVisiblity, pBox.Height) + previewImageOutlineThickness,
-                        previewImageWidth, previewImageHeight);
+                    Rectangle draw = new Rectangle(pBox.Width / 2 - (previewWidth / 2) + index * (previewWidth + previewGap),
+                        pBox.Height - (int)Math.Min((previewHeight + previewOutline * 2) * HUDVisiblity, pBox.Height) + previewOutline,
+                        previewWidth, previewHeight);
 
                     if (index == 0)
-                        using (Pen pen = new Pen(Color.Black, previewImageOutlineThickness))
+                        using (Pen pen = new Pen(Color.Black, previewOutline))
                             e.Graphics.DrawRectangle(pen, draw);
 
                     // Neighbours that are not in memory yet are requested by
                     // RequestImageLoads and simply skipped until they arrive.
-                    Bitmap preview = images[i].GetThumbnail(previewImageWidth, previewImageHeight);
+                    Bitmap preview = images[i].GetThumbnail(previewWidth, previewHeight);
                     if (preview != null)
                         e.Graphics.DrawImage(preview, draw);
                 }
@@ -1060,6 +1557,7 @@ namespace ScreenshotTool
             try
             {
                 config.Default.windowSize = Size;
+                config.Default.windowLocation = $"{Location.X},{Location.Y}";
                 config.Default.instantShortcut = instantKeys.ToString();
                 config.Default.cropShortcut = cropKeys.ToString();
                 config.Default.gifShortcut = gifKeys.ToString();
@@ -1083,52 +1581,12 @@ namespace ScreenshotTool
             resizeSettleTimer.Stop();
             resizeSettleTimer.Start();
 
-            // Buttons
-            bPrevious.Width = bSave.Location.X - bPrevious.Location.X - 6;
-            bNext.Location = new Point(bDelete.Location.X + bDelete.Width + 6, bNext.Location.Y);
-            bNext.Width = pBox.Width + pBox.Location.X - bNext.Location.X;
+            if (!adjustingForDpi && !crossingMonitors && dpiScale > 0)
+                logicalClientSize = new Size((int)Math.Round(ClientSize.Width / dpiScale),
+                                             (int)Math.Round(ClientSize.Height / dpiScale));
 
-            float dpiX, dpiY;
-            using (Graphics graphics = this.CreateGraphics())
-            {
-                dpiY = graphics.DpiY;
-                dpiX = graphics.DpiX;
-            }
-
-            int buttonHeight = (int)(46 * (96 / dpiY));
-            int spacing = (int)(8 * (96 / dpiX));
-
-            int nextPosX = bNext.Location.X;
-            if (middleButtons.Count > 0)
-                nextPosX = middleButtons.Last().Location.X + middleButtons.Last().Size.Width + spacing;
-
-            if (Height < 120)
-            {
-                foreach (Button b in middleButtons)
-                    b.Location = new Point(b.Location.X, buttonHeight);
-                bNext.Location = new Point(nextPosX, buttonHeight);
-                bPrevious.Location = new Point(bPrevious.Location.X, buttonHeight);
-            }
-            else
-            {
-                foreach (Button b in middleButtons)
-                    b.Location = new Point(b.Location.X, Height - (120 - buttonHeight));
-                bNext.Location = new Point(nextPosX, Height - (120 - buttonHeight));
-                bPrevious.Location = new Point(bPrevious.Location.X, Height - (120 - buttonHeight));
-            }
-
-            //// Snapping
-            //int slurpSize = 10;
-            //Size R = GetProperRatioSize(pBox.Size, Math.Abs(LastSize.Width - Width) > Math.Abs(LastSize.Height - Height),
-            //    RecordedImages[0].Width / RecordedImages[0].Height);
-
-            //if (R.Width + slurpSize > pBox.Width && R.Width - slurpSize < pBox.Width)
-            //    Width += R.Width - pBox.Width;
-            //if (R.Height + slurpSize > pBox.Height && R.Height - slurpSize < pBox.Height)
-            //    Height += R.Height - pBox.Height;
-
-            if (WindowState == FormWindowState.Maximized)
-                isMouseDown = false;
+            // The geometry comes from one place, so it can never disagree with itself.
+            LayoutChildren();
         }
         private void Form1_ResizeEnd(object sender, EventArgs e)
         {

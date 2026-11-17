@@ -50,8 +50,12 @@ namespace ScreenshotTool
             Rectangle AllScreensDimensions = ScreenshotHelper.AllScreenBounds;
             fullScreenshot = preparedScreenshot ?? ScreenshotHelper.GetFullScreenshot();
             preparedScreenshot = null;
-            Location = new Point(AllScreensDimensions.X, AllScreensDimensions.Y);
-            Size = new Size(AllScreensDimensions.Width, AllScreensDimensions.Height);
+            // AllScreenBounds is in physical pixels, but this process addresses virtualised
+            // ones, so the window has to be scaled down like the image it draws. Without
+            // this the overlay was twice the screen and the capture looked half size.
+            float displayScale = (float)ScreenshotHelper.MaxScreenScalingFactor;
+            Location = new Point((int)(AllScreensDimensions.X / displayScale), (int)(AllScreensDimensions.Y / displayScale));
+            Size = new Size((int)(AllScreensDimensions.Width / displayScale), (int)(AllScreensDimensions.Height / displayScale));
             Bitmap TransparentScreenshot = (Bitmap)fullScreenshot.Clone();
             TransparentScreenshot.MakeTransparent(Color.Beige);
             //pBox.Scale(new SizeF((float)ScreenshotHelper.MaxScreenScalingFactor, (float)ScreenshotHelper.MaxScreenScalingFactor));

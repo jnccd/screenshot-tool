@@ -66,7 +66,11 @@
     <ManifestKeyFile>Screenshooter_TemporaryKey.pfx</ManifestKeyFile>
   </PropertyGroup>
   <PropertyGroup>
-    <GenerateManifests>true</GenerateManifests>
+    <!-- The manifest has to be embedded in the exe. With generated (side by side) manifests
+         the exe carried none, Windows treated the process as DPI unaware and then forced
+         HIGHDPIAWARE on it, which pinned it to system awareness: no WM_DPICHANGED, so the UI
+         never rescaled between monitors with different scaling. -->
+    <GenerateManifests>false</GenerateManifests>
   </PropertyGroup>
   <PropertyGroup>
     <SignManifests>false</SignManifests>
@@ -147,6 +151,7 @@
       <DependentUpon>TextRecognitionView.cs</DependentUpon>
     </Compile>
     <Compile Include="Src\Statics\Diagnostics.cs" />
+    <Compile Include="Src\Statics\ScreenshotFolderCache.cs" />
     <Compile Include="Src\Statics\DLLImports.cs" />
     <Compile Include="Src\Statics\HdrCapture.cs" />
     <Compile Include="Src\Statics\Extensions.cs" />

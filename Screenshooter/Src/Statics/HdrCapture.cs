@@ -226,17 +226,36 @@ namespace ScreenshotTool
             OutputDuplication duplication = null;
             try
             {
-                device = new Device(adapter, DeviceCreationFlags.BgraSupport,
-                    new[] { FeatureLevel.Level_11_1, FeatureLevel.Level_11_0, FeatureLevel.Level_10_1 });
+                // A duplication can refuse with DXGI_ERROR_UNSUPPORTED depending on the state
+                // the desktop is in, so try twice with a fresh device and let the driver pick
+                // between the HDR and the plain 8 bit format.
+                for (int attempt = 1; attempt <= 2 && duplication == null; attempt++)
+                {
+                    device = new Device(adapter, DeviceCreationFlags.BgraSupport,
+                        new[] { FeatureLevel.Level_11_1, FeatureLevel.Level_11_0, FeatureLevel.Level_10_1 });
 
-                // Driver quirk: the first duplication created in the process has to come
-                // from the legacy API, otherwise DuplicateOutput1 fails with
-                // DXGI_ERROR_UNSUPPORTED even though HDR mode is active.
-                using (var output1 = output.QueryInterface<Output1>())
-                using (output1.DuplicateOutput(device)) { }
+                    try
+                    {
+                        // Driver quirk: the first duplication created in the process has to
+                        // come from the legacy API, otherwise DuplicateOutput1 fails with
+                        // DXGI_ERROR_UNSUPPORTED even though HDR mode is active.
+                        using (var output1 = output.QueryInterface<Output1>())
+                        using (output1.DuplicateOutput(device)) { }
 
-                using (var output5 = output.QueryInterface<Output5>())
-                    duplication = output5.DuplicateOutput1(device, 0, 1, new[] { Format.R16G16B16A16_Float });
+                        using (var output5 = output.QueryInterface<Output5>())
+                            duplication = output5.DuplicateOutput1(device, 0, 2,
+                                new[] { Format.R16G16B16A16_Float, Format.B8G8R8A8_UNorm });
+                    }
+                    catch (Exception attemptError)
+                    {
+                        Log($"{description.DeviceName}: duplication attempt {attempt} failed - {attemptError.Message}");
+                        device.Dispose();
+                        device = null;
+                        System.Threading.Thread.Sleep(150);
+                    }
+                }
+                if (duplication == null)
+                    return null;
 
                 var session = new OutputSession(description.DeviceName, device, duplication, bounds, whiteScale);
                 if (!session.Prime())

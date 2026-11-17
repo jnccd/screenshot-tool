@@ -51,8 +51,12 @@
        auch die Einstellung "'EnableWindowsFormsHighDpiAutoResizing" in der "app.config" auf "true" festgelegt werden. -->
   <application xmlns="urn:schemas-microsoft-com:asm.v3">
     <windowsSettings>
-      <dpiAware xmlns="http://schemas.microsoft.com/SMI/2005/WindowsSettings">False</dpiAware>
-	  <dpiAwareness xmlns="http://schemas.microsoft.com/SMI/2016/WindowsSettings">Unaware</dpiAwareness>
+      <!-- Per-monitor v2: the only aware mode in which desktop duplication works here
+           (declaring nothing, "Unaware" or system awareness all made DuplicateOutput1 fail
+           with DXGI_ERROR_UNSUPPORTED, which silently fell back to GDI and clipped HDR
+           content). -->
+      <dpiAware xmlns="http://schemas.microsoft.com/SMI/2005/WindowsSettings">true</dpiAware>
+      <dpiAwareness xmlns="http://schemas.microsoft.com/SMI/2016/WindowsSettings">PerMonitorV2</dpiAwareness>
     </windowsSettings>
   </application>
 
